@@ -1,24 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+import NavbarLogged from "./components/logged/NavbarLogged";
+import About from "./components/logged/About";
+import Landing from "./components/guest/Landing";
+import Hero from "./components/logged/Hero";
+
+function AppRoutes() {
+  const location = useLocation();
+
+  const navbarHiddenRoutes = ["/", "/login", "/register"];
+
+  const isNavbarHidden = navbarHiddenRoutes.includes(location.pathname);
+  return (
+    <div className="App">
+      {!isNavbarHidden && <NavbarLogged />}
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/home" element={<Hero />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <AppRoutes />
+    </Router>
   );
 }
 
