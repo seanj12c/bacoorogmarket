@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
+import { Link } from "react-router-dom";
 
 export const NavbarLogged = () => {
   const [nav, setNav] = useState(false);
@@ -39,7 +40,7 @@ export const NavbarLogged = () => {
         } flex lg:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
       >
         <div className="lg:flex lg:w-full justify-between lg:justify-around  items-center">
-          <a href="/">
+          <Link to={"/home"}>
             <div>
               <img
                 className="object-contain lg:w-20 w-16 select-none pointer-events-none"
@@ -47,28 +48,28 @@ export const NavbarLogged = () => {
                 alt=""
               />
             </div>
-          </a>
+          </Link>
 
           <div className="text-black">
             <ul className="hidden text-base gap-5 lg:flex">
-              <a href="/" className="border-r pr-4">
+              <Link to={"/marketplace"} className="border-r border-black pr-4">
                 <li className="p-4 hover:text-primary">Marketplace</li>
-              </a>
-              <a href="/">
+              </Link>
+              <Link to={"/home"}>
                 <li className="p-4 hover:text-primary">Home</li>
-              </a>
-              <a href="/">
+              </Link>
+              <Link to={"/about"}>
                 <li className="p-4 hover:text-primary">About</li>
-              </a>
-              <a href="/">
+              </Link>
+              <Link to={"/recipe"}>
                 <li className="p-4 hover:text-primary">Recipe</li>
-              </a>
-              <a href="/">
+              </Link>
+              <Link to={"/chat"}>
                 <li className="p-4 hover:text-primary">Chat</li>
-              </a>
-              <a href="/">
+              </Link>
+              <Link to={"/faqs"}>
                 <li className="p-4 hover:text-primary">FAQs</li>
-              </a>
+              </Link>
             </ul>
           </div>
           <div className="lg:flex hidden gap-2 items-center text-black border p-2 rounded-lg">
@@ -81,20 +82,20 @@ export const NavbarLogged = () => {
           </div>
 
           <div className="flex gap-5 items-center">
-            <a href="/">
+            <Link to={"/myaccount"}>
               <FaUserCircle
                 className="lg:block hidden text-primary"
                 size={40}
               />
-            </a>
+            </Link>
           </div>
         </div>
 
         <div
           className={
             nav
-              ? "fixed right-0 top-0 pr-6 h-full border- border-r-primary bg-white opacity-95 ease-linear duration-500"
-              : "fixed right-[-100%] ease-linear duration-500"
+              ? "fixed right-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-95 ease-linear duration-500"
+              : "fixed right-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-0 ease-linear duration-500 pointer-events-none"
           }
         >
           <div onClick={handleNav} className="flex pt-9 justify-end lg:hidden">
@@ -112,31 +113,31 @@ export const NavbarLogged = () => {
                 size={18}
               />
             </div>
-            <a href="/" onClick={handleNav}>
+            <Link to={"/marketplace"} onClick={handleNav}>
               <li className=" hover:text-primary">Marketplace</li>
-            </a>
-            <a href="/" onClick={handleNav}>
+            </Link>
+            <Link to={"/home"} onClick={handleNav}>
               <li className=" hover:text-primary">Home</li>
-            </a>
-            <a href="/" onClick={handleNav}>
+            </Link>
+            <Link to={"/about"} onClick={handleNav}>
               <li className=" hover:text-primary">About</li>
-            </a>
-            <a href="/" onClick={handleNav}>
+            </Link>
+            <Link to={"/recipe"} onClick={handleNav}>
               <li className=" hover:text-primary">Recipe</li>
-            </a>
-            <a href="/" onClick={handleNav}>
+            </Link>
+            <Link to={"/chat"} onClick={handleNav}>
               <li className=" hover:text-primary">Chat</li>
-            </a>
-            <a href="/" onClick={handleNav}>
+            </Link>
+            <Link to={"/faqs"} onClick={handleNav}>
               <li className=" hover:text-primary">FAQs</li>
-            </a>
+            </Link>
           </ul>
         </div>
         <div className="flex gap-5 items-center">
           <div>
-            <a href="/">
+            <Link to={"/myaccount"}>
               <FaUserCircle className="block lg:hidden" size={22} />
-            </a>
+            </Link>
           </div>
           <div onClick={handleNav} className="block lg:hidden">
             {nav ? <AiOutlineMenu size={20} /> : <AiOutlineMenu size={20} />}
