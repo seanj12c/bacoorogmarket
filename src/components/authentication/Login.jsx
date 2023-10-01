@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import loginbg from "../../assets/loginbg.jpg";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -25,9 +28,7 @@ const Login = () => {
 
   const handleSignIn = () => {
     // Sample palang to ngayon lagyan ko to database
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("Remember Me:", rememberMe);
+    navigate("/home");
   };
   return (
     <div className="h-full w-full mx-auto bg-primary lg:bg-transparent">
