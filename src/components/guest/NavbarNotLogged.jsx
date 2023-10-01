@@ -7,9 +7,13 @@ import { Link } from "react-router-dom";
 export const NavbarNotLogged = () => {
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const toggleOverlay = () => {
+    setShowOverlay(!showOverlay);
+  };
 
   useEffect(() => {
-    // Use useEffect to add event listener when component mounts
     const handleScroll = () => {
       if (window.scrollY >= 50) {
         setFix(true);
@@ -20,7 +24,6 @@ export const NavbarNotLogged = () => {
 
     window.addEventListener("scroll", handleScroll);
 
-    // Clean up the event listener when component unmounts
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -36,6 +39,11 @@ export const NavbarNotLogged = () => {
     }
   };
 
+  const handleButtonToggle = () => {
+    toggleOverlay();
+    handleNav();
+  };
+
   return (
     <div className="h-full">
       <div
@@ -43,7 +51,7 @@ export const NavbarNotLogged = () => {
           fix
             ? "bg-white opacity-95 transition-all ease-in-out duration-700"
             : ""
-        } flex lg:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
+        } flex lg:justify-around justify-between ease-linear duration-500 items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
       >
         <div className="lg:flex lg:w-full justify-between lg:justify-around  items-center">
           <div className="flex items-center gap-2">
@@ -62,35 +70,68 @@ export const NavbarNotLogged = () => {
 
             <div className="text-black">
               <ul className="hidden text-base gap-5 lg:flex">
-                <Link to="/login" className="border-r border-black pr-4">
+                <button
+                  onClick={toggleOverlay}
+                  className="border-r border-black pr-4"
+                >
                   <li className="p-4 hover:text-primary">Marketplace</li>
-                </Link>
+                </button>
                 <a href="/#home">
                   <li className="p-4 hover:text-primary">Home</li>
                 </a>
                 <a href="/#about">
                   <li className="p-4 hover:text-primary">About</li>
                 </a>
-                <Link to="/login">
+                <button onClick={toggleOverlay}>
                   <li className="p-4 hover:text-primary">Recipe</li>
-                </Link>
-                <Link to="/login">
+                </button>
+                <button onClick={toggleOverlay}>
                   <li className="p-4 hover:text-primary">Chat</li>
-                </Link>
+                </button>
                 <a href="/#FAQs">
                   <li className="p-4 hover:text-primary">FAQs</li>
                 </a>
               </ul>
             </div>
           </div>
+          {showOverlay && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 ease-linear duration-500 bg-black bg-opacity-50">
+              <div className="bg-white p-8 rounded-lg shadow-lg transform scale-100 transition-transform duration-300">
+                <p className="text-center text-lg font-semibold mb-4">
+                  Please log in to continue....
+                </p>
+                <div className="flex justify-around">
+                  <button
+                    onClick={toggleOverlay}
+                    className="bg-red-500 text-white font-semibold py-2 px-4 rounded-md w-20 mx-auto"
+                  >
+                    Close
+                  </button>
+                  <Link
+                    to={"/login"}
+                    onClick={toggleOverlay}
+                    className="bg-primary text-white font-semibold py-2 px-4 rounded-md w-20 mx-auto"
+                  >
+                    Login
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="text-primary font-semibold gap-4 hidden lg:flex">
-            <button className="px-4 py-2 bg-white rounded-md border-2 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]">
+            <Link
+              to={"/login"}
+              className="px-4 py-2 bg-white rounded-md border-2 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]"
+            >
               Login
-            </button>
-            <button className="px-4 py-2 bg-primary text-white rounded-md transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]">
+            </Link>
+            <Link
+              to={"/register"}
+              className="px-4 py-2 bg-primary text-white rounded-md transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]"
+            >
               Join Now!
-            </button>
+            </Link>
           </div>
         </div>
         <div
@@ -115,25 +156,28 @@ export const NavbarNotLogged = () => {
                 size={18}
               />
             </div>
-            <Link to="/login" onClick={handleNav}>
+            <p onClick={handleButtonToggle}>
               <li className=" hover:text-primary">Marketplace</li>
-            </Link>
+            </p>
             <a href="/#home" onClick={handleNav}>
               <li className=" hover:text-primary">Home</li>
             </a>
             <a href="/#about" onClick={handleNav}>
               <li className=" hover:text-primary">About</li>
             </a>
-            <Link to="/login" onClick={handleNav}>
+            <p onClick={handleButtonToggle}>
               <li className=" hover:text-primary">Recipe</li>
-            </Link>
-            <Link to="/login" onClick={handleNav}>
+            </p>
+            <p onClick={handleButtonToggle}>
               <li className=" hover:text-primary">Chat</li>
-            </Link>
+            </p>
             <a href="/#FAQs" onClick={handleNav}>
               <li className=" hover:text-primary">FAQs</li>
             </a>
           </ul>
+          <div>
+            <button>Login</button>
+          </div>
         </div>
         <div className="flex gap-5 items-center">
           <div>

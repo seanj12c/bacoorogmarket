@@ -1,10 +1,12 @@
 import React from "react";
-import { AiFillDollarCircle } from "react-icons/ai";
-
+import { AiFillMessage } from "react-icons/ai";
+import { PiCookingPotFill } from "react-icons/pi";
+import { FaQuestion } from "react-icons/fa";
+import { BsFillShieldLockFill } from "react-icons/bs";
 const About = () => {
   return (
-    <div className="md:h-screen h-full w-full py-24 px-2 lg:px-20 md:flex md:px-6 md:justify-around items-center">
-      <div className="md:w-1/3">
+    <div className="md:h-screen h-full w-full py-32 px-2 lg:px-20 md:flex md:px-6 md:justify-around items-center">
+      <div className="md:w-1/3 pb-5 lg:pb-0">
         <h1 className="text-center md:text-lg lg:text-3xl md:text-left font-bold">
           A fully featured React components library for your next project
         </h1>
@@ -20,49 +22,55 @@ const About = () => {
         </div>
       </div>
       <div className="md:w-1/2">
-        <div className="grid md:grid-cols-2 justify-center">
+        <div className="grid sm:grid-cols-2 justify-center gap-5 max-w-xs mx-auto sm:mx-0 sm:max-w-none">
           {/* box1 */}
-          <div className="md:p-2">
-            <AiFillDollarCircle size={30} />
+          <div className="md:p-2 text-center md:text-left">
+            <AiFillMessage className="text-primary mx-auto md:mx-0" size={25} />
             <h1 className="text-lg md:text-xl lg:text-2xl font-bold">
-              Free and open source
+              Quick Chat
             </h1>
             <p className="text-xs md:text-base">
-              All packages are published under MIT license, you can use Mantine
-              in any project
+              Chat features where you can talk about anything about oysters and
+              mussels.
             </p>
           </div>
-          {/* box1 */}
-          <div className="md:p-2">
-            <AiFillDollarCircle size={30} />
+
+          {/* box2 */}
+          <div className="md:p-2 text-center md:text-left">
+            <PiCookingPotFill
+              className="text-primary mx-auto md:mx-0"
+              size={25}
+            />
             <h1 className="text-lg md:text-xl lg:text-2xl font-bold">
-              Free and open source
+              Unique Recipe
             </h1>
             <p className="text-xs md:text-base">
-              All packages are published under MIT license, you can use Mantine
-              in any project
+              Different kinds of delicious recipe of oysters and mussels in
+              Recipe
             </p>
           </div>
-          {/* box1 */}
-          <div className="md:p-2">
-            <AiFillDollarCircle size={30} />
+          {/* box3 */}
+          <div className="md:p-2 text-center md:text-left">
+            <FaQuestion className="text-primary mx-auto md:mx-0" size={25} />
             <h1 className="text-lg md:text-xl lg:text-2xl font-bold">
-              Free and open source
+              Frequently Asked Questions
             </h1>
             <p className="text-xs md:text-base">
-              All packages are published under MIT license, you can use Mantine
-              in any project
+              FAQs knows more information about oysters and mussels
             </p>
           </div>
-          {/* box1 */}
-          <div className="md:p-2">
-            <AiFillDollarCircle size={30} />
+          {/* box4 */}
+          <div className="md:p-2 text-center md:text-left">
+            <BsFillShieldLockFill
+              className="text-primary mx-auto md:mx-0"
+              size={25}
+            />
             <h1 className="text-lg md:text-xl lg:text-2xl font-bold">
-              Free and open source
+              Secure Login
             </h1>
             <p className="text-xs md:text-base">
-              All packages are published under MIT license, you can use Mantine
-              in any project
+              Be the one to sell or to buy, by logging in on our secured Login
+              feature.
             </p>
           </div>
         </div>

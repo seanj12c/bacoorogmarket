@@ -9,6 +9,8 @@ import NavbarLogged from "./components/logged/NavbarLogged";
 import About from "./components/logged/About";
 import Landing from "./components/guest/Landing";
 import Hero from "./components/logged/Hero";
+import Login from "./components/authentication/Login";
+import Register from "./components/authentication/Register";
 
 function AppRoutes() {
   const location = useLocation();
@@ -23,6 +25,8 @@ function AppRoutes() {
         <Route path="/" element={<Landing />} />
         <Route path="/home" element={<Hero />} />
         <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </div>
   );
