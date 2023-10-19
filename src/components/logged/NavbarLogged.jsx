@@ -208,8 +208,8 @@ export const NavbarLogged = () => {
                 />
               ) : (
                 <FaUserCircle
-                  className="lg:block hidden text-primary"
-                  size={40}
+                  className="block lg:hidden text-primary"
+                  size={30}
                 />
               )}
             </Link>
