@@ -3,13 +3,18 @@ import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
+import { getDownloadURL, ref, getStorage } from "firebase/storage";
+import { useAuth } from "../../authContext";
+import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 
 export const NavbarLogged = () => {
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+
+  const auth = useAuth();
 
   useEffect(() => {
-    // Use useEffect to add event listener when component mounts
     const handleScroll = () => {
       if (window.scrollY >= 50) {
         setFix(true);
@@ -20,11 +25,46 @@ export const NavbarLogged = () => {
 
     window.addEventListener("scroll", handleScroll);
 
-    // Clean up the event listener when component unmounts
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    const getCurrentUserProfilePicture = async () => {
+      if (auth.currentUser) {
+        const userId = auth.currentUser.uid;
+
+        try {
+          const profilePhotoUrl = await getProfilePictureUrl(userId);
+          setProfilePicture(profilePhotoUrl);
+        } catch (error) {
+          console.error("Error fetching profile picture:", error);
+        }
+      }
+    };
+
+    getCurrentUserProfilePicture();
+
+    const db = getFirestore();
+    const userDocRef = doc(db, "registered", auth.currentUser.uid);
+    const unsubscribe = onSnapshot(userDocRef, (doc) => {
+      const userData = doc.data();
+      if (userData && userData.profilePhotoUrl) {
+        setProfilePicture(userData.profilePhotoUrl);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [auth]);
+
+  const getProfilePictureUrl = async (userId) => {
+    const storage = getStorage();
+    const imageRef = ref(storage, `users/${userId}/profile.jpg`);
+    return getDownloadURL(imageRef);
+  };
 
   const handleNav = () => {
     setNav(!nav);
@@ -39,36 +79,39 @@ export const NavbarLogged = () => {
             : ""
         } flex lg:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
       >
-        <div className="lg:flex lg:w-full justify-between lg:justify-around  items-center">
-          <Link to={"/home"}>
-            <div>
+        <div className="flex lg:w-full justify-between lg:justify-around  items-center">
+          <div className="lg:block hidden">
+            <Link to={"/home"}>
               <img
                 className="object-contain lg:w-20 w-16 select-none pointer-events-none"
                 src={logo}
                 alt=""
               />
-            </div>
-          </Link>
+            </Link>
+          </div>
+          <div onClick={handleNav} className="block lg:hidden">
+            {nav ? <AiOutlineMenu size={25} /> : <AiOutlineMenu size={25} />}
+          </div>
 
           <div className="text-black">
             <ul className="hidden text-base gap-5 lg:flex">
               <Link to={"/marketplace"} className="border-r border-black pr-4">
-                <li className="p-4 hover:text-primary">Marketplace</li>
+                <li className="p-3 hover:text-primary">Marketplace</li>
               </Link>
               <Link to={"/home"}>
-                <li className="p-4 hover:text-primary">Home</li>
+                <li className="p-3 hover:text-primary">Home</li>
               </Link>
               <Link to={"/about"}>
-                <li className="p-4 hover:text-primary">About</li>
+                <li className="p-3 hover:text-primary">About</li>
               </Link>
               <Link to={"/recipe"}>
-                <li className="p-4 hover:text-primary">Recipe</li>
+                <li className="p-3 hover:text-primary">Recipe</li>
               </Link>
               <Link to={"/chat"}>
-                <li className="p-4 hover:text-primary">Chat</li>
+                <li className="p-3 hover:text-primary">Chat</li>
               </Link>
               <Link to={"/faqs"}>
-                <li className="p-4 hover:text-primary">FAQs</li>
+                <li className="p-3 hover:text-primary">FAQs</li>
               </Link>
             </ul>
           </div>
@@ -76,17 +119,25 @@ export const NavbarLogged = () => {
             <input
               type="text"
               placeholder="Search.."
-              className="outline-none w-52"
+              className="outline-none w-44"
             ></input>
             <AiOutlineSearch className="lg:block hidden text-black" size={20} />
           </div>
 
-          <div className="flex gap-5 items-center">
+          <div className="lg:flex gap-5 items-center hidden">
             <Link to={"/myaccount"}>
-              <FaUserCircle
-                className="lg:block hidden text-primary"
-                size={40}
-              />
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Profile"
+                  className="w-12 h-12 object-cover rounded-full"
+                />
+              ) : (
+                <FaUserCircle
+                  className="lg:block hidden text-primary"
+                  size={40}
+                />
+              )}
             </Link>
           </div>
         </div>
@@ -94,14 +145,17 @@ export const NavbarLogged = () => {
         <div
           className={
             nav
-              ? "fixed right-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-95 ease-linear duration-500"
-              : "fixed right-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-0 ease-linear duration-500 pointer-events-none"
+              ? "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-95 ease-linear duration-500"
+              : "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-0 ease-linear duration-500 pointer-events-none"
           }
         >
-          <div onClick={handleNav} className="flex pt-9 justify-end lg:hidden">
-            {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
+          <div
+            onClick={handleNav}
+            className="flex pl-6 pt-9 justify-start lg:hidden"
+          >
+            {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
           </div>
-          <ul className="text-left pl-14 flex flex-col gap-4 h-full mt-6">
+          <ul className="text-left pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
             <div className="flex lg:hidden gap-2 items-center text-black border p-1 rounded-lg">
               <input
                 type="text"
@@ -133,14 +187,32 @@ export const NavbarLogged = () => {
             </Link>
           </ul>
         </div>
-        <div className="flex gap-5 items-center">
+
+        <div className="block lg:hidden">
+          <Link to={"/home"}>
+            <img
+              className="object-contain lg:w-20 w-16 select-none pointer-events-none"
+              src={logo}
+              alt=""
+            />
+          </Link>
+        </div>
+        <div className="flex gap-5 items-center lg:hidden">
           <div>
             <Link to={"/myaccount"}>
-              <FaUserCircle className="block lg:hidden" size={22} />
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Profile"
+                  className="w-8 h-8 object-cover rounded-full"
+                />
+              ) : (
+                <FaUserCircle
+                  className="lg:block hidden text-primary"
+                  size={40}
+                />
+              )}
             </Link>
-          </div>
-          <div onClick={handleNav} className="block lg:hidden">
-            {nav ? <AiOutlineMenu size={20} /> : <AiOutlineMenu size={20} />}
           </div>
         </div>
       </div>

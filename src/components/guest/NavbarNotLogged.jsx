@@ -54,9 +54,9 @@ export const NavbarNotLogged = () => {
         } flex lg:justify-around justify-between ease-linear duration-500 items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
       >
         <div className="lg:flex lg:w-full justify-between lg:justify-around  items-center">
-          <div className="flex items-center gap-2">
+          <div className="lg:flex items-center lg:gap-2">
             <a href="/">
-              <div className="flex items-center gap-3">
+              <div className="lg:flex items-center gap-3 hidden">
                 <img
                   className="object-contain lg:w-20 w-16 select-none pointer-events-none"
                   src={logo}
@@ -67,6 +67,9 @@ export const NavbarNotLogged = () => {
                 </h1>
               </div>
             </a>
+            <div onClick={handleNav} className="block lg:hidden">
+              {nav ? <AiOutlineMenu size={25} /> : <AiOutlineMenu size={25} />}
+            </div>
 
             <div className="text-black">
               <ul className="hidden text-base gap-5 lg:flex">
@@ -137,14 +140,17 @@ export const NavbarNotLogged = () => {
         <div
           className={
             nav
-              ? "fixed right-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-95 ease-linear duration-500"
-              : "fixed right-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-0 ease-linear duration-500 pointer-events-none"
+              ? "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-95 ease-linear duration-500"
+              : "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-0 ease-linear duration-500 pointer-events-none"
           }
         >
-          <div onClick={handleNav} className="flex pt-9 justify-end lg:hidden">
-            {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
+          <div
+            onClick={handleNav}
+            className="flex pl-6 pt-9 justify-start lg:hidden"
+          >
+            {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
           </div>
-          <ul className="text-left pl-14 flex flex-col gap-4 h-full mt-6">
+          <ul className="text-left pl-6 pr-14 flex flex-col gap-4 h-full mt-6 lg:hidden">
             <div className="flex lg:hidden gap-2 items-center text-black border p-1 rounded-lg">
               <input
                 type="text"
@@ -179,14 +185,18 @@ export const NavbarNotLogged = () => {
             <button>Login</button>
           </div>
         </div>
+        <div className="block lg:hidden">
+          <img
+            className="object-contain lg:w-20 w-16 select-none pointer-events-none"
+            src={logo}
+            alt=""
+          />
+        </div>
         <div className="flex gap-5 items-center">
           <div>
             <a href="/">
               <FaUserCircle className="block lg:hidden" size={22} />
             </a>
-          </div>
-          <div onClick={handleNav} className="block lg:hidden">
-            {nav ? <AiOutlineMenu size={20} /> : <AiOutlineMenu size={20} />}
           </div>
         </div>
       </div>
