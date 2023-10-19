@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import loginbg from "../../assets/loginbg.jpg";
 import { useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loginError, setLoginError] = useState(null);
 
   const navigate = useNavigate();
 
@@ -27,9 +31,22 @@ const Login = () => {
   };
 
   const handleSignIn = () => {
-    // Sample palang to ngayon lagyan ko to database
-    navigate("/home");
+    setLoginError(null);
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("User logged in:", user);
+
+        localStorage.setItem("userId", user.uid);
+
+        navigate("/home");
+      })
+      .catch((error) => {
+        setLoginError(error.message);
+      });
   };
+
   return (
     <div className="h-full w-full mx-auto bg-primary lg:bg-transparent">
       <img
@@ -100,6 +117,9 @@ const Login = () => {
               Forgot Password?
             </a>
           </div>
+          {loginError && (
+            <div className="text-red-500 text-sm mt-2">{loginError}</div>
+          )}
           <button
             className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark focus:outline-none"
             onClick={handleSignIn}

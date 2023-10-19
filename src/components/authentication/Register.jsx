@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { doc, setDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { firestore } from "../../firebase";
 import loginbg from "../../assets/loginbg.jpg";
+import RegistrationCompleteModal from "./RegistrationCompleteModal"; // Import the modal component
+
 const Register = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -8,6 +13,8 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null); // Error state
+  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
 
   const handleFirstNameChange = (e) => {
     setFirstName(e.target.value);
@@ -33,11 +40,56 @@ const Register = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignIn = () => {
-    // Sample palang to ngayon lagyan ko to database
-    console.log("Email:", email);
-    console.log("Password:", password);
+  const handleSignUp = () => {
+    setError(null);
+    const auth = getAuth();
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("User created:", user);
+
+        const userId = user.uid;
+
+        // Set Firestore document ID to be the same as user's UID
+        const userDocRef = doc(firestore, "registered", userId);
+
+        const newUser = {
+          userId,
+          firstName,
+          lastName,
+          address,
+          email,
+        };
+
+        setDoc(userDocRef, newUser)
+          .then(() => {
+            console.log("Document written with ID: ", userDocRef.id);
+            setShowModal(true); // Show the registration complete modal
+          })
+          .catch((error) => {
+            const errorMessage = error.message
+              .split(":")
+              .slice(1)
+              .join(":")
+              .trim();
+            setError(errorMessage);
+          });
+      })
+      .catch((error) => {
+        const errorMessage = error.message.split(":").slice(1).join(":").trim();
+        setError(errorMessage);
+      });
   };
+
+  const closeRegistrationModal = () => {
+    setShowModal(false);
+  };
+
+  const handleLoginNowClick = () => {
+    console.log("Login Now clicked!");
+  };
+
   return (
     <div className="h-full w-full mx-auto bg-primary lg:bg-transparent">
       <img
@@ -136,6 +188,7 @@ const Register = () => {
               </button>
             </div>
           </div>
+          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
           <div className="text-xs py-1 flex justify-center text-center">
             <p>
               By clicking Register you agree on our{" "}
@@ -146,12 +199,19 @@ const Register = () => {
           </div>
           <button
             className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark focus:outline-none"
-            onClick={handleSignIn}
+            onClick={handleSignUp}
           >
             Register
           </button>
         </div>
       </div>
+
+      {showModal && (
+        <RegistrationCompleteModal
+          onClose={closeRegistrationModal}
+          onLoginNowClick={handleLoginNowClick}
+        />
+      )}
     </div>
   );
 };

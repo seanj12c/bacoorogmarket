@@ -10,7 +10,7 @@ const Landing = () => {
       <NavbarNotLogged />
       <div
         id="home"
-        className="h-screen items-center w-full py-24 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse"
+        className="h-screen items-center w-full py-24 lg:pt-28 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse"
       >
         <div className="md:w-1/2 flex justify-center">
           <img
@@ -20,7 +20,7 @@ const Landing = () => {
           />
         </div>
         <div className="md:w-1/2">
-          <h1 className="text-center md:text-left md:text-3xl lg:text-5xl font-semibold">
+          <h1 className="text-center md:text-left md:text-3xl lg:text-4xl xl:text-5xl font-semibold">
             A <span className="text-primary">Marketplace</span> that you are
             looking for
           </h1>
