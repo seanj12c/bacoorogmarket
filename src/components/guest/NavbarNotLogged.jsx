@@ -3,6 +3,7 @@ import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
+import lock from "../../assets/lock.gif";
 
 export const NavbarNotLogged = () => {
   const [nav, setNav] = useState(false);
@@ -103,6 +104,9 @@ export const NavbarNotLogged = () => {
                 <p className="text-center text-lg font-semibold mb-4">
                   Please log in to continue....
                 </p>
+                <div className="flex justify-center p-3">
+                  <img className="h-20 object-contain" src={lock} alt="" />
+                </div>
                 <div className="flex justify-around">
                   <button
                     onClick={toggleOverlay}
@@ -180,10 +184,19 @@ export const NavbarNotLogged = () => {
             <a href="/#FAQs" onClick={handleNav}>
               <li className=" hover:text-primary">FAQs</li>
             </a>
+            <div className="flex flex-col gap-2">
+              <Link to="/login">
+                <button className="text-white px-3 py-2 bg-primary rounded-md">
+                  Login
+                </button>
+              </Link>
+              <Link to="/register">
+                <button className="text-white px-3 py-2 bg-primary rounded-md">
+                  Register
+                </button>
+              </Link>
+            </div>
           </ul>
-          <div>
-            <button>Login</button>
-          </div>
         </div>
         <div className="block lg:hidden">
           <img
@@ -194,9 +207,9 @@ export const NavbarNotLogged = () => {
         </div>
         <div className="flex gap-5 items-center">
           <div>
-            <a href="/">
+            <button onClick={toggleOverlay}>
               <FaUserCircle className="block lg:hidden" size={22} />
-            </a>
+            </button>
           </div>
         </div>
       </div>

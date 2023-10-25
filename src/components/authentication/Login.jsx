@@ -47,6 +47,14 @@ const Login = () => {
       });
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      // Prevent the default form submission behavior
+      e.preventDefault();
+      handleSignIn();
+    }
+  };
+
   return (
     <div className="h-full w-full mx-auto bg-primary lg:bg-transparent">
       <img
@@ -54,7 +62,7 @@ const Login = () => {
         src={loginbg}
         alt=""
       />
-      <div className="flex justify-center lg:justify-start items-center min-h-screen">
+      <div className="flex justify-center lg:justify-start items-center pb-20 md:pb-0 min-h-screen">
         <div className="lg:h-screen w-full mx-3 lg:mx-0 max-w-md lg:max-w-lg p-6 lg:px-8 lg:pt-28 bg-white lg:rounded-none rounded-lg shadow-2xl">
           <div>
             <h1 className="text-3xl lg:text-4xl py-1 text-center font-bold">
@@ -94,6 +102,7 @@ const Login = () => {
                 value={password}
                 onChange={handlePasswordChange}
                 required
+                onKeyPress={handleKeyPress} // Add this line
               />
               <button
                 className="absolute right-2 top-2 text-gray-500 focus:outline-none"

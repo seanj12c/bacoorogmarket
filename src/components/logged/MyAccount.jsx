@@ -4,7 +4,7 @@ import {
   doc,
   getDoc,
   updateDoc,
-  onSnapshot, // Import onSnapshot
+  onSnapshot,
 } from "firebase/firestore";
 import { useAuth } from "../../authContext";
 import { getAuth, signOut } from "firebase/auth";

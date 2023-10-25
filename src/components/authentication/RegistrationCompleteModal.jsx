@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import check from "../../assets/check.gif";
 
 const RegistrationCompleteModal = ({ onClose, onLoginNowClick }) => {
   return (
@@ -9,9 +10,10 @@ const RegistrationCompleteModal = ({ onClose, onLoginNowClick }) => {
         <p className="my-2">
           Your registration has been successfully completed.
         </p>
+        <img className="mx-auto h-20 object-contain" src={check} alt="" />
         <Link
           to="/login"
-          className="bg-primary text-white mt-4 px-4 py-2 rounded-lg
+          className="bg-primary flex justify-center text-white mt-4 px-4 py-2 rounded-lg
           hover:bg-primary-dark focus:outline-none"
           onClick={() => {
             onClose();

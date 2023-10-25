@@ -2,13 +2,14 @@ import React from "react";
 import bacoor from "../../assets/bacoor.png";
 
 import { AiFillCheckCircle } from "react-icons/ai";
+import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div>
       <div className="h-screen items-center w-full pt-24 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse">
         <div className="md:w-1/2 flex justify-center">
           <img
-            className="h-72 md:h-96 lg:h-[450px] md:ml-auto"
+            className="h-72 md:h-96 lg:h-[450px] md:ml-auto object-contain md:pl-10"
             src={bacoor}
             alt=""
           />
@@ -18,14 +19,14 @@ const Hero = () => {
             A <span className="text-primary">Marketplace</span> that you are
             looking for
           </h1>
-          <p className="text-xs text-gray-900 lg:text-base md:py-2 text-justify">
+          <p className="text-xs text-gray-900 xl:text-base py-2 text-justify">
             Embark on a journey through the flavors of the sea with a delightful
             array of fresh mussels and oysters, thoughtfully sourced for your
             culinary explorations. Experience the convenience of easy access to
             these oceanic treasures, bringing the taste of the sea right to your
             table in Bacoor City, Cavite, Philippines.
           </p>
-          <div className="flex gap-2 items-center text-xs md:text-base lg:text-lg">
+          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
             <div>
               <AiFillCheckCircle className="text-primary" size={17} />
             </div>
@@ -34,7 +35,7 @@ const Hero = () => {
               seller with the use of google map pinned location.
             </div>
           </div>
-          <div className="flex gap-2 items-center text-xs md:text-base lg:text-lg">
+          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
             <div>
               <AiFillCheckCircle className="text-primary" size={17} />
             </div>
@@ -43,7 +44,7 @@ const Hero = () => {
               anywhere you can easily contact sellers.
             </div>
           </div>
-          <div className="flex gap-2 items-center text-xs md:text-base lg:text-lg">
+          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
             <div>
               <AiFillCheckCircle className="text-primary" size={17} />
             </div>
@@ -53,9 +54,11 @@ const Hero = () => {
             </div>
           </div>
           <div className="flex justify-center md:justify-start py-1">
-            <button className="px-4 py-2 bg-primary text-white rounded-md transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]">
-              Get Started
-            </button>
+            <Link to="/marketplace">
+              <button className="px-4 py-2 bg-primary text-white rounded-md transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]">
+                Get Started
+              </button>
+            </Link>
           </div>
         </div>
       </div>
