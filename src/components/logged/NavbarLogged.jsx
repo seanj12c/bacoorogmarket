@@ -2,15 +2,17 @@ import React, { useState, useEffect } from "react";
 import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getDownloadURL, ref, getStorage } from "firebase/storage";
 import { useAuth } from "../../authContext";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
+import { getAuth, signOut } from "firebase/auth";
 
 export const NavbarLogged = () => {
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
+  const navigate = useNavigate();
 
   const auth = useAuth();
 
@@ -59,6 +61,16 @@ export const NavbarLogged = () => {
       unsubscribe();
     };
   }, [auth]);
+
+  const handleLogout = async () => {
+    const authInstance = getAuth();
+    try {
+      await signOut(authInstance);
+      navigate("/");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
 
   const getProfilePictureUrl = async (userId) => {
     const storage = getStorage();
@@ -185,6 +197,12 @@ export const NavbarLogged = () => {
             <Link to={"/faqs"} onClick={handleNav}>
               <li className=" hover:text-primary">FAQs</li>
             </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white py-2 px-4 mt-4 rounded-lg hover-bg-red-600 focus:outline-none"
+            >
+              Logout
+            </button>
           </ul>
         </div>
 

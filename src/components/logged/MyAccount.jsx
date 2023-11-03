@@ -7,9 +7,13 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { useAuth } from "../../authContext";
-import { getAuth, signOut } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import cam from "../../assets/cam.png";
+import uploadload from "../../assets/loading.gif";
+import down from "../../assets/down.gif";
+import asd from "../../assets/asd.jpg";
+import { HiDotsHorizontal } from "react-icons/hi";
+import { Link } from "react-router-dom";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -17,7 +21,6 @@ const MyAccount = () => {
   const [loading, setLoading] = useState(true);
   const [newProfilePicture, setNewProfilePicture] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -58,16 +61,6 @@ const MyAccount = () => {
 
     getCurrentUser();
   }, [auth]);
-
-  const handleLogout = async () => {
-    const authInstance = getAuth();
-    try {
-      await signOut(authInstance);
-      navigate("/");
-    } catch (error) {
-      console.log("Error logging out:", error);
-    }
-  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -111,78 +104,130 @@ const MyAccount = () => {
       {loading ? (
         <p>Loading user data...</p>
       ) : userData ? (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">My Account</h2>
-          {auth.currentUser ? (
-            <div>
-              <div className="mb-4 relative">
-                <label
-                  htmlFor="profile-picture"
-                  className="block text-gray-800 mb-2 cursor-pointer"
-                >
-                  {isUploading ? "Uploading..." : "Change Profile Picture"}
-                  <input
-                    type="file"
-                    id="profile-picture"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </label>
-                {userData.profilePhotoUrl && !isUploading ? (
-                  <img
-                    src={userData.profilePhotoUrl}
-                    alt="Profile"
-                    className="object-cover"
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      border: "10px solid #fff",
-                      borderRadius: "50%",
-                    }}
-                  />
-                ) : (
-                  <img
-                    src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
-                    alt="Default Profile"
-                    className="object-cover"
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      border: "10px solid #fff",
-                      borderRadius: "50%",
-                    }}
-                  />
-                )}
-                {newProfilePicture && isUploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
-                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-                  </div>
-                )}
+        <div className="h-full w-full ">
+          <div className="bg-bgray mt-2 w-full py-4 px-2 rounded-lg">
+            <h2 className="text-2xl text-center w-full font-bold mb-4">
+              My Account
+            </h2>
+            {auth.currentUser ? (
+              <div className="w-full">
+                <div className="mb-2 w-full">
+                  {userData.profilePhotoUrl && !isUploading ? (
+                    <img
+                      src={userData.profilePhotoUrl}
+                      alt="Profile"
+                      className="object-cover mx-auto"
+                      style={{
+                        width: "200px",
+                        height: "200px",
+                        border: "2px solid #008080",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                      alt="Default Profile"
+                      className="object-cover mx-auto"
+                      style={{
+                        width: "200px",
+                        height: "200px",
+                        border: "2px solid #008080",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  )}
+                  <label htmlFor="profile-picture" className="cursor-pointer">
+                    {isUploading ? (
+                      <div className="w-full h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
+                        <img
+                          className="w-8 object-contain"
+                          src={uploadload}
+                          alt="loading-"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
+                        <img
+                          className="w-6 object-contain"
+                          src={cam}
+                          alt="upload-"
+                        />
+                        Change Profile Picture
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      id="profile-picture"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                  {newProfilePicture && isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+                      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <p>
-                <strong>User ID:</strong> {auth.currentUser.uid}
-              </p>
+            ) : null}
+            <p className="text-center text-2xl mx-auto">
+              <strong>
+                {userData.firstName} {userData.lastName}
+              </strong>
+            </p>
+            <p className="text-xs">
+              <strong>Email:</strong> {userData.email}
+            </p>
+            <p className="text-xs">
+              <strong>Address:</strong> {userData.address}
+            </p>
+          </div>
+          <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
+            <h1 className="text-2xl text-center w-full font-bold ">Posts</h1>
+            <div className="flex h-full w-full gap-2 py-2 justify-around items-center">
+              <img
+                className="h-10 w-10 object-cover rounded-full"
+                src={userData.profilePhotoUrl}
+                alt=""
+              />{" "}
+              <h1 className="text-xs">You can post something here...</h1>
+              <img className="w-10 h-10 object-contain" src={down} alt="" />
             </div>
-          ) : null}
-          <p>
-            <strong>First Name:</strong> {userData.firstName}
-          </p>
-          <p>
-            <strong>Last Name:</strong> {userData.lastName}
-          </p>
-          <p>
-            <strong>Email:</strong> {userData.email}
-          </p>
-          <p>
-            <strong>Address:</strong> {userData.address}
-          </p>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white py-2 px-4 mt-4 rounded-lg hover-bg-red-600 focus:outline-none"
-          >
-            Logout
-          </button>
+            <div className="flex justify-center gap-2">
+              <Link
+                to="/post_product"
+                className="px-4 text-xs py-2 bg-primary rounded-md text-white"
+              >
+                Post a Product
+              </Link>
+              <button className="px-4 text-xs py-2 bg-primary rounded-md text-white">
+                Post a Recipe
+              </button>
+            </div>
+          </div>
+          <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
+            <div className="flex  items-center pb-2 justify-between px-2">
+              <div className="flex gap-2 items-center">
+                <img
+                  className="h-10 w-10 object-cover rounded-full"
+                  src={userData.profilePhotoUrl}
+                  alt=""
+                />
+                <h1 className="font-bold text-xs">
+                  {userData.firstName} {userData.lastName}
+                </h1>
+              </div>
+              <HiDotsHorizontal className="text-primary" size={20} />
+            </div>
+            <div className="py-1">
+              <p>Bilin nyo na murang mura lang</p>
+            </div>
+            <div>
+              <img className="rounded-lg" src={asd} alt="" />
+            </div>
+          </div>
         </div>
       ) : (
         <p>No user data available.</p>
