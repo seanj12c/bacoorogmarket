@@ -187,11 +187,19 @@ const MyAccount = () => {
           <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
             <h1 className="text-2xl text-center w-full font-bold ">Posts</h1>
             <div className="flex h-full w-full gap-2 py-2 justify-around items-center">
-              <img
-                className="h-10 w-10 object-cover rounded-full"
-                src={userData.profilePhotoUrl}
-                alt=""
-              />{" "}
+              {userData.profilePhotoUrl && !isUploading ? (
+                <img
+                  src={userData.profilePhotoUrl}
+                  alt="Profile"
+                  className="h-10 w-10 object-cover rounded-full"
+                />
+              ) : (
+                <img
+                  src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                  alt="Default Profile"
+                  className="h-10 w-10 object-cover rounded-full"
+                />
+              )}
               <h1 className="text-xs">You can post something here...</h1>
               <img className="w-10 h-10 object-contain" src={down} alt="" />
             </div>
@@ -202,19 +210,30 @@ const MyAccount = () => {
               >
                 Post a Product
               </Link>
-              <button className="px-4 text-xs py-2 bg-primary rounded-md text-white">
+              <Link
+                to="/post_recipe"
+                className="px-4 text-xs py-2 bg-primary rounded-md text-white"
+              >
                 Post a Recipe
-              </button>
+              </Link>
             </div>
           </div>
           <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
             <div className="flex  items-center pb-2 justify-between px-2">
               <div className="flex gap-2 items-center">
-                <img
-                  className="h-10 w-10 object-cover rounded-full"
-                  src={userData.profilePhotoUrl}
-                  alt=""
-                />
+                {userData.profilePhotoUrl && !isUploading ? (
+                  <img
+                    src={userData.profilePhotoUrl}
+                    alt="Profile"
+                    className="h-10 w-10 object-cover rounded-full"
+                  />
+                ) : (
+                  <img
+                    src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                    alt="Default Profile"
+                    className="h-10 w-10 object-cover rounded-full"
+                  />
+                )}
                 <h1 className="font-bold text-xs">
                   {userData.firstName} {userData.lastName}
                 </h1>
