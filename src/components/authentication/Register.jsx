@@ -49,7 +49,7 @@ const Register = () => {
 
   const handleSignUp = () => {
     setError(null);
-    setIsRegistering(true); // Disable the registration button
+    setIsRegistering(true);
 
     const auth = getAuth();
 
@@ -230,7 +230,7 @@ const Register = () => {
             onClick={handleSignUp}
             disabled={isRegistering}
           >
-            {isRegistering ? "Registering..." : "Register"}
+            {isRegistering ? "Please wait..." : "Register"}
           </button>
         </div>
       </div>

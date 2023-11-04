@@ -13,6 +13,7 @@ import Login from "./components/authentication/Login";
 import Register from "./components/authentication/Register";
 import MyAccount from "./components/logged/MyAccount";
 import PostARecipe from "./components/logged/PostARecipe";
+import Recipe from "./components/logged/Recipe";
 
 function AppRoutes() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/myaccount" element={<MyAccount />} />
         <Route path="/post_recipe" element={<PostARecipe />} />
+        <Route path="/recipe" element={<Recipe />} />
       </Routes>
     </div>
   );

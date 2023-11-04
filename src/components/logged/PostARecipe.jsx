@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { collection, doc, setDoc } from "firebase/firestore";
+import React, { useState, useRef, useEffect } from "react";
+import { collection, addDoc, getDoc, doc } from "firebase/firestore";
 import {
   getStorage,
   ref,
@@ -9,19 +9,95 @@ import {
 } from "firebase/storage";
 import { useAuth } from "../../authContext";
 import { firestore } from "../../firebase";
+import { Link } from "react-router-dom";
 import { RiAddLine, RiCloseLine } from "react-icons/ri";
 import uploadload from "../../assets/loading.gif";
+import check from "../../assets/check.gif";
+
+const Modal = ({ show, onClose }) => {
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <div className="h-screen bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold my-2">
+          Thank you for submitting your recipe, it will now display on Recipe
+          pages!
+        </h2>
+        <img className="mx-auto h-20 object-contain" src={check} alt="" />
+        <div className="flex justify between mt-4">
+          <Link
+            to="/recipe"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+          >
+            Go to Recipe
+          </Link>
+          <Link
+            to="/myaccount"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+          >
+            Go to My Account
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const PostARecipe = () => {
   const auth = useAuth();
   const user = auth.currentUser;
   const userUid = user ? user.uid : "unknown";
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
+  const now = new Date();
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+  const formattedTimestamp = now.toLocaleDateString("en-US", options);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      try {
+        const registeredDoc = doc(firestore, "registered", userUid);
+        const docSnapshot = await getDoc(registeredDoc);
+
+        if (docSnapshot.exists()) {
+          const userData = docSnapshot.data();
+          setFirstName(userData.firstName);
+          setLastName(userData.lastName);
+          setProfilePhotoUrl(userData.profilePhotoUrl);
+        }
+      } catch (error) {
+        console.error("Error retrieving user information: ", error);
+      }
+    };
+
+    getUserInfo();
+  }, [userUid]);
 
   const [recipeName, setRecipeName] = useState("");
   const [ingredients, setIngredients] = useState([""]);
   const [instructions, setInstructions] = useState([""]);
   const [photos, setPhotos] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPhotoRequired, setIsPhotoRequired] = useState(false);
+  const [errors, setErrors] = useState({
+    recipeName: "",
+    ingredients: [],
+    instructions: [],
+    photos: "",
+  });
 
   const fileInputRef = useRef(null);
 
@@ -64,6 +140,13 @@ const PostARecipe = () => {
   const handleFilesSelected = (e) => {
     const selectedPhotos = e.target.files;
 
+    if (selectedPhotos.length === 0) {
+      setIsPhotoRequired(true);
+      return;
+    }
+
+    setIsPhotoRequired(false);
+
     for (const photo of selectedPhotos) {
       uploadPhoto(photo);
     }
@@ -72,7 +155,6 @@ const PostARecipe = () => {
   const uploadPhoto = async (photo) => {
     try {
       const storage = getStorage();
-      const userUid = user ? user.uid : "unknown";
 
       const storageRef = ref(storage, `recipe_photos/${userUid}/${photo.name}`);
 
@@ -119,8 +201,51 @@ const PostARecipe = () => {
     }
   };
 
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      recipeName: "",
+      ingredients: [],
+      instructions: [],
+      photos: "",
+    };
+
+    if (!recipeName) {
+      valid = false;
+      newErrors.recipeName = "Recipe name is required.";
+    }
+
+    if (
+      ingredients.length === 0 ||
+      ingredients.every((ingredient) => !ingredient)
+    ) {
+      valid = false;
+      newErrors.ingredients.push("At least one ingredient is required.");
+    }
+
+    if (
+      instructions.length === 0 ||
+      instructions.every((instruction) => !instruction)
+    ) {
+      valid = false;
+      newErrors.instructions.push("At least one instruction is required.");
+    }
+
+    if (photos.length === 0) {
+      valid = false;
+      newErrors.photos = "A photo is required.";
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
 
     const recipeData = {
       name: recipeName,
@@ -128,18 +253,25 @@ const PostARecipe = () => {
       instructions,
       photos,
       userUid,
-      timestamp: new Date().toString(),
+      profilePhotoUrl, // Include user profile photo URL
+      firstName, // Include user first name
+      lastName, // Include user last name
+      timestamp: formattedTimestamp,
     };
 
     const recipesRef = collection(firestore, "recipes");
-    const userRecipeDocRef = doc(recipesRef, userUid);
 
     try {
-      await setDoc(userRecipeDocRef, recipeData);
-      console.log("Recipe added for user with ID: ", userUid);
+      setIsSubmitting(true);
+      await addDoc(recipesRef, recipeData);
+      setIsModalOpen(true);
     } catch (error) {
       console.error("Error adding recipe: ", error);
     }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -155,6 +287,9 @@ const PostARecipe = () => {
           value={recipeName}
           onChange={(e) => setRecipeName(e.target.value)}
         />
+        {errors.recipeName && (
+          <p className="text-red-600">{errors.recipeName}</p>
+        )}
 
         <div className="mb-4">
           <h3 className="text-lg text-primary">Photo Upload</h3>
@@ -184,6 +319,7 @@ const PostARecipe = () => {
                 >
                   <RiCloseLine />
                 </button>
+                {isPhotoRequired && <p className="hidden"></p>}
               </div>
             ))}
             <div
@@ -194,13 +330,14 @@ const PostARecipe = () => {
             </div>
           </div>
           <input
+            className="hidden"
             type="file"
             accept="image/*"
             multiple
             ref={fileInputRef}
             onChange={handleFilesSelected}
-            className="hidden"
           />
+          {errors.photos && <p className="text-red-600">{errors.photos}</p>}
         </div>
 
         <div className="mb-4">
@@ -225,6 +362,9 @@ const PostARecipe = () => {
               )}
             </div>
           ))}
+          {errors.ingredients.length > 0 && (
+            <p className="text-red-600">{errors.ingredients[0]}</p>
+          )}
           <button
             type="button"
             onClick={addIngredient}
@@ -256,6 +396,9 @@ const PostARecipe = () => {
               )}
             </div>
           ))}
+          {errors.instructions.length > 0 && (
+            <p className="text-red-600">{errors.instructions[0]}</p>
+          )}
           <button
             type="button"
             onClick={addInstruction}
@@ -268,10 +411,12 @@ const PostARecipe = () => {
         <button
           type="submit"
           className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
+          disabled={isSubmitting}
         >
-          Submit Recipe
+          {isSubmitting ? "Submitting..." : "Submit Recipe"}
         </button>
       </form>
+      <Modal show={isModalOpen} onClose={closeModal} />
     </div>
   );
 };
