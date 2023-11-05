@@ -72,7 +72,6 @@ const MyAccount = () => {
   const uploadProfilePicture = async (file) => {
     if (file) {
       const userId = auth.currentUser.uid;
-      const type = "profile";
 
       const db = getFirestore();
       const userDocRef = doc(db, "registered", userId);
@@ -80,13 +79,25 @@ const MyAccount = () => {
       try {
         setIsUploading(true);
 
+        // Generate a unique name for the new profile picture
+        const uniqueFilename = `${userId}_${Date.now()}.jpg`;
+
+        // Define the storage path for the new profile picture
+        const imagePath = `users/${userId}/${uniqueFilename}`;
+
         const storage = getStorage();
-        const imageRef = ref(storage, `users/${userId}/${type}.jpg`);
+        const imageRef = ref(storage, imagePath);
         await uploadBytes(imageRef, file);
 
         const photoURL = await getDownloadURL(imageRef);
 
-        await updateDoc(userDocRef, { [`${type}PhotoUrl`]: photoURL });
+        // Update the user's Firestore document with the new URL
+        const updatedData = {
+          ...userData,
+          profilePhotoUrl: photoURL, // Update the profilePhotoUrl field
+        };
+
+        await updateDoc(userDocRef, updatedData);
 
         console.log("Profile photo updated");
 

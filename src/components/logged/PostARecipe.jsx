@@ -14,7 +14,7 @@ import { RiAddLine, RiCloseLine } from "react-icons/ri";
 import uploadload from "../../assets/loading.gif";
 import check from "../../assets/check.gif";
 
-const Modal = ({ show, onClose }) => {
+const Modal = ({ show }) => {
   if (!show) {
     return null;
   }
@@ -69,7 +69,6 @@ const PostARecipe = () => {
       try {
         const registeredDoc = doc(firestore, "registered", userUid);
         const docSnapshot = await getDoc(registeredDoc);
-
         if (docSnapshot.exists()) {
           const userData = docSnapshot.data();
           setFirstName(userData.firstName);
@@ -80,7 +79,6 @@ const PostARecipe = () => {
         console.error("Error retrieving user information: ", error);
       }
     };
-
     getUserInfo();
   }, [userUid]);
 
@@ -263,7 +261,7 @@ const PostARecipe = () => {
 
     try {
       setIsSubmitting(true);
-      await addDoc(recipesRef, recipeData);
+      await addDoc(recipesRef, recipeData); // Use addDoc to add a new recipe document
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error adding recipe: ", error);
