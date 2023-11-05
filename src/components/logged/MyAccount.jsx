@@ -5,13 +5,16 @@ import {
   getDoc,
   updateDoc,
   onSnapshot,
+  collection,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { useAuth } from "../../authContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import cam from "../../assets/cam.png";
 import uploadload from "../../assets/loading.gif";
 import down from "../../assets/down.gif";
-import asd from "../../assets/asd.jpg";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link } from "react-router-dom";
 
@@ -21,6 +24,7 @@ const MyAccount = () => {
   const [loading, setLoading] = useState(true);
   const [newProfilePicture, setNewProfilePicture] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [userPosts, setUserPosts] = useState([]);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -45,6 +49,18 @@ const MyAccount = () => {
                 setUserData(newData);
               }
             });
+
+            // Fetch and display posts of the current user
+            const postsCollection = collection(db, "recipes");
+            const userPostsQuery = query(
+              postsCollection,
+              where("userUid", "==", userId)
+            );
+            const userPostsSnapshot = await getDocs(userPostsQuery);
+            const userPostsData = userPostsSnapshot.docs.map((doc) =>
+              doc.data()
+            );
+            setUserPosts(userPostsData);
           } else {
             console.log("No such document for this user!");
           }
@@ -79,10 +95,8 @@ const MyAccount = () => {
       try {
         setIsUploading(true);
 
-        // Generate a unique name for the new profile picture
         const uniqueFilename = `${userId}_${Date.now()}.jpg`;
 
-        // Define the storage path for the new profile picture
         const imagePath = `users/${userId}/${uniqueFilename}`;
 
         const storage = getStorage();
@@ -91,10 +105,9 @@ const MyAccount = () => {
 
         const photoURL = await getDownloadURL(imageRef);
 
-        // Update the user's Firestore document with the new URL
         const updatedData = {
           ...userData,
-          profilePhotoUrl: photoURL, // Update the profilePhotoUrl field
+          profilePhotoUrl: photoURL,
         };
 
         await updateDoc(userDocRef, updatedData);
@@ -252,10 +265,23 @@ const MyAccount = () => {
               <HiDotsHorizontal className="text-primary" size={20} />
             </div>
             <div className="py-1">
-              <p>Bilin nyo na murang mura lang</p>
-            </div>
-            <div>
-              <img className="rounded-lg" src={asd} alt="" />
+              {userPosts.map((post, index) => (
+                <div key={index} className="mb-4">
+                  <h1 className="text-2xl font-semibold mb-2">{post.name}</h1>
+                  {post.photos && post.photos.length > 0 && (
+                    <div className="mb-4">
+                      {post.photos.map((photo, photoIndex) => (
+                        <img
+                          key={photoIndex}
+                          src={photo}
+                          alt={`PhotoA ${photoIndex}`}
+                          className="w-full h-36 object-cover rounded-lg mb-2"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
