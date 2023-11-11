@@ -9,6 +9,7 @@ import {
   query,
   where,
   getDocs,
+  deleteDoc,
 } from "firebase/firestore";
 import { useAuth } from "../../authContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -25,6 +26,10 @@ const MyAccount = () => {
   const [newProfilePicture, setNewProfilePicture] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCaption, setEditedCaption] = useState("");
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -57,9 +62,12 @@ const MyAccount = () => {
               where("userUid", "==", userId)
             );
             const userPostsSnapshot = await getDocs(userPostsQuery);
-            const userPostsData = userPostsSnapshot.docs.map((doc) =>
-              doc.data()
-            );
+            const userPostsData = userPostsSnapshot.docs.map((doc) => {
+              return {
+                id: doc.id,
+                ...doc.data(),
+              };
+            });
             setUserPosts(userPostsData);
           } else {
             console.log("No such document for this user!");
@@ -78,11 +86,86 @@ const MyAccount = () => {
     getCurrentUser();
   }, [auth]);
 
+  const showOptionsForPost = (post) => {
+    setSelectedPost(post);
+    setEditedCaption(post.name); // Initialize the edited caption with the current post name
+  };
+
+  const hideOptions = () => {
+    setSelectedPost(null);
+  };
+
+  const deletePost = async (postId) => {
+    try {
+      if (postId) {
+        const db = getFirestore();
+        const postDocRef = doc(db, "recipes", postId);
+
+        await deleteDoc(postDocRef);
+        const updatedPosts = userPosts.filter((post) => post.id !== postId);
+        setUserPosts(updatedPosts);
+        setShowDeleteConfirmation(false);
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
+
+  const confirmDelete = (postId) => {
+    deletePost(postId);
+  };
+
+  const handleEditCaption = async () => {
+    if (selectedPost) {
+      const updatedPost = { ...selectedPost, name: editedCaption };
+
+      const updatedPosts = userPosts.map((post) =>
+        post === selectedPost ? updatedPost : post
+      );
+      setUserPosts(updatedPosts);
+
+      try {
+        if (selectedPost.id) {
+          const db = getFirestore();
+          const postDocRef = doc(db, "recipes", selectedPost.id);
+
+          await updateDoc(postDocRef, { name: editedCaption });
+
+          console.log("Post name updated in Firestore");
+
+          setIsEditing(false);
+          hideOptions();
+        } else {
+          console.error("Selected post doesn't have an ID");
+          // Handle the case where the selected post doesn't have an ID
+        }
+      } catch (error) {
+        console.error("Error updating post in Firestore:", error);
+        // If the Firestore update fails, handle it accordingly
+      }
+    }
+  };
+
+  const handleDeletePost = (post) => {
+    setShowDeleteConfirmation(true);
+    setSelectedPost(post);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirmation(false);
+    setSelectedPost(null);
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       uploadProfilePicture(file);
     }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedCaption(selectedPost.name); // Reset the edited caption if editing is canceled
   };
 
   const uploadProfilePicture = async (file) => {
@@ -124,11 +207,17 @@ const MyAccount = () => {
   };
 
   return (
-    <div className="max-w-xl pt-24 mx-auto p-4">
+    <div className="max-w-xl  mx-auto p-4">
       {loading ? (
-        <p>Loading user data...</p>
+        <div className="h-screen pt-0 w-full grid items-center">
+          <img
+            className="lg:h-32 h-20 md:h-28 object-contain mx-auto flex justify-center items-center"
+            src={uploadload}
+            alt=""
+          />
+        </div>
       ) : userData ? (
-        <div className="h-full w-full ">
+        <div className="h-full pt-24 w-full ">
           <div className="bg-bgray mt-2 w-full py-4 px-2 rounded-lg">
             <h2 className="text-2xl text-center w-full font-bold mb-4">
               My Account
@@ -242,48 +331,155 @@ const MyAccount = () => {
               </Link>
             </div>
           </div>
-          <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
-            <div className="flex  items-center pb-2 justify-between px-2">
-              <div className="flex gap-2 items-center">
-                {userData.profilePhotoUrl && !isUploading ? (
-                  <img
-                    src={userData.profilePhotoUrl}
-                    alt="Profile"
-                    className="h-10 w-10 object-cover rounded-full"
-                  />
-                ) : (
-                  <img
-                    src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
-                    alt="Default Profile"
-                    className="h-10 w-10 object-cover rounded-full"
-                  />
-                )}
-                <h1 className="font-bold text-xs">
-                  {userData.firstName} {userData.lastName}
-                </h1>
-              </div>
-              <HiDotsHorizontal className="text-primary" size={20} />
-            </div>
-            <div className="py-1">
-              {userPosts.map((post, index) => (
-                <div key={index} className="mb-4">
-                  <h1 className="text-2xl font-semibold mb-2">{post.name}</h1>
-                  {post.photos && post.photos.length > 0 && (
-                    <div className="mb-4">
-                      {post.photos.map((photo, photoIndex) => (
+
+          <div className="bg-bgray mt-2 w-full rounded-lg p-2">
+            {userPosts.map((post, index) => (
+              <div
+                key={index}
+                className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+              >
+                <div className="flex gap-2 py-2 items-center w-full justify-between">
+                  <div className="flex gap-2 items-center w-full justify-between px-2">
+                    <div className="flex gap-4 items-center">
+                      {userData.profilePhotoUrl && !isUploading ? (
                         <img
-                          key={photoIndex}
-                          src={photo}
-                          alt={`PhotoA ${photoIndex}`}
-                          className="w-full h-36 object-cover rounded-lg mb-2"
+                          src={userData.profilePhotoUrl}
+                          alt="Profile"
+                          className="w-12 h-12 rounded-full object-cover inline-block"
                         />
-                      ))}
+                      ) : (
+                        <img
+                          src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                          alt="Default Profile"
+                          className="w-12 h-12 rounded-full object-cover inline-block"
+                        />
+                      )}
+                      <div>
+                        <p className="text-primary text-sm font-semibold">
+                          {userData.firstName} {userData.lastName}
+                        </p>
+                        <p className="text-gray-500 text-xs">
+                          {post.timestamp}
+                        </p>
+                      </div>
                     </div>
-                  )}
+                    <div style={{ position: "relative" }}>
+                      <HiDotsHorizontal
+                        className="text-primary"
+                        size={20}
+                        onClick={() => showOptionsForPost(post)}
+                      />
+                      {selectedPost && selectedPost === post && (
+                        <div
+                          className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
+                          style={{ top: "-40px", right: "-20px" }}
+                        >
+                          {!isEditing ? (
+                            <p
+                              onClick={() => setIsEditing(true)}
+                              className=" cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
+                            >
+                              Edit
+                            </p>
+                          ) : (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                              <div className="bg-white w-full max-w-md p-6 rounded-lg">
+                                <p className="text-lg mb-4 text-primary">
+                                  Edit Caption
+                                </p>
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    value={editedCaption}
+                                    onChange={(e) =>
+                                      setEditedCaption(e.target.value)
+                                    }
+                                    className="bg-gray-100 border rounded px-2 py-1 w-full"
+                                    placeholder="Enter new caption"
+                                  />
+                                  <div className="flex justify-end mt-2">
+                                    <button
+                                      onClick={handleEditCaption}
+                                      className="bg-green-400 rounded text-white px-4 py-1 mr-2"
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={handleCancelEdit}
+                                      className="bg-red-400 rounded text-white px-4 py-1"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col gap-1 justify-center">
+                            {!isEditing ? (
+                              <button
+                                onClick={() => handleDeletePost(post)}
+                                className="bg-red-400 text-white py-1 px-2 rounded-md"
+                              >
+                                Delete
+                              </button>
+                            ) : null}
+                            {!isEditing ? (
+                              <button
+                                onClick={() => showOptionsForPost(false)}
+                                className="bg-black text-white py-1 px-2 rounded-md"
+                              >
+                                Close
+                              </button>
+                            ) : null}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <div className="mb-4">
+                  <h1 className="text-lg font-semibold mb-2">{post.name}</h1>
+                </div>
+                <div>
+                  {post.photos &&
+                    post.photos.length > 0 &&
+                    post.photos.map((photo, photoIndex) => (
+                      <img
+                        key={photoIndex}
+                        className="w-full h-36 object-cover rounded-lg mb-2"
+                        src={photo}
+                        alt=""
+                      />
+                    ))}
+                </div>
+              </div>
+            ))}
           </div>
+          {selectedPost && showDeleteConfirmation && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+              <div className="bg-white w-full max-w-md p-6 rounded-lg text-primary">
+                <p className="text-lg mb-4">
+                  Are you sure you want to delete this post?
+                </p>
+                <div className="flex justify-center space-x-4">
+                  <button
+                    onClick={() => confirmDelete(selectedPost.id)}
+                    className="bg-green-400 rounded text-white px-4 py-1"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={handleCancelDelete}
+                    className="bg-red-400 rounded text-white px-4 py-1"
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <p>No user data available.</p>
