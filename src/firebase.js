@@ -1,6 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence, // Change this to browserLocalPersistence
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDUyOGtGwxZsV90FB55P8rRp705zjb2GtA",
@@ -17,5 +21,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 const auth = getAuth(app);
+
+// Set persistence to LOCAL for maintaining the user's login state even after closing the browser
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    // Data will be persisted locally in the browser
+    console.log("Auth persistence set successfully");
+  })
+  .catch((error) => {
+    // Handle errors
+    console.error("Error setting auth persistence:", error);
+  });
 
 export { firestore, auth };
