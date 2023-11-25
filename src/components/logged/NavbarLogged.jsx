@@ -46,20 +46,22 @@ export const NavbarLogged = () => {
       }
     };
 
-    getCurrentUserProfilePicture();
+    if (auth.currentUser) {
+      getCurrentUserProfilePicture();
+      const db = getFirestore();
+      const userDocRef = doc(db, "registered", auth.currentUser.uid);
 
-    const db = getFirestore();
-    const userDocRef = doc(db, "registered", auth.currentUser.uid);
-    const unsubscribe = onSnapshot(userDocRef, (doc) => {
-      const userData = doc.data();
-      if (userData && userData.profilePhotoUrl) {
-        setProfilePicture(userData.profilePhotoUrl);
-      }
-    });
+      const unsubscribe = onSnapshot(userDocRef, (doc) => {
+        const userData = doc.data();
+        if (userData && userData.profilePhotoUrl) {
+          setProfilePicture(userData.profilePhotoUrl);
+        }
+      });
 
-    return () => {
-      unsubscribe();
-    };
+      return () => {
+        unsubscribe();
+      };
+    }
   }, [auth]);
 
   const handleLogout = async () => {
