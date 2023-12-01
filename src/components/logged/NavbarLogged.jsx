@@ -3,9 +3,8 @@ import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
-import { getDownloadURL, ref, getStorage } from "firebase/storage";
 import { useAuth } from "../../authContext";
-import { getFirestore, doc, onSnapshot } from "firebase/firestore";
+import { getFirestore, doc, onSnapshot, getDoc } from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth";
 
 export const NavbarLogged = () => {
@@ -75,9 +74,23 @@ export const NavbarLogged = () => {
   };
 
   const getProfilePictureUrl = async (userId) => {
-    const storage = getStorage();
-    const imageRef = ref(storage, `users/${userId}/profile.jpg`);
-    return getDownloadURL(imageRef);
+    const db = getFirestore();
+    const userDocRef = doc(db, "registered", userId);
+
+    try {
+      const docSnap = await getDoc(userDocRef);
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        if (userData && userData.profilePhotoUrl) {
+          return userData.profilePhotoUrl;
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching profile picture:", error);
+    }
+
+    // Return a default image URL or handle error cases accordingly
+    return ""; // Provide a default URL or handle error cases
   };
 
   const handleNav = () => {

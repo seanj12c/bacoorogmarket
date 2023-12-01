@@ -18,6 +18,8 @@ import PostARecipe from "./components/logged/PostARecipe";
 import Recipe from "./components/logged/Recipe";
 import { auth } from "./firebase";
 import uploadload from "./assets/loading.gif";
+import Faq from "./components/logged/Faq";
+import PostAProduct from "./components/logged/PostAProduct";
 
 function AppRoutes() {
   const location = useLocation();
@@ -70,6 +72,10 @@ function AppRoutes() {
           element={user ? <About /> : <Navigate to="/login" />}
         />
         <Route
+          path="/faqs"
+          element={user ? <Faq /> : <Navigate to="/login" />}
+        />
+        <Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/home" />}
         />
@@ -84,6 +90,10 @@ function AppRoutes() {
         <Route
           path="/post_recipe"
           element={user ? <PostARecipe /> : <Navigate to="/login" />}
+        />{" "}
+        <Route
+          path="/post_product"
+          element={user ? <PostAProduct /> : <Navigate to="/login" />}
         />
         <Route
           path="/recipe"
