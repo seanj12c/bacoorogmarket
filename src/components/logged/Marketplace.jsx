@@ -24,6 +24,7 @@ const Marketplace = () => {
           id: doc.id,
           caption: data.caption,
           description: data.description,
+          location: data.location,
           photos: data.photos,
           profilePhotoUrl: data.profilePhotoUrl,
           price: data.price,
