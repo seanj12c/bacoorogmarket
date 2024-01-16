@@ -1,23 +1,398 @@
-import { GoogleMap, LoadScript } from "@react-google-maps/api";
+import React, { useState, useRef, useEffect } from "react";
+import { collection, addDoc, getDoc, doc } from "firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
+import { useAuth } from "../../authContext";
+import { firestore } from "../../firebase";
+import { Link } from "react-router-dom";
+import { RiAddLine, RiCloseLine } from "react-icons/ri";
+import uploadload from "../../assets/loading.gif";
+import check from "../../assets/check.gif";
+import {
+  GoogleMap,
+  LoadScript,
+  Marker,
+  StandaloneSearchBox,
+} from "@react-google-maps/api";
 
-function Map() {
-  const mapStyles = {
-    height: "100vh",
-    width: "100%",
+const libraries = ["places"];
+
+const Modal = ({ show }) => {
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <div className="h-screen bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold my-2">
+          Thank you for submitting your product, it will now display on
+          Marketplace pages!
+        </h2>
+        <img className="mx-auto h-20 object-contain" src={check} alt="" />
+        <div className="flex justify between mt-4">
+          <Link
+            to="/marketplace"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+          >
+            Go to Marketplace
+          </Link>
+          <Link
+            to="/myaccount"
+            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+          >
+            Go to My Account
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PostAProduct = () => {
+  const auth = useAuth();
+  const user = auth.currentUser;
+  const userUid = user ? user.uid : "unknown";
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
+  const now = new Date();
+
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+  const formattedTimestamp = now.toLocaleDateString("en-US", options);
+
+  const defaultLocation = {
+    lat: 14.4576,
+    lng: 120.9429,
   };
 
-  const defaultCenter = {
-    lat: 41.3851,
-    lng: 2.1734,
+  useEffect(() => {
+    const getUserInfo = async () => {
+      try {
+        const registeredDoc = doc(firestore, "registered", userUid);
+        const docSnapshot = await getDoc(registeredDoc);
+        if (docSnapshot.exists()) {
+          const userData = docSnapshot.data();
+          setFirstName(userData.firstName);
+          setLastName(userData.lastName);
+          setProfilePhotoUrl(userData.profilePhotoUrl);
+        }
+      } catch (error) {
+        console.error("Error retrieving user information: ", error);
+      }
+    };
+
+    getUserInfo();
+  }, [userUid]);
+
+  const [caption, setCaption] = useState("");
+  const [photos, setPhotos] = useState([]);
+  const [photoPreviews, setPhotoPreviews] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPhotoRequired, setIsPhotoRequired] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchBoxRef = useRef(null);
+
+  const [errors, setErrors] = useState({
+    caption: "",
+    photos: "",
+  });
+
+  const handleMapClick = (e) => {
+    setSelectedLocation({
+      latitude: e.latLng.lat(),
+      longitude: e.latLng.lng(),
+    });
+  };
+
+  const fileInputRef = useRef(null);
+
+  const handleCaptionChange = (e) => {
+    setCaption(e.target.value);
+  };
+
+  const handlePhotoUpload = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFilesSelected = (e) => {
+    const selectedPhotos = e.target.files;
+
+    if (selectedPhotos.length === 0) {
+      setIsPhotoRequired(true);
+      return;
+    }
+
+    setIsPhotoRequired(false);
+
+    for (const photo of selectedPhotos) {
+      uploadPhoto(photo);
+    }
+  };
+
+  const uploadPhoto = async (photo) => {
+    try {
+      const storage = getStorage();
+
+      const storageRef = ref(storage, `recipe_photos/${userUid}/${photo.name}`);
+
+      // Set the loading image as the initial preview
+      setPhotoPreviews((prevPreviews) => [...prevPreviews, uploadload]);
+
+      await uploadBytes(storageRef, photo);
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Replace the loading image with the uploaded photo when it's done
+      setPhotos((prevPhotos) => [...prevPhotos, downloadURL]);
+      setPhotoPreviews((prevPreviews) => [
+        ...prevPreviews.slice(0, prevPreviews.length - 1),
+        URL.createObjectURL(photo),
+      ]);
+    } catch (error) {
+      console.error("Error uploading photo: ", error);
+    }
+  };
+
+  const removePhoto = (index) => {
+    const updatedPhotos = [...photos];
+    const updatedPreviews = [...photoPreviews];
+
+    updatedPhotos.splice(index, 1);
+    updatedPreviews.splice(index, 1);
+
+    setPhotos(updatedPhotos);
+    setPhotoPreviews(updatedPreviews);
+
+    deletePhotoFromStorage(index);
+  };
+
+  const deletePhotoFromStorage = async (index) => {
+    const photoURL = photos[index];
+
+    const storageRef = ref(getStorage(), photoURL);
+
+    try {
+      await deleteObject(storageRef);
+      console.log("Photo deleted from Storage: ", photoURL);
+    } catch (error) {
+      console.error("Error deleting photo from Storage: ", error);
+    }
+  };
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      recipeName: "",
+      ingredients: [],
+      instructions: [],
+      photos: "",
+      profilePhotoUrl,
+      firstName,
+      lastName,
+      formattedTimestamp,
+    };
+
+    if (photos.length === 0) {
+      valid = false;
+      newErrors.photos = "A photo is required.";
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const productData = {
+      caption,
+      photos,
+      userUid,
+      price: 0,
+      location: selectedLocation,
+    };
+
+    const productsRef = collection(firestore, "products"); // Change the collection ID to "products"
+
+    try {
+      setIsSubmitting(true);
+      await addDoc(productsRef, productData); // Use addDoc to add a new product document
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error adding product: ", error);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
-    <LoadScript googleMapsApiKey="AIzaSyCNZA1EGmdrQjxZDXegY7K1EuWaJ-kSCL8">
-      <GoogleMap mapContainerStyle={mapStyles} zoom={10} center={defaultCenter}>
-        {/* Other map components or markers go here */}
-      </GoogleMap>
-    </LoadScript>
-  );
-}
+    <div className="p-4 sm:p-6 md:p-8 lg:p-10">
+      <h2 className="text-2xl font-bold text-primary pt-24 mb-4">
+        Post a Product
+      </h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          className="w-full border rounded p-2 mb-4"
+          placeholder="Caption of the Product"
+          value={caption}
+          onChange={(e) => handleCaptionChange(e.target.value)}
+        />
+        {errors.caption && <p className="text-red-600">{errors.caption}</p>}
 
-export default Map;
+        <div className="mb-4">
+          <h3 className="text-lg text-primary">Photo Upload</h3>
+          <div className="flex flex-wrap gap-2">
+            {photoPreviews.map((preview, index) => (
+              <div
+                key={index}
+                className="relative w-20 h-20 justify-center items-center"
+              >
+                {preview === uploadload ? (
+                  <img
+                    src={preview}
+                    alt="Uploading..."
+                    className="w-10 h-10 pt-6 m-auto flex justify-center items-center object-contain rounded"
+                  />
+                ) : (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => removePhoto(index)}
+                  className="absolute top-1 right-1 text-red-500 text-lg hover:text-red-600 focus:outline-none cursor-pointer"
+                >
+                  <RiCloseLine />
+                </button>
+                {isPhotoRequired && <p className="hidden"></p>}
+              </div>
+            ))}
+            <div
+              className="w-20 h-20 border rounded flex items-center justify-center cursor-pointer"
+              onClick={handlePhotoUpload}
+            >
+              <RiAddLine size={32} color="#6B7280" />
+            </div>
+          </div>
+          <input
+            className="hidden"
+            type="file"
+            accept="image/*"
+            multiple
+            ref={fileInputRef}
+            onChange={handleFilesSelected}
+          />
+          {errors.photos && <p className="text-red-600">{errors.photos}</p>}
+          <h3 className="text-lg text-primary">Price</h3>
+          <input
+            type="number"
+            className="w-full border rounded p-2 mb-4 appearance-none"
+            placeholder="Price"
+            style={{ WebkitAppearance: "none", MozAppearance: "textfield" }}
+          />
+
+          <div style={{ height: "400px", width: "100%", marginBottom: "20px" }}>
+            <LoadScript
+              googleMapsApiKey="AIzaSyBLZJ-nDBC4jlEDsMb7qS3kjuJp90fTPbM"
+              libraries={libraries}
+            >
+              <StandaloneSearchBox
+                onLoad={(ref) => {
+                  searchBoxRef.current = ref;
+                }}
+                onPlacesChanged={() => {
+                  if (searchBoxRef.current) {
+                    const places = searchBoxRef.current.getPlaces();
+                    if (places.length > 0) {
+                      const { location } = places[0].geometry;
+                      setSelectedLocation({
+                        latitude: location.lat(),
+                        longitude: location.lng(),
+                      });
+                    }
+                  }
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Search for a location"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    boxSizing: "border-box",
+                    border: "1px solid transparent",
+                    width: "240px",
+                    height: "32px",
+                    padding: "0 12px",
+                    borderRadius: "3px",
+                    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.3)",
+                    fontSize: "14px",
+                    outline: "none",
+                    textOverflow: "ellipses",
+                  }}
+                />
+              </StandaloneSearchBox>
+              <GoogleMap
+                mapContainerStyle={{ height: "100%", width: "100%" }}
+                center={
+                  selectedLocation
+                    ? {
+                        lat: selectedLocation.latitude,
+                        lng: selectedLocation.longitude,
+                      }
+                    : defaultLocation
+                }
+                zoom={13} // Set the default zoom level
+                onClick={handleMapClick}
+              >
+                {selectedLocation && (
+                  <Marker
+                    position={{
+                      lat: selectedLocation.latitude,
+                      lng: selectedLocation.longitude,
+                    }}
+                  />
+                )}
+              </GoogleMap>
+            </LoadScript>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Submitting..." : "Submit Product"}
+        </button>
+      </form>
+      <Modal show={isModalOpen} onClose={closeModal} />
+    </div>
+  );
+};
+
+export default PostAProduct;
