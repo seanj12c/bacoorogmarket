@@ -20,6 +20,7 @@ import { auth } from "./firebase";
 import uploadload from "./assets/loading.gif";
 import Faq from "./components/logged/Faq";
 import PostAProduct from "./components/logged/PostAProduct";
+import Marketplace from "./components/logged/Marketplace";
 
 function AppRoutes() {
   const location = useLocation();
@@ -94,6 +95,10 @@ function AppRoutes() {
         <Route
           path="/post_product"
           element={user ? <PostAProduct /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/marketplace"
+          element={user ? <Marketplace /> : <Navigate to="/login" />}
         />
         <Route
           path="/recipe"

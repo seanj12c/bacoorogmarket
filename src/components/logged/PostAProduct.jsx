@@ -62,6 +62,8 @@ const PostAProduct = () => {
   const [lastName, setLastName] = useState("");
   const [profilePhotoUrl, setProfilePhotoUrl] = useState("");
   const now = new Date();
+  const priceInput = document.getElementById("priceInput");
+  const priceValue = priceInput ? parseFloat(priceInput.value) || 0 : 0;
 
   const options = {
     weekday: "long",
@@ -106,11 +108,16 @@ const PostAProduct = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const searchBoxRef = useRef(null);
+  const [description, setDescription] = useState("");
 
   const [errors, setErrors] = useState({
     caption: "",
     photos: "",
   });
+
+  const handleDescriptionChange = (e) => {
+    setDescription(e.target.value);
+  };
 
   const handleMapClick = (e) => {
     setSelectedLocation({
@@ -196,9 +203,8 @@ const PostAProduct = () => {
   const validateForm = () => {
     let valid = true;
     const newErrors = {
-      recipeName: "",
-      ingredients: [],
-      instructions: [],
+      caption: "",
+      description: "",
       photos: "",
       profilePhotoUrl,
       firstName,
@@ -209,6 +215,11 @@ const PostAProduct = () => {
     if (photos.length === 0) {
       valid = false;
       newErrors.photos = "A photo is required.";
+    }
+
+    if (!description.trim()) {
+      valid = false;
+      newErrors.description = "Description is required.";
     }
 
     setErrors(newErrors);
@@ -224,10 +235,15 @@ const PostAProduct = () => {
 
     const productData = {
       caption,
+      description,
       photos,
       userUid,
-      price: 0,
+      price: priceValue,
       location: selectedLocation,
+      timestamp: formattedTimestamp,
+      profilePhotoUrl,
+      firstName,
+      lastName,
     };
 
     const productsRef = collection(firestore, "products"); // Change the collection ID to "products"
@@ -251,15 +267,25 @@ const PostAProduct = () => {
         Post a Product
       </h2>
       <form onSubmit={handleSubmit}>
+        <h3 className="text-lg text-primary">Title</h3>
         <input
           type="text"
           className="w-full border rounded p-2 mb-4"
-          placeholder="Caption of the Product"
+          placeholder="Name of your Product"
           value={caption}
-          onChange={(e) => handleCaptionChange(e.target.value)}
+          onChange={handleCaptionChange}
         />
         {errors.caption && <p className="text-red-600">{errors.caption}</p>}
-
+        <h3 className="text-lg text-primary">Description</h3>
+        <textarea
+          className="w-full border rounded p-2 mb-4"
+          placeholder="Description of the Product"
+          value={description}
+          onChange={handleDescriptionChange}
+        />
+        {errors.description && (
+          <p className="text-red-600">{errors.description}</p>
+        )}
         <div className="mb-4">
           <h3 className="text-lg text-primary">Photo Upload</h3>
           <div className="flex flex-wrap gap-2">
@@ -298,6 +324,7 @@ const PostAProduct = () => {
               <RiAddLine size={32} color="#6B7280" />
             </div>
           </div>
+
           <input
             className="hidden"
             type="file"
@@ -308,12 +335,16 @@ const PostAProduct = () => {
           />
           {errors.photos && <p className="text-red-600">{errors.photos}</p>}
           <h3 className="text-lg text-primary">Price</h3>
-          <input
-            type="number"
-            className="w-full border rounded p-2 mb-4 appearance-none"
-            placeholder="Price"
-            style={{ WebkitAppearance: "none", MozAppearance: "textfield" }}
-          />
+          <div className="flex border rounded focus:outline-1 items-center w-28 h-full mb-4 pl-2">
+            <p className="font-bold">₱</p>
+            <input
+              type="number"
+              id="priceInput"
+              className="w-full focus:outline-none p-2 "
+              placeholder="Price"
+              style={{ WebkitAppearance: "none", MozAppearance: "textfield" }}
+            />
+          </div>
 
           <div style={{ height: "400px", width: "100%", marginBottom: "20px" }}>
             <LoadScript
@@ -338,6 +369,7 @@ const PostAProduct = () => {
                 }}
               >
                 <input
+                  className="text-lg text-black"
                   type="text"
                   placeholder="Search for a location"
                   value={searchQuery}
@@ -345,7 +377,7 @@ const PostAProduct = () => {
                   style={{
                     boxSizing: "border-box",
                     border: "1px solid transparent",
-                    width: "240px",
+                    width: "100%",
                     height: "32px",
                     padding: "0 12px",
                     borderRadius: "3px",
@@ -384,7 +416,7 @@ const PostAProduct = () => {
 
         <button
           type="submit"
-          className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
+          className="bg-primary mt-5 text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Submit Product"}
