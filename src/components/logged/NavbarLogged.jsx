@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
+import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../authContext";
 import { getFirestore, doc, onSnapshot, getDoc } from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth";
+import {
+  CiShop,
+  CiHome,
+  CiCircleInfo,
+  CiChat1,
+  CiCircleQuestion,
+  CiForkAndKnife,
+} from "react-icons/ci";
 
 export const NavbarLogged = () => {
   const [nav, setNav] = useState(false);
@@ -142,13 +150,17 @@ export const NavbarLogged = () => {
               </Link>
             </ul>
           </div>
-          <div className="lg:flex hidden gap-2 items-center text-black border p-2 rounded-lg">
-            <input
-              type="text"
-              placeholder="Search.."
-              className="outline-none w-44"
-            ></input>
-            <AiOutlineSearch className="lg:block hidden text-black" size={20} />
+          <div className="lg:flex hidden gap-2 items-center text-black">
+            <Link to={"/post_product"}>
+              <button className="text-white text-xs bg-primary px-2 py-1 rounded-md">
+                Post A Product
+              </button>
+            </Link>
+            <Link to={"/post_recipe"}>
+              <button className="text-white text-xs bg-primary px-2 py-1 rounded-md">
+                Post A Recipe
+              </button>
+            </Link>
           </div>
 
           <div className="lg:flex gap-5 items-center hidden">
@@ -172,8 +184,8 @@ export const NavbarLogged = () => {
         <div
           className={
             nav
-              ? "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-95 ease-linear duration-500"
-              : "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-0 ease-linear duration-500 pointer-events-none"
+              ? "fixed left-0 top-0 w-[80%] h-full shadow shadow-primary bg-[#ffffff] ease-in-out duration-500"
+              : "fixed left-[-100%]"
           }
         >
           <div
@@ -182,43 +194,57 @@ export const NavbarLogged = () => {
           >
             {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
           </div>
-          <ul className="text-left pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
-            <div className="flex lg:hidden gap-2 items-center text-black border p-1 rounded-lg">
-              <input
-                type="text"
-                placeholder="Search.."
-                className="outline-none text-xs w-24"
-              ></input>
-              <AiOutlineSearch
-                className="block lg:hidden text-black"
-                size={18}
-              />
+          <div className="flex flex-col gap-28">
+            <div>
+              <ul className="text-left text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
+                <Link to={"/marketplace"} onClick={handleNav}>
+                  <li className=" hover:text-primary flex gap-2 items-center">
+                    <CiShop size={30} className="text-primary" />
+                    Marketplace
+                  </li>
+                </Link>
+                <Link to={"/home"} onClick={handleNav}>
+                  <li className=" hover:text-primary flex gap-2 items-center">
+                    <CiHome size={30} className="text-primary" />
+                    Home
+                  </li>
+                </Link>
+                <Link to={"/about"} onClick={handleNav}>
+                  <li className=" hover:text-primary flex gap-2 items-center">
+                    <CiCircleInfo size={30} className="text-primary" />
+                    About
+                  </li>
+                </Link>
+                <Link to={"/recipe"} onClick={handleNav}>
+                  <li className=" hover:text-primary flex gap-2 items-center">
+                    <CiForkAndKnife size={30} className="text-primary" />
+                    Recipe
+                  </li>
+                </Link>
+                <Link to={"/chat"} onClick={handleNav}>
+                  <li className=" hover:text-primary flex gap-2 items-center">
+                    <CiChat1 size={30} className="text-primary" />
+                    Chat
+                  </li>
+                </Link>
+                <Link to={"/faqs"} onClick={handleNav}>
+                  <li className=" hover:text-primary flex gap-2 items-center">
+                    <CiCircleQuestion size={30} className="text-primary" />
+                    FAQs
+                  </li>
+                </Link>
+              </ul>
             </div>
-            <Link to={"/marketplace"} onClick={handleNav}>
-              <li className=" hover:text-primary">Marketplace</li>
-            </Link>
-            <Link to={"/home"} onClick={handleNav}>
-              <li className=" hover:text-primary">Home</li>
-            </Link>
-            <Link to={"/about"} onClick={handleNav}>
-              <li className=" hover:text-primary">About</li>
-            </Link>
-            <Link to={"/recipe"} onClick={handleNav}>
-              <li className=" hover:text-primary">Recipe</li>
-            </Link>
-            <Link to={"/chat"} onClick={handleNav}>
-              <li className=" hover:text-primary">Chat</li>
-            </Link>
-            <Link to={"/faqs"} onClick={handleNav}>
-              <li className=" hover:text-primary">FAQs</li>
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 mt-4 rounded-lg hover-bg-red-600 focus:outline-none"
-            >
-              Logout
-            </button>
-          </ul>
+            <div className="text-left  text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
+              <div className="border-t-gray-500 border-t"></div>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500  text-white py-2 px-4 rounded-lg hover-bg-red-600 focus:outline-none"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="block lg:hidden">

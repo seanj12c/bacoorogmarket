@@ -55,20 +55,46 @@ const MyAccount = () => {
               }
             });
 
-            // Fetch and display posts of the current user
-            const postsCollection = collection(db, "recipes");
-            const userPostsQuery = query(
-              postsCollection,
+            // Fetch and combine posts of the current user from both "products" and "recipes" collections
+            const productsCollection = collection(db, "products");
+            const recipesCollection = collection(db, "recipes");
+            const userProductsQuery = query(
+              productsCollection,
               where("userUid", "==", userId)
             );
-            const userPostsSnapshot = await getDocs(userPostsQuery);
-            const userPostsData = userPostsSnapshot.docs.map((doc) => {
+            const userProductsSnapshot = await getDocs(userProductsQuery);
+            const userProductsData = userProductsSnapshot.docs.map((doc) => {
               return {
                 id: doc.id,
+                type: "product",
                 ...doc.data(),
               };
             });
-            setUserPosts(userPostsData);
+            const userRecipesQuery = query(
+              recipesCollection,
+              where("userUid", "==", userId)
+            );
+            const userRecipesSnapshot = await getDocs(userRecipesQuery);
+            const userRecipesData = userRecipesSnapshot.docs.map((doc) => {
+              return {
+                id: doc.id,
+                type: "recipe",
+                ...doc.data(),
+              };
+            });
+
+            // Combine both arrays
+            const allUserPosts = [...userProductsData, ...userRecipesData];
+
+            // Sort the combined array by timestamp
+            const sortedUserPosts = allUserPosts.slice().sort((a, b) => {
+              const dateA = new Date(a.timestamp);
+              const dateB = new Date(b.timestamp);
+              return dateB - dateA;
+            });
+
+            // Set the sorted posts
+            setUserPosts(sortedUserPosts);
           } else {
             console.log("No such document for this user!");
           }
@@ -88,7 +114,8 @@ const MyAccount = () => {
 
   const showOptionsForPost = (post) => {
     setSelectedPost(post);
-    setEditedCaption(post.name); // Initialize the edited caption with the current post name
+
+    setEditedCaption(post.caption || post.name);
   };
 
   const hideOptions = () => {
@@ -97,12 +124,16 @@ const MyAccount = () => {
 
   const deletePost = async (postId) => {
     try {
-      if (postId) {
+      if (postId && postId.type) {
         const db = getFirestore();
-        const postDocRef = doc(db, "recipes", postId);
+        const postDocRef = doc(
+          db,
+          postId.type === "product" ? "products" : "recipes",
+          postId.id
+        );
 
         await deleteDoc(postDocRef);
-        const updatedPosts = userPosts.filter((post) => post.id !== postId);
+        const updatedPosts = userPosts.filter((post) => post.id !== postId.id);
         setUserPosts(updatedPosts);
         setShowDeleteConfirmation(false);
       }
@@ -111,13 +142,13 @@ const MyAccount = () => {
     }
   };
 
-  const confirmDelete = (postId) => {
-    deletePost(postId);
+  const confirmDelete = (post) => {
+    deletePost(post);
   };
 
   const handleEditCaption = async () => {
     if (selectedPost) {
-      const updatedPost = { ...selectedPost, name: editedCaption };
+      const updatedPost = { ...selectedPost, caption: editedCaption };
 
       const updatedPosts = userPosts.map((post) =>
         post === selectedPost ? updatedPost : post
@@ -127,21 +158,23 @@ const MyAccount = () => {
       try {
         if (selectedPost.id) {
           const db = getFirestore();
-          const postDocRef = doc(db, "recipes", selectedPost.id);
+          const postDocRef = doc(
+            db,
+            selectedPost.type === "product" ? "products" : "recipes",
+            selectedPost.id
+          );
 
-          await updateDoc(postDocRef, { name: editedCaption });
+          await updateDoc(postDocRef, { caption: editedCaption });
 
-          console.log("Post name updated in Firestore");
+          console.log("Post caption updated in Firestore");
 
           setIsEditing(false);
           hideOptions();
         } else {
           console.error("Selected post doesn't have an ID");
-          // Handle the case where the selected post doesn't have an ID
         }
       } catch (error) {
-        console.error("Error updating post in Firestore:", error);
-        // If the Firestore update fails, handle it accordingly
+        console.error("Error updating post caption in Firestore:", error);
       }
     }
   };
@@ -165,7 +198,7 @@ const MyAccount = () => {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setEditedCaption(selectedPost.name); // Reset the edited caption if editing is canceled
+    setEditedCaption(selectedPost.caption || selectedPost.name); // Reset the edited caption if editing is canceled
   };
 
   const uploadProfilePicture = async (file) => {
@@ -205,6 +238,10 @@ const MyAccount = () => {
       }
     }
   };
+
+  const sortedUserPosts = [...userPosts].sort((a, b) => {
+    return new Date(b.timestamp) - new Date(a.timestamp);
+  });
 
   return (
     <div className="max-w-xl  mx-auto p-4">
@@ -333,7 +370,7 @@ const MyAccount = () => {
           </div>
 
           <div className="bg-bgray mt-2 w-full rounded-lg p-2">
-            {userPosts.map((post, index) => (
+            {sortedUserPosts.map((post, index) => (
               <div
                 key={index}
                 className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
@@ -440,19 +477,26 @@ const MyAccount = () => {
                   </div>
                 </div>
                 <div className="mb-4">
-                  <h1 className="text-lg font-semibold mb-2">{post.name}</h1>
+                  <h1 className="text-lg font-semibold mb-2">{post.caption}</h1>
                 </div>
-                <div>
+                <div
+                  className={
+                    post.photos && post.photos.length > 1
+                      ? "grid gap-2 grid-cols-2"
+                      : ""
+                  }
+                >
                   {post.photos &&
-                    post.photos.length > 0 &&
-                    post.photos.map((photo, photoIndex) => (
-                      <img
-                        key={photoIndex}
-                        className="w-full h-36 object-cover rounded-lg mb-2"
-                        src={photo}
-                        alt=""
-                      />
-                    ))}
+                    post.photos
+                      .slice(0, 4)
+                      .map((photo, photoIndex) => (
+                        <img
+                          key={photoIndex}
+                          className="w-full h-40 object-cover rounded-lg mb-2"
+                          src={photo}
+                          alt=""
+                        />
+                      ))}
                 </div>
               </div>
             ))}
@@ -465,11 +509,12 @@ const MyAccount = () => {
                 </p>
                 <div className="flex justify-center space-x-4">
                   <button
-                    onClick={() => confirmDelete(selectedPost.id)}
+                    onClick={() => confirmDelete(selectedPost)}
                     className="bg-green-400 rounded text-white px-4 py-1"
                   >
                     Yes
                   </button>
+
                   <button
                     onClick={handleCancelDelete}
                     className="bg-red-400 rounded text-white px-4 py-1"

@@ -338,6 +338,7 @@ const PostAProduct = () => {
           <div className="flex border rounded focus:outline-1 items-center w-28 h-full mb-4 pl-2">
             <p className="font-bold">₱</p>
             <input
+              required
               type="number"
               id="priceInput"
               className="w-full focus:outline-none p-2 "

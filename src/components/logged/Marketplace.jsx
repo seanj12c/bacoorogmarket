@@ -50,6 +50,10 @@ const Marketplace = () => {
     setSelectedProduct(null);
   };
 
+  const capText = (text) => {
+    return text.length > 35 ? text.substring(0, 35) + "..." : text;
+  };
+
   return (
     <div>
       {loading ? (
@@ -87,15 +91,40 @@ const Marketplace = () => {
                 <h1 className="text-2xl font-semibold mb-2">
                   {product.caption}
                 </h1>
-                <p className="text-gray-700 mb-2">{product.description}</p>
+                <p className="text-gray-700 mb-2">
+                  {" "}
+                  {capText(product.description)}
+                </p>
                 <p className="text-primary font-bold">₱ {product.price}</p>
               </div>
-              <div>
-                <img
-                  className="w-full h-36 object-cover rounded-lg mb-2"
-                  src={product.photos[0]} //
-                  alt=""
-                />
+
+              <div className="grid grid-cols-2 gap-2">
+                {product.photos.slice(0, 3).map((photo, index) => (
+                  <img
+                    key={index}
+                    className="w-full h-36 object-cover rounded-lg mb-2"
+                    src={photo}
+                    alt={`PostPic ${index} by ${product.firstName} ${product.lastName}`}
+                  />
+                ))}
+                {product.photos.length > 3 && (
+                  <div
+                    className="w-full shadow-primary shadow-sm h-36 object-cover rounded-lg mb-2 flex items-center justify-center cursor-pointer relative"
+                    onClick={() => openProductModal(product)}
+                  >
+                    {/* Blurred background */}
+                    <img
+                      className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                      src={product.photos[3]}
+                      alt="Blurry background"
+                      style={{ filter: "blur(5px)" }}
+                    />
+                    {/* Click to see more text */}
+                    <p className="text-white font-semibold z-10">
+                      Click to see more
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           ))}

@@ -246,7 +246,7 @@ const PostARecipe = () => {
     }
 
     const recipeData = {
-      name: recipeName,
+      caption: recipeName,
       ingredients,
       instructions,
       photos,

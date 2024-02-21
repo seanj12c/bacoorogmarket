@@ -22,7 +22,7 @@ const Recipe = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           timestamp: data.timestamp,
-          name: data.name,
+          caption: data.caption,
           ingredients: data.ingredients,
           instructions: data.instructions,
           photos: data.photos,
@@ -79,7 +79,9 @@ const Recipe = () => {
                 </div>
               </div>
               <div className="mb-4">
-                <h1 className="text-2xl font-semibold mb-2">{recipe.name}</h1>
+                <h1 className="text-2xl font-semibold mb-2">
+                  {recipe.caption}
+                </h1>
               </div>
               <div>
                 <img
