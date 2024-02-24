@@ -47,9 +47,9 @@ const ProductModal = ({ product, closeModal }) => {
   }
 
   return (
-    <div className="fixed h-screen rounded-lg w-full px-1 border-solid md:px-10 inset-0 z-50 flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
+    <div className="fixed h-screen rounded-lg w-full border-solid inset-0 z-50 flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
       <div className=" w-full  mx-auto ">
-        <div className="md:h-full h-screen border-2 overflow-y-auto border-primary rounded-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+        <div className=" h-screen border-2 overflow-y-auto relative flex flex-col w-full bg-white outline-none focus:outline-none">
           {/* Header */}
           <div className="flex justify-between items-center  border-b border-solid">
             <div className="flex md:items-start items-center justify-between p-5 rounded-t md:w-1/2">
@@ -173,7 +173,7 @@ const ProductModal = ({ product, closeModal }) => {
                       <GoogleMap
                         mapContainerStyle={{ height: "100%", width: "100%" }}
                         center={productLocation}
-                        zoom={19}
+                        zoom={16}
                         options={{
                           draggable: false,
                           zoomControl: false,

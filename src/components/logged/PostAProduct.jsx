@@ -28,23 +28,23 @@ const Modal = ({ show }) => {
   }
 
   return (
-    <div className="h-screen bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold my-2">
+    <div className="h-screen bg-black px-4 md:px-0 bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
+        <h2 className="md:text-2xl text-xl font-semibold my-2">
           Thank you for submitting your product, it will now display on
           Marketplace pages!
         </h2>
         <img className="mx-auto h-20 object-contain" src={check} alt="" />
-        <div className="flex justify between mt-4">
+        <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-6 mt-4">
           <Link
             to="/marketplace"
-            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
           >
             Go to Marketplace
           </Link>
           <Link
             to="/myaccount"
-            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
           >
             Go to My Account
           </Link>
@@ -109,6 +109,16 @@ const PostAProduct = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const searchBoxRef = useRef(null);
   const [description, setDescription] = useState("");
+  const [freshnessValue, setFreshnessValue] = useState("Fresh");
+  const [productNameValue, setProductNameValue] = useState("Tahong");
+
+  const handleFreshnessChange = (e) => {
+    setFreshnessValue(e.target.value);
+  };
+
+  const handleProductNameChange = (e) => {
+    setProductNameValue(e.target.value);
+  };
 
   const [errors, setErrors] = useState({
     caption: "",
@@ -157,13 +167,11 @@ const PostAProduct = () => {
 
       const storageRef = ref(storage, `recipe_photos/${userUid}/${photo.name}`);
 
-      // Set the loading image as the initial preview
       setPhotoPreviews((prevPreviews) => [...prevPreviews, uploadload]);
 
       await uploadBytes(storageRef, photo);
       const downloadURL = await getDownloadURL(storageRef);
 
-      // Replace the loading image with the uploaded photo when it's done
       setPhotos((prevPhotos) => [...prevPhotos, downloadURL]);
       setPhotoPreviews((prevPreviews) => [
         ...prevPreviews.slice(0, prevPreviews.length - 1),
@@ -244,13 +252,17 @@ const PostAProduct = () => {
       profilePhotoUrl,
       firstName,
       lastName,
+      typeOfProduct: {
+        freshness: freshnessValue,
+        productName: productNameValue,
+      },
     };
 
-    const productsRef = collection(firestore, "products"); // Change the collection ID to "products"
+    const productsRef = collection(firestore, "products");
 
     try {
       setIsSubmitting(true);
-      await addDoc(productsRef, productData); // Use addDoc to add a new product document
+      await addDoc(productsRef, productData);
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error adding product: ", error);
@@ -261,16 +273,22 @@ const PostAProduct = () => {
     setIsModalOpen(false);
   };
 
+  const mapOptions = {
+    disableDefaultUI: true,
+    fullscreenControl: true,
+    zoomControl: true,
+  };
+
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-      <h2 className="text-2xl font-bold text-primary pt-24 mb-4">
+      <h2 className="text-2xl text-center  font-bold text-primary pt-24 mb-3">
         Post a Product
       </h2>
       <form onSubmit={handleSubmit}>
-        <h3 className="text-lg text-primary">Title</h3>
+        <h3 className="text-lg text-primary">Product Name</h3>
         <input
           type="text"
-          className="w-full border rounded p-2 mb-4"
+          className="w-full border rounded p-2 mb-3"
           placeholder="Name of your Product"
           value={caption}
           onChange={handleCaptionChange}
@@ -278,17 +296,40 @@ const PostAProduct = () => {
         {errors.caption && <p className="text-red-600">{errors.caption}</p>}
         <h3 className="text-lg text-primary">Description</h3>
         <textarea
-          className="w-full border rounded p-2 mb-4"
-          placeholder="Description of the Product"
+          className="w-full border rounded p-2 mb-3"
+          placeholder="Description of the Product/s"
           value={description}
           onChange={handleDescriptionChange}
         />
+        <div className="mb-3 flex flex-col  gap-2">
+          <h3 className="text-lg text-primary">Type of Product</h3>
+          <div className="flex gap-2">
+            <select
+              className="bg-white border rounded"
+              value={freshnessValue}
+              onChange={handleFreshnessChange}
+            >
+              <option value="Fresh">Fresh</option>
+              <option value="Cooked">Cooked</option>
+            </select>
+
+            <select
+              className="bg-white border rounded"
+              value={productNameValue}
+              onChange={handleProductNameChange}
+            >
+              <option value="Tahong">Tahong</option>
+              <option value="Talaba">Talaba</option>
+              <option value="Tahong & Talaba">Tahong & Talaba</option>
+            </select>
+          </div>
+        </div>
         {errors.description && (
           <p className="text-red-600">{errors.description}</p>
         )}
-        <div className="mb-4">
+        <div className="">
           <h3 className="text-lg text-primary">Photo Upload</h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-3">
             {photoPreviews.map((preview, index) => (
               <div
                 key={index}
@@ -335,7 +376,7 @@ const PostAProduct = () => {
           />
           {errors.photos && <p className="text-red-600">{errors.photos}</p>}
           <h3 className="text-lg text-primary">Price</h3>
-          <div className="flex border rounded focus:outline-1 items-center w-28 h-full mb-4 pl-2">
+          <div className="flex border rounded focus:outline-1 items-center w-28 h-full mb-3 pl-2">
             <p className="font-bold">₱</p>
             <input
               required
@@ -399,8 +440,9 @@ const PostAProduct = () => {
                       }
                     : defaultLocation
                 }
-                zoom={13} // Set the default zoom level
+                zoom={13}
                 onClick={handleMapClick}
+                options={mapOptions}
               >
                 {selectedLocation && (
                   <Marker
@@ -415,13 +457,15 @@ const PostAProduct = () => {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="bg-primary mt-5 text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Submitting..." : "Submit Product"}
-        </button>
+        <div className="flex justify-center w-full">
+          <button
+            type="submit"
+            className="bg-primary mt-5 w-full max-w-sm text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit Product"}
+          </button>
+        </div>
       </form>
       <Modal show={isModalOpen} onClose={closeModal} />
     </div>

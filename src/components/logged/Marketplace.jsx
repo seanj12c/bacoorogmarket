@@ -3,6 +3,10 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import ProductModal from "./ProductModal";
 import uploadload from "../../assets/loading.gif";
+import banner from "../../assets/banner.png";
+import { CiSearch } from "react-icons/ci";
+import { MdOutlinePostAdd, MdOutlineSort } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
@@ -65,7 +69,55 @@ const Marketplace = () => {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 py-24 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 py-24 md:grid-cols-3 gap-4">
+          <div>
+            <img src={banner} className=" object-cover" alt="" />
+          </div>
+          <div className="flex w-full justify-center items-center gap-2 px-4">
+            <div className="border-primary border w-full px-2 flex items-center gap-2 rounded-md ">
+              <CiSearch size={20} className="text-primary" />
+              <input
+                type="search"
+                className="outline-none text-xs w-full h-8"
+              />
+            </div>
+            <Link to="/post_product">
+              <div className="flex flex-col items-center border w-28 border-primary bg-primary rounded-lg">
+                <MdOutlinePostAdd className="text-white" size={20} />
+                <p className="text-center text-xs text-white">Post a Product</p>
+              </div>
+            </Link>
+          </div>
+
+          <div className="px-4">
+            <div className="flex justify-between items-center border p-1 border-primary bg-primary rounded-lg">
+              <div className="flex items-center gap-2">
+                <MdOutlineSort className="text-white text-2xl sm:text-4xl" />
+                <h3 className="text-xs sm:text-base text-white">Sort: </h3>
+              </div>
+              <div className="flex gap-2">
+                <select
+                  className="rounded-sm outline-none bg-primary text-xs sm:text-base border border-white text-white"
+                  name=""
+                  id=""
+                >
+                  <option value="None">-None-</option>
+                  <option value="Fresh">Fresh</option>
+                  <option value="Cooked">Cooked</option>
+                </select>
+                <select
+                  className="rounded-sm outline-none bg-primary text-xs sm:text-base border border-white text-white"
+                  name=""
+                  id=""
+                >
+                  <option value="None">-None-</option>
+                  <option value="Tahong">Tahong</option>
+                  <option value="Talaba">Talaba</option>
+                  <option value="Tahong & Talaba">Tahong & Talaba</option>
+                </select>
+              </div>
+            </div>
+          </div>
           {products.map((product) => (
             <div
               key={product.id}
