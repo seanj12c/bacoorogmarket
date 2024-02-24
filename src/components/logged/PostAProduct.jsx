@@ -111,6 +111,24 @@ const PostAProduct = () => {
   const [description, setDescription] = useState("");
   const [freshnessValue, setFreshnessValue] = useState("Fresh");
   const [productNameValue, setProductNameValue] = useState("Tahong");
+  const [price, setPrice] = useState("");
+  const [otherInformation, setOtherInformation] = useState("");
+  const [address, setAddress] = useState("");
+
+  const handlePriceChange = (event) => {
+    const inputPrice = event.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+    const formattedPrice =
+      inputPrice === "" ? "0" : parseInt(inputPrice, 10).toLocaleString(); // Check if input is empty and set to '0'
+    setPrice(formattedPrice);
+  };
+
+  const handleOtherInformationChange = (e) => {
+    setOtherInformation(e.target.value);
+  };
+
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
+  };
 
   const handleFreshnessChange = (e) => {
     setFreshnessValue(e.target.value);
@@ -241,6 +259,11 @@ const PostAProduct = () => {
       return;
     }
 
+    if (!selectedLocation) {
+      alert("Please pin your location on the map.");
+      return;
+    }
+
     const productData = {
       caption,
       description,
@@ -256,6 +279,8 @@ const PostAProduct = () => {
         freshness: freshnessValue,
         productName: productNameValue,
       },
+      otherInformation,
+      address,
     };
 
     const productsRef = collection(firestore, "products");
@@ -297,7 +322,7 @@ const PostAProduct = () => {
         <h3 className="text-lg text-primary">Description</h3>
         <textarea
           className="w-full border rounded p-2 mb-3"
-          placeholder="Description of the Product/s"
+          placeholder="Description of the Product"
           value={description}
           onChange={handleDescriptionChange}
         />
@@ -327,7 +352,7 @@ const PostAProduct = () => {
         {errors.description && (
           <p className="text-red-600">{errors.description}</p>
         )}
-        <div className="">
+        <div className="mb-5">
           <h3 className="text-lg text-primary">Photo Upload</h3>
           <div className="flex flex-wrap gap-2 mb-3">
             {photoPreviews.map((preview, index) => (
@@ -380,13 +405,29 @@ const PostAProduct = () => {
             <p className="font-bold">₱</p>
             <input
               required
-              type="number"
+              type="text"
               id="priceInput"
               className="w-full focus:outline-none p-2 "
               placeholder="Price"
               style={{ WebkitAppearance: "none", MozAppearance: "textfield" }}
+              value={price}
+              onChange={handlePriceChange}
             />
           </div>
+
+          <h3 className="text-lg text-primary">Address</h3>
+          <input
+            type="text"
+            className="w-full border rounded p-2 mb-3"
+            placeholder="Your full address here"
+            value={address}
+            onChange={handleAddressChange}
+            required
+          />
+
+          <p className="text-xs sm:text-base underline text-primary text-center">
+            Please pin your location on the map below.
+          </p>
 
           <div style={{ height: "400px", width: "100%", marginBottom: "20px" }}>
             <LoadScript
@@ -457,10 +498,20 @@ const PostAProduct = () => {
           </div>
         </div>
 
+        <div className="mt-10">
+          <h3 className="text-lg text-primary ">Other Information</h3>
+          <input
+            type="text"
+            className="w-full border rounded p-2 mb-3"
+            placeholder="Optional"
+            value={otherInformation}
+            onChange={handleOtherInformationChange}
+          />
+        </div>
         <div className="flex justify-center w-full">
           <button
             type="submit"
-            className="bg-primary mt-5 w-full max-w-sm text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
+            className="bg-primary  w-full max-w-sm text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Submitting..." : "Submit Product"}

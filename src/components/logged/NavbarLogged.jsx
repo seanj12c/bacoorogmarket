@@ -110,60 +110,48 @@ export const NavbarLogged = () => {
       <div
         className={`${
           fix
-            ? "bg-white opacity-95 transition-all ease-in-out duration-700"
+            ? "bg-white opacity-95 transition-all ease-in-out duration-300"
             : ""
-        } flex lg:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
+        } flex md:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 md:px-2 text-primary fixed top-0 w-full md:w-full z-50`}
       >
-        <div className="flex lg:w-full justify-between lg:justify-around  items-center">
-          <div className="lg:block hidden">
+        <div className="flex md:w-full justify-between md:justify-around  items-center">
+          <div className="md:block hidden">
             <Link to={"/home"}>
               <img
-                className="object-contain lg:w-20 w-16 select-none pointer-events-none"
+                className="object-contain md:w-20 w-16 select-none pointer-events-none"
                 src={logo}
                 alt=""
               />
             </Link>
           </div>
-          <div onClick={handleNav} className="block lg:hidden">
+          <div onClick={handleNav} className="block md:hidden">
             {nav ? <AiOutlineMenu size={25} /> : <AiOutlineMenu size={25} />}
           </div>
 
           <div className="text-black">
-            <ul className="hidden text-base gap-5 lg:flex">
+            <ul className="hidden text-base lg:gap-5 md:gap-2 md:flex">
               <Link to={"/marketplace"} className="border-r border-black pr-4">
-                <li className="p-3 hover:text-primary">Marketplace</li>
+                <li className="p-2 lg:p-3 hover:text-primary">Marketplace</li>
               </Link>
               <Link to={"/home"}>
-                <li className="p-3 hover:text-primary">Home</li>
+                <li className="p-2 lg:p-3 hover:text-primary">Home</li>
               </Link>
               <Link to={"/about"}>
-                <li className="p-3 hover:text-primary">About</li>
+                <li className="p-2 lg:p-3 hover:text-primary">About</li>
               </Link>
               <Link to={"/recipe"}>
-                <li className="p-3 hover:text-primary">Recipe</li>
+                <li className="p-2 lg:p-3 hover:text-primary">Recipe</li>
               </Link>
               <Link to={"/chat"}>
-                <li className="p-3 hover:text-primary">Chat</li>
+                <li className="p-2 lg:p-3 hover:text-primary">Chat</li>
               </Link>
               <Link to={"/faqs"}>
-                <li className="p-3 hover:text-primary">FAQs</li>
+                <li className="p-2 lg:p-3 hover:text-primary">FAQs</li>
               </Link>
             </ul>
           </div>
-          <div className="lg:flex hidden gap-2 items-center text-black">
-            <Link to={"/post_product"}>
-              <button className="text-white text-xs bg-primary px-2 py-1 rounded-md">
-                Post A Product
-              </button>
-            </Link>
-            <Link to={"/post_recipe"}>
-              <button className="text-white text-xs bg-primary px-2 py-1 rounded-md">
-                Post A Recipe
-              </button>
-            </Link>
-          </div>
 
-          <div className="lg:flex gap-5 items-center hidden">
+          <div className="md:flex gap-5 items-center hidden">
             <Link to={"/myaccount"}>
               {profilePicture ? (
                 <img
@@ -173,7 +161,7 @@ export const NavbarLogged = () => {
                 />
               ) : (
                 <FaUserCircle
-                  className="lg:block hidden text-primary"
+                  className="md:block hidden text-primary"
                   size={40}
                 />
               )}
@@ -190,7 +178,7 @@ export const NavbarLogged = () => {
         >
           <div
             onClick={handleNav}
-            className="flex pl-6 pt-9 justify-start lg:hidden"
+            className="flex pl-6 pt-9 justify-start md:hidden"
           >
             {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
           </div>
@@ -247,16 +235,16 @@ export const NavbarLogged = () => {
           </div>
         </div>
 
-        <div className="block lg:hidden">
+        <div className="block md:hidden">
           <Link to={"/home"}>
             <img
-              className="object-contain lg:w-20 w-16 select-none pointer-events-none"
+              className="object-contain md:w-20 w-16 select-none pointer-events-none"
               src={logo}
               alt=""
             />
           </Link>
         </div>
-        <div className="flex gap-5 items-center lg:hidden">
+        <div className="flex gap-5 items-center md:hidden">
           <div>
             <Link to={"/myaccount"}>
               {profilePicture ? (
@@ -267,7 +255,7 @@ export const NavbarLogged = () => {
                 />
               ) : (
                 <FaUserCircle
-                  className="block lg:hidden text-primary"
+                  className="block md:hidden text-primary"
                   size={30}
                 />
               )}
