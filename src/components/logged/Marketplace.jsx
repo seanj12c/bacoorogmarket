@@ -141,7 +141,7 @@ const Marketplace = () => {
               <FaSearch size={20} className="text-primary" />
               <input
                 type="search"
-                placeholder="Search a name, caption, or description..."
+                placeholder="Search by name, caption, or description..."
                 className="outline-none text-xs md:text-base w-full h-8 md:h-10"
                 onChange={handleSearch}
               />
@@ -184,11 +184,11 @@ const Marketplace = () => {
               </div>
             </div>
           </div>
-          <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className=" grid grid-cols-1 px-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {products.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-lg shadow p-4 cursor-pointer"
+                className="bg-post rounded-lg shadow p-4 cursor-pointer"
                 onClick={() => openProductModal(product)}
               >
                 <div className="flex gap-2 py-2 items-center justify-between">
@@ -202,7 +202,7 @@ const Marketplace = () => {
                       <p className="text-primary text-sm font-semibold">
                         {product.firstName} {product.lastName}
                       </p>
-                      <p className="text-gray-500 text-xs">
+                      <p className="text-gray-600 text-xs">
                         {product.timestamp}
                       </p>
                     </div>

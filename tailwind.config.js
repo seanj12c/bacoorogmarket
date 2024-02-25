@@ -11,6 +11,8 @@ module.exports = withMT({
       primary: "#008080",
       secondary: "#0D6410",
       bgray: "#ECECEC",
+      post: "#eff0f3",
+      black: "#181818",
     },
     extend: {},
   },

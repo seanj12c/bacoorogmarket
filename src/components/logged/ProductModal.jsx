@@ -88,7 +88,7 @@ const ProductModal = ({ product, closeModal }) => {
             </div>
           </div>
           {/* Body */}
-          <div className="w-full md:flex justify-around p-2">
+          <div className="w-full md:flex gap-3 lg:gap-5 justify-around p-2">
             <div className="md:w-1/2">
               <div className="mb-4">
                 {product.photos && product.photos.length > 0 && (
@@ -167,7 +167,7 @@ const ProductModal = ({ product, closeModal }) => {
                     </p>
                   </div>
 
-                  <div className=" my-2 w-full border"></div>
+                  <div className="md:hidden my-2 w-full border"></div>
 
                   <div className="md:hidden">
                     <p className="text-primary text-xs sm:text-lg font-bold">
@@ -180,6 +180,8 @@ const ProductModal = ({ product, closeModal }) => {
                 </div>
               </div>
             </div>
+
+            <div className="md:block hidden h-full border"></div>
 
             <div className="md:w-1/2">
               <div className="md:block hidden">
@@ -198,10 +200,10 @@ const ProductModal = ({ product, closeModal }) => {
                   {product.address}
                 </p>
               </div>
-              <div className="mx-auto justify-center mb-5 h-40 md:h-80 w-full md:w-96 lg:w-full object-cover cursor-pointer mt-1 px-7">
+              <div className="mx-auto justify-center mb-5 h-40 md:h-80 w-full md:w-80 lg:w-full object-cover cursor-pointer mt-1 px-7">
                 <h1
                   onClick={handleMapClick}
-                  className="text-center text-xs md:text-base text-primary "
+                  className="text-center text-xs lg:text-base text-primary "
                 >
                   Click the Map to locate the Seller
                 </h1>
