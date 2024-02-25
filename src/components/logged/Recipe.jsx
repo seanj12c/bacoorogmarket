@@ -3,6 +3,7 @@ import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import RecipeModal from "./RecipeModal";
 import uploadload from "../../assets/loading.gif";
+
 const Recipe = () => {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
@@ -39,10 +40,14 @@ const Recipe = () => {
 
   const openRecipeModal = (recipe) => {
     setSelectedRecipe(recipe);
+    // Disable scrolling when modal is open
+    document.body.classList.add("modal-open");
   };
 
   const closeRecipeModal = () => {
     setSelectedRecipe(null);
+    // Enable scrolling when modal is closed
+    document.body.classList.remove("modal-open");
   };
 
   return (

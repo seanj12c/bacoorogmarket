@@ -47,6 +47,8 @@ const Marketplace = () => {
               firstName: data.firstName,
               lastName: data.lastName,
               timestamp: data.timestamp,
+              address: data.address,
+              otherInformation: data.otherInformation,
             });
           }
         });
@@ -60,10 +62,14 @@ const Marketplace = () => {
 
   const openProductModal = (product) => {
     setSelectedProduct(product);
+    // Disable scrolling when modal is open
+    document.body.classList.add("modal-open");
   };
 
   const closeProductModal = () => {
     setSelectedProduct(null);
+    // Enable scrolling when modal is closed
+    document.body.classList.remove("modal-open");
   };
 
   const capText = (text) => {

@@ -34,6 +34,8 @@ const ProductModal = ({ product, closeModal }) => {
     );
   };
 
+  console.log("Product:", product);
+
   const handleMapClick = () => {
     const { latitude, longitude } = product.location;
     window.open(
@@ -43,7 +45,7 @@ const ProductModal = ({ product, closeModal }) => {
   };
 
   if (!product) {
-    return null; // Return null if product is not available yet
+    return null;
   }
 
   return (
@@ -86,89 +88,123 @@ const ProductModal = ({ product, closeModal }) => {
             </div>
           </div>
           {/* Body */}
-          <div className="w-full p-2">
-            <div className="mb-4">
-              {product.photos && product.photos.length > 0 && (
-                <div className="flex flex-col items-center justify-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <button
-                      onClick={() => handleSlideshowChange("prev")}
-                      className="text-primary hidden md:block text-xs sm:text-sm font-semibold py-2 px-4 rounded-full mr-4"
-                    >
-                      <BiSolidSkipPreviousCircle size={30} />
-                    </button>
-                    <img
-                      src={product.photos[slideshowIndex]}
-                      alt={`Product-Photos ${slideshowIndex + 1}`}
-                      className="w-56 h-56 sm:h-64 lg:h-80 sm:w-64 lg:w-80 object-cover rounded-lg"
-                    />
-                    <button
-                      onClick={() => handleSlideshowChange("next")}
-                      className="text-primary hidden md:block text-xs sm:text-sm font-semibold py-2 px-4 rounded-full ml-4"
-                    >
-                      <BiSolidSkipNextCircle size={30} />
-                    </button>
+          <div className="w-full md:flex justify-around p-2">
+            <div className="md:w-1/2">
+              <div className="mb-4">
+                {product.photos && product.photos.length > 0 && (
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <div className=" w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
+                        {/* background ito */}
+                        <img
+                          src={product.photos[slideshowIndex]}
+                          alt={`Product-Photos ${slideshowIndex + 1}`}
+                          className="w-full h-full absolute inset-0 z-0 opacity-60 blur-sm object-cover rounded-lg"
+                        />
+                        {/* mismong pic dito */}
+                        <img
+                          src={product.photos[slideshowIndex]}
+                          alt={`Product-Photos ${slideshowIndex + 1}`}
+                          className="w-full max-w-md mx-auto h-56 sm:h-64 p-1 lg:h-80 object-contain rounded-lg relative z-10"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex">
+                      <button
+                        onClick={() => handleSlideshowChange("prev")}
+                        className="text-primary text-xs sm:text-sm font-semibold py-2 px-4 rounded-full mr-4"
+                      >
+                        <BiSolidSkipPreviousCircle size={30} />
+                      </button>
+                      <button
+                        onClick={() => handleSlideshowChange("next")}
+                        className="text-primary  text-xs sm:text-sm font-semibold py-2 px-4 rounded-full ml-4"
+                      >
+                        <BiSolidSkipNextCircle size={30} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex">
-                    <button
-                      onClick={() => handleSlideshowChange("prev")}
-                      className="text-primary md:hidden text-xs sm:text-sm font-semibold py-2 px-4 rounded-full mr-4"
-                    >
-                      <BiSolidSkipPreviousCircle size={30} />
-                    </button>
-                    <button
-                      onClick={() => handleSlideshowChange("next")}
-                      className="text-primary md:hidden text-xs sm:text-sm font-semibold py-2 px-4 rounded-full ml-4"
-                    >
-                      <BiSolidSkipNextCircle size={30} />
-                    </button>
+                )}
+              </div>
+
+              <div className="flex justify-between px-5 items-center">
+                <div className="mt-2 w-[600px] ">
+                  <h1 className="font-bold text-lg sm:text-xl text-primary mb-1">
+                    {product.caption}
+                  </h1>
+                  <p className=" text-xs sm:text-base mb-1">
+                    <span className="text-primary font-bold">Price:</span> ₱
+                    {product.price.toLocaleString()}
+                    .00
+                  </p>
+                  <div className="hidden md:block">
+                    {product.otherInformation ? (
+                      <div>
+                        <h2 className="text-xs font-bold sm:text-base mb-1 text-primary">
+                          Other Information:
+                        </h2>
+                        <h2 className="text-xs sm:text-base mb-1">
+                          {product.otherInformation}
+                        </h2>
+                      </div>
+                    ) : (
+                      <div className="hidden md:block">
+                        <h2 className="text-xs font-bold sm:text-base mb-1 text-primary">
+                          Other Information:
+                        </h2>
+                        <p className="text-gray-500 text-xs sm:text-base mb-1">
+                          No other information
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="md:hidden">
+                    <p className="text-primary text-xs sm:text-lg font-bold">
+                      Description:{" "}
+                    </p>
+                    <p className=" text-xs  md:text-start sm:text-base mb-1">
+                      {product.description}
+                    </p>
+                  </div>
+
+                  <div className=" my-2 w-full border"></div>
+
+                  <div className="md:hidden">
+                    <p className="text-primary text-xs sm:text-lg font-bold">
+                      Address:{" "}
+                    </p>
+                    <p className=" text-xs  md:text-start sm:text-base">
+                      {product.address}
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
-            <div className="flex justify-between px-5 items-center">
-              <div className="mt-2 w-[600px] md:hidden">
-                <h1 className="font-bold text-base sm:text-lg text-primary">
-                  {product.caption}
-                </h1>
-                <p className=" text-xs sm:text-base">
-                  <span className="text-primary font-bold">Price:</span> ₱
-                  {product.price.toLocaleString()}
-                  .00
-                </p>
+            <div className="md:w-1/2">
+              <div className="md:block hidden">
                 <p className="text-primary text-xs sm:text-lg font-bold">
                   Description:{" "}
                 </p>
-                <p className=" text-xs  md:text-start sm:text-lg">
+                <p className=" text-xs  md:text-start sm:text-base mb-1">
                   {product.description}
                 </p>
-                <p className="text-primary text-xs sm:text-lg font-bold">
+              </div>
+              <div className="hidden md:block">
+                <p className="text-primary text-xs sm:text-lg  font-bold">
                   Address:{" "}
                 </p>
-                <p className=" text-xs  md:text-start sm:text-lg">
+                <p className=" text-xs  md:text-start sm:text-base">
                   {product.address}
                 </p>
               </div>
-            </div>
-            <div className="flex p-6 items-center justify-around flex-col md:flex-row">
-              <div className="md:w-1/2">
-                <div className="w-full">
-                  <h1 className=" text-xs sm:text-lg hidden md:block font-bold text-primary">
-                    {product.caption}
-                  </h1>
-                  <p className="text-xs  md:text-start hidden md:block sm:text-base">
-                    {product.description}
-                  </p>
-
-                  <h1
-                    onClick={handleMapClick}
-                    className="text-center text-xs md:text-base text-primary "
-                  >
-                    Click the Map to locate the Seller
-                  </h1>
-                </div>
-
+              <div className="mx-auto justify-center mb-5 h-40 md:h-80 w-full md:w-96 lg:w-full object-cover cursor-pointer mt-1 px-7">
+                <h1
+                  onClick={handleMapClick}
+                  className="text-center text-xs md:text-base text-primary "
+                >
+                  Click the Map to locate the Seller
+                </h1>
                 {product.location ? (
                   <div className="mx-auto mb-5 h-40 md:h-72 w-full md:w-72 lg:w-96 cursor-pointer shadow-sm shadow-primary rounded-lg p-1">
                     <LoadScript
@@ -205,11 +241,32 @@ const ProductModal = ({ product, closeModal }) => {
                     <p className="text-gray-500">No location data available.</p>
                   </div>
                 )}
-                <div className="flex justify-center">
-                  <button className="bg-primary text-xs text-white text-center px-3 w-32 py-2 rounded-lg">
-                    Message Seller
-                  </button>
-                </div>
+              </div>
+              <div className="px-3 md:hidden">
+                {product.otherInformation ? (
+                  <div>
+                    <h2 className="text-xs font-bold sm:text-base mb-1 text-primary">
+                      Other Information:
+                    </h2>
+                    <h2 className="text-xs sm:text-base mb-1">
+                      {product.otherInformation}
+                    </h2>
+                  </div>
+                ) : (
+                  <div className="px-3 md:hidden">
+                    <h2 className="text-xs font-bold sm:text-base mb-1 text-primary">
+                      Other Information:
+                    </h2>
+                    <p className="text-gray-500 text-xs sm:text-base mb-1">
+                      No other information
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-center mt-1">
+                <button className="bg-primary text-xs text-white text-center px-3 w-32 py-2 rounded-lg">
+                  Message Seller
+                </button>
               </div>
             </div>
           </div>

@@ -275,12 +275,12 @@ const PostAProduct = () => {
       profilePhotoUrl,
       firstName,
       lastName,
+      otherInformation,
+      address,
       typeOfProduct: {
         freshness: freshnessValue,
         productName: productNameValue,
       },
-      otherInformation,
-      address,
     };
 
     const productsRef = collection(firestore, "products");
