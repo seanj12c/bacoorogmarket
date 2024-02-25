@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore"; // Import query here
 import { firestore } from "../../firebase";
 import ProductModal from "./ProductModal";
 import uploadload from "../../assets/loading.gif";
@@ -18,7 +18,7 @@ const Marketplace = () => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      collection(firestore, "products"),
+      query(collection(firestore, "products")),
       (snapshot) => {
         const productsData = [];
         snapshot.forEach((doc) => {

@@ -21,22 +21,22 @@ const Modal = ({ show }) => {
 
   return (
     <div className="h-screen bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold my-2">
+      <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
+        <h2 className="md:text-2xl text-xl font-semibold my-2">
           Thank you for submitting your recipe, it will now display on Recipe
           pages!
         </h2>
         <img className="mx-auto h-20 object-contain" src={check} alt="" />
-        <div className="flex justify between mt-4">
+        <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-6 mt-4">
           <Link
             to="/recipe"
-            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
           >
-            Go to Recipe
+            Go to Recipe Page
           </Link>
           <Link
             to="/myaccount"
-            className="bg-primary text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
           >
             Go to My Account
           </Link>
@@ -246,6 +246,7 @@ const PostARecipe = () => {
     }
 
     const recipeData = {
+      recipeId: generateRecipeId(),
       caption: recipeName,
       ingredients,
       instructions,
@@ -266,6 +267,16 @@ const PostARecipe = () => {
     } catch (error) {
       console.error("Error adding recipe: ", error);
     }
+  };
+
+  const generateRecipeId = () => {
+    const previousRecipeId = localStorage.getItem("recipeId") || "0000000000";
+    const newRecipeId = String(parseInt(previousRecipeId) + 1).padStart(
+      10,
+      "0"
+    );
+    localStorage.setItem("recipeId", newRecipeId);
+    return newRecipeId;
   };
 
   const closeModal = () => {
