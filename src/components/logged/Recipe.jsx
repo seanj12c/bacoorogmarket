@@ -16,7 +16,7 @@ const Recipe = () => {
 
   useEffect(() => {
     const recipesCollection = collection(firestore, "recipes");
-    const recipesQuery = query(recipesCollection, orderBy("timestamp", "desc"));
+    const recipesQuery = query(recipesCollection, orderBy("recipeId", "desc"));
 
     const unsubscribe = onSnapshot(recipesQuery, (querySnapshot) => {
       const recipesData = [];
@@ -32,6 +32,7 @@ const Recipe = () => {
           ingredients: data.ingredients,
           instructions: data.instructions,
           photos: data.photos,
+          recipeId: data.recipeId, // Assuming you have a field called recipeId
         });
       });
       setRecipes(recipesData);
