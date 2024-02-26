@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, query } from "firebase/firestore"; // Import query here
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore"; // Import orderBy here
 import { firestore } from "../../firebase";
 import ProductModal from "./ProductModal";
 import uploadload from "../../assets/loading.gif";
@@ -18,7 +18,7 @@ const Marketplace = () => {
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      query(collection(firestore, "products")),
+      query(collection(firestore, "products"), orderBy("productId", "desc")),
       (snapshot) => {
         const productsData = [];
         snapshot.forEach((doc) => {
