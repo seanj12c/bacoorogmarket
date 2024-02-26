@@ -30,6 +30,7 @@ const MyAccount = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedCaption, setEditedCaption] = useState("");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [displayProducts, setDisplayProducts] = useState(true);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -47,54 +48,12 @@ const MyAccount = () => {
             console.log("Fetched data:", data);
             setUserData(data);
 
-            // Subscribe to changes in the profilePhotoUrl field
             onSnapshot(userDocRef, (doc) => {
               const newData = doc.data();
               if (newData && newData.profilePhotoUrl) {
                 setUserData(newData);
               }
             });
-
-            // Fetch and combine posts of the current user from both "products" and "recipes" collections
-            const productsCollection = collection(db, "products");
-            const recipesCollection = collection(db, "recipes");
-            const userProductsQuery = query(
-              productsCollection,
-              where("userUid", "==", userId)
-            );
-            const userProductsSnapshot = await getDocs(userProductsQuery);
-            const userProductsData = userProductsSnapshot.docs.map((doc) => {
-              return {
-                id: doc.id,
-                type: "product",
-                ...doc.data(),
-              };
-            });
-            const userRecipesQuery = query(
-              recipesCollection,
-              where("userUid", "==", userId)
-            );
-            const userRecipesSnapshot = await getDocs(userRecipesQuery);
-            const userRecipesData = userRecipesSnapshot.docs.map((doc) => {
-              return {
-                id: doc.id,
-                type: "recipe",
-                ...doc.data(),
-              };
-            });
-
-            // Combine both arrays
-            const allUserPosts = [...userProductsData, ...userRecipesData];
-
-            // Sort the combined array by timestamp
-            const sortedUserPosts = allUserPosts.slice().sort((a, b) => {
-              const dateA = new Date(a.timestamp);
-              const dateB = new Date(b.timestamp);
-              return dateB - dateA;
-            });
-
-            // Set the sorted posts
-            setUserPosts(sortedUserPosts);
           } else {
             console.log("No such document for this user!");
           }
@@ -111,6 +70,53 @@ const MyAccount = () => {
 
     getCurrentUser();
   }, [auth]);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      if (auth.currentUser) {
+        const userId = auth.currentUser.uid;
+        const db = getFirestore();
+
+        try {
+          const productsCollection = collection(db, "products");
+          const recipesCollection = collection(db, "recipes");
+
+          const userProductsQuery = query(
+            productsCollection,
+            where("userUid", "==", userId)
+          );
+          const userProductsSnapshot = await getDocs(userProductsQuery);
+          const userProductsData = userProductsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            type: "product",
+            ...doc.data(),
+          }));
+
+          const userRecipesQuery = query(
+            recipesCollection,
+            where("userUid", "==", userId)
+          );
+          const userRecipesSnapshot = await getDocs(userRecipesQuery);
+          const userRecipesData = userRecipesSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            type: "recipe",
+            ...doc.data(),
+          }));
+
+          const allUserPosts = [...userProductsData, ...userRecipesData];
+          setUserPosts(allUserPosts);
+        } catch (error) {
+          console.error("Error fetching posts:", error);
+        }
+      }
+    };
+
+    fetchPosts();
+  }, [auth]);
+
+  const toggleDisplay = (isProducts) => {
+    setDisplayProducts(isProducts);
+  };
 
   const showOptionsForPost = (post) => {
     setSelectedPost(post);
@@ -239,10 +245,6 @@ const MyAccount = () => {
     }
   };
 
-  const sortedUserPosts = [...userPosts].sort((a, b) => {
-    return new Date(b.timestamp) - new Date(a.timestamp);
-  });
-
   return (
     <div className="max-w-xl  mx-auto p-4">
       {loading ? (
@@ -334,6 +336,7 @@ const MyAccount = () => {
               <strong>Address:</strong> {userData.address}
             </p>
           </div>
+
           <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
             <h1 className="text-2xl text-center w-full font-bold ">Posts</h1>
             <div className="flex h-full w-full gap-2 py-2 justify-around items-center">
@@ -369,138 +372,317 @@ const MyAccount = () => {
             </div>
           </div>
 
-          <div className="bg-bgray mt-2 w-full rounded-lg p-2">
-            {sortedUserPosts.map((post, index) => (
-              <div
-                key={index}
-                className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+          <div className=" bg-bgray py-2 rounded-lg  my-4">
+            <h1 className="text-center font-bold text-black mb-2">
+              You posts here
+            </h1>
+            <div className="flex text-xs items-center justify-center">
+              <button
+                onClick={() => toggleDisplay(true)}
+                className={`mx-2 px-4 py-2 ${
+                  displayProducts
+                    ? "bg-primary text-white"
+                    : "bg-gray-400 text-black"
+                } rounded-md`}
               >
-                <div className="flex gap-2 py-2 items-center w-full justify-between">
-                  <div className="flex gap-2 items-center w-full justify-between px-2">
-                    <div className="flex gap-4 items-center">
-                      {userData.profilePhotoUrl && !isUploading ? (
-                        <img
-                          src={userData.profilePhotoUrl}
-                          alt="Profile"
-                          className="w-12 h-12 rounded-full object-cover inline-block"
-                        />
-                      ) : (
-                        <img
-                          src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
-                          alt="Default Profile"
-                          className="w-12 h-12 rounded-full object-cover inline-block"
-                        />
-                      )}
-                      <div>
-                        <p className="text-primary text-sm font-semibold">
-                          {userData.firstName} {userData.lastName}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {post.timestamp}
-                        </p>
-                      </div>
-                    </div>
-                    <div style={{ position: "relative" }}>
-                      <HiDotsHorizontal
-                        className="text-primary"
-                        size={20}
-                        onClick={() => showOptionsForPost(post)}
-                      />
-                      {selectedPost && selectedPost === post && (
-                        <div
-                          className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
-                          style={{ top: "-40px", right: "-20px" }}
-                        >
-                          {!isEditing ? (
-                            <p
-                              onClick={() => setIsEditing(true)}
-                              className=" cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
-                            >
-                              Edit
-                            </p>
+                Products
+              </button>
+              <button
+                onClick={() => toggleDisplay(false)}
+                className={`mx-2 px-4 py-2 ${
+                  displayProducts
+                    ? "bg-gray-400 text-black"
+                    : "bg-primary text-white"
+                } rounded-md`}
+              >
+                Recipes
+              </button>
+            </div>
+          </div>
+
+          {displayProducts ? (
+            // Render products
+            <div>
+              {userPosts
+                .filter((post) => post.type === "product")
+                .sort((a, b) => b.productId - a.productId)
+                .map((product, index) => (
+                  // Render product item
+                  <div
+                    key={index}
+                    className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                  >
+                    <div className="flex gap-2 py-2 items-center w-full justify-between">
+                      <div className="flex gap-2 items-center w-full justify-between px-2">
+                        <div className="flex gap-4 items-center">
+                          {userData.profilePhotoUrl && !isUploading ? (
+                            <img
+                              src={userData.profilePhotoUrl}
+                              alt="Profile"
+                              className="w-12 h-12 rounded-full object-cover inline-block"
+                            />
                           ) : (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                              <div className="bg-white w-full max-w-md p-6 rounded-lg">
-                                <p className="text-lg mb-4 text-primary">
-                                  Edit Caption
+                            <img
+                              src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                              alt="Default Profile"
+                              className="w-12 h-12 rounded-full object-cover inline-block"
+                            />
+                          )}
+                          <div>
+                            <p className="text-primary text-sm font-semibold">
+                              {userData.firstName} {userData.lastName}
+                            </p>
+                            <p className="text-gray-500 text-xs">
+                              {product.timestamp}
+                            </p>
+                          </div>
+                        </div>
+                        <div style={{ position: "relative" }}>
+                          <HiDotsHorizontal
+                            className="text-primary"
+                            size={20}
+                            onClick={() => showOptionsForPost(product)}
+                          />
+                          {selectedPost && selectedPost === product && (
+                            <div
+                              className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
+                              style={{ top: "-40px", right: "-20px" }}
+                            >
+                              {!isEditing ? (
+                                <p
+                                  onClick={() => setIsEditing(true)}
+                                  className=" cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
+                                >
+                                  Edit
                                 </p>
-                                <div className="relative">
-                                  <input
-                                    type="text"
-                                    value={editedCaption}
-                                    onChange={(e) =>
-                                      setEditedCaption(e.target.value)
-                                    }
-                                    className="bg-gray-100 border rounded px-2 py-1 w-full"
-                                    placeholder="Enter new caption"
-                                  />
-                                  <div className="flex justify-end mt-2">
-                                    <button
-                                      onClick={handleEditCaption}
-                                      className="bg-green-400 rounded text-white px-4 py-1 mr-2"
-                                    >
-                                      Save
-                                    </button>
-                                    <button
-                                      onClick={handleCancelEdit}
-                                      className="bg-red-400 rounded text-white px-4 py-1"
-                                    >
-                                      Cancel
-                                    </button>
+                              ) : (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                                  <div className="bg-white w-full max-w-md p-6 rounded-lg">
+                                    <p className="text-lg mb-4 text-primary">
+                                      Edit Caption
+                                    </p>
+                                    <div className="relative">
+                                      <input
+                                        type="text"
+                                        value={editedCaption}
+                                        onChange={(e) =>
+                                          setEditedCaption(e.target.value)
+                                        }
+                                        className="bg-gray-100 border rounded px-2 py-1 w-full"
+                                        placeholder="Enter new caption"
+                                      />
+                                      <div className="flex justify-end mt-2">
+                                        <button
+                                          onClick={handleEditCaption}
+                                          className="bg-green-400 rounded text-white px-4 py-1 mr-2"
+                                        >
+                                          Save
+                                        </button>
+                                        <button
+                                          onClick={handleCancelEdit}
+                                          className="bg-red-400 rounded text-white px-4 py-1"
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
+                              )}
+
+                              <div className="flex flex-col gap-1 justify-center">
+                                {!isEditing ? (
+                                  <button
+                                    onClick={() => handleDeletePost(product)}
+                                    className="bg-red-400 text-white py-1 px-2 rounded-md"
+                                  >
+                                    Delete
+                                  </button>
+                                ) : null}
+                                {!isEditing ? (
+                                  <button
+                                    onClick={() => showOptionsForPost(false)}
+                                    className="bg-black text-white py-1 px-2 rounded-md"
+                                  >
+                                    Close
+                                  </button>
+                                ) : null}
                               </div>
                             </div>
                           )}
-
-                          <div className="flex flex-col gap-1 justify-center">
-                            {!isEditing ? (
-                              <button
-                                onClick={() => handleDeletePost(post)}
-                                className="bg-red-400 text-white py-1 px-2 rounded-md"
-                              >
-                                Delete
-                              </button>
-                            ) : null}
-                            {!isEditing ? (
-                              <button
-                                onClick={() => showOptionsForPost(false)}
-                                className="bg-black text-white py-1 px-2 rounded-md"
-                              >
-                                Close
-                              </button>
-                            ) : null}
-                          </div>
                         </div>
-                      )}
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <h1 className="text-lg font-semibold mb-2">
+                        {product.caption}
+                      </h1>
+                    </div>
+                    <div
+                      className={
+                        product.photos && product.photos.length > 1
+                          ? "grid gap-2 grid-cols-2"
+                          : ""
+                      }
+                    >
+                      {product.photos &&
+                        product.photos
+                          .slice(0, 4)
+                          .map((photo, photoIndex) => (
+                            <img
+                              key={photoIndex}
+                              className="w-full h-40 object-cover rounded-lg mb-2"
+                              src={photo}
+                              alt=""
+                            />
+                          ))}
                     </div>
                   </div>
-                </div>
-                <div className="mb-4">
-                  <h1 className="text-lg font-semibold mb-2">{post.caption}</h1>
-                </div>
-                <div
-                  className={
-                    post.photos && post.photos.length > 1
-                      ? "grid gap-2 grid-cols-2"
-                      : ""
-                  }
-                >
-                  {post.photos &&
-                    post.photos
-                      .slice(0, 4)
-                      .map((photo, photoIndex) => (
-                        <img
-                          key={photoIndex}
-                          className="w-full h-40 object-cover rounded-lg mb-2"
-                          src={photo}
-                          alt=""
-                        />
-                      ))}
-                </div>
-              </div>
-            ))}
-          </div>
+                ))}
+            </div>
+          ) : (
+            // Render recipes
+            <div>
+              {userPosts
+                .filter((post) => post.type === "recipe")
+                .sort((a, b) => b.recipeId - a.recipeId)
+                .map((recipe, index) => (
+                  // Render recipe item
+                  <div
+                    key={index}
+                    className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                  >
+                    <div className="flex gap-2 py-2 items-center w-full justify-between">
+                      <div className="flex gap-2 items-center w-full justify-between px-2">
+                        <div className="flex gap-4 items-center">
+                          {userData.profilePhotoUrl && !isUploading ? (
+                            <img
+                              src={userData.profilePhotoUrl}
+                              alt="Profile"
+                              className="w-12 h-12 rounded-full object-cover inline-block"
+                            />
+                          ) : (
+                            <img
+                              src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                              alt="Default Profile"
+                              className="w-12 h-12 rounded-full object-cover inline-block"
+                            />
+                          )}
+                          <div>
+                            <p className="text-primary text-sm font-semibold">
+                              {userData.firstName} {userData.lastName}
+                            </p>
+                            <p className="text-gray-500 text-xs">
+                              {recipe.timestamp}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div style={{ position: "relative" }}>
+                          <HiDotsHorizontal
+                            className="text-primary"
+                            size={20}
+                            onClick={() => showOptionsForPost(recipe)}
+                          />
+                          {selectedPost && selectedPost === recipe && (
+                            <div
+                              className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
+                              style={{ top: "-40px", right: "-20px" }}
+                            >
+                              {!isEditing ? (
+                                <p
+                                  onClick={() => setIsEditing(true)}
+                                  className=" cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
+                                >
+                                  Edit
+                                </p>
+                              ) : (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                                  <div className="bg-white w-full max-w-md p-6 rounded-lg">
+                                    <p className="text-lg mb-4 text-primary">
+                                      Edit Caption
+                                    </p>
+                                    <div className="relative">
+                                      <input
+                                        type="text"
+                                        value={editedCaption}
+                                        onChange={(e) =>
+                                          setEditedCaption(e.target.value)
+                                        }
+                                        className="bg-gray-100 border rounded px-2 py-1 w-full"
+                                        placeholder="Enter new caption"
+                                      />
+                                      <div className="flex justify-end mt-2">
+                                        <button
+                                          onClick={handleEditCaption}
+                                          className="bg-green-400 rounded text-white px-4 py-1 mr-2"
+                                        >
+                                          Save
+                                        </button>
+                                        <button
+                                          onClick={handleCancelEdit}
+                                          className="bg-red-400 rounded text-white px-4 py-1"
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="flex flex-col gap-1 justify-center">
+                                {!isEditing ? (
+                                  <button
+                                    onClick={() => handleDeletePost(recipe)}
+                                    className="bg-red-400 text-white py-1 px-2 rounded-md"
+                                  >
+                                    Delete
+                                  </button>
+                                ) : null}
+                                {!isEditing ? (
+                                  <button
+                                    onClick={() => showOptionsForPost(false)}
+                                    className="bg-black text-white py-1 px-2 rounded-md"
+                                  >
+                                    Close
+                                  </button>
+                                ) : null}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mb-4">
+                      <h1 className="text-lg font-semibold mb-2">
+                        {recipe.caption}
+                      </h1>
+                    </div>
+                    <div
+                      className={
+                        recipe.photos && recipe.photos.length > 1
+                          ? "grid gap-2 grid-cols-2"
+                          : ""
+                      }
+                    >
+                      {recipe.photos &&
+                        recipe.photos
+                          .slice(0, 4)
+                          .map((photo, photoIndex) => (
+                            <img
+                              key={photoIndex}
+                              className="w-full h-40 object-cover rounded-lg mb-2"
+                              src={photo}
+                              alt=""
+                            />
+                          ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
           {selectedPost && showDeleteConfirmation && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
               <div className="bg-white w-full max-w-md p-6 rounded-lg text-primary">
