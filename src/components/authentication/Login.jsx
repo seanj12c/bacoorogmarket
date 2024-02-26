@@ -40,7 +40,13 @@ const Login = () => {
 
         localStorage.setItem("userId", user.uid);
 
-        navigate("/home");
+        if (user.email === "bacoorogmarket@gmail.com") {
+          // Redirect to the admin page
+          navigate("/admin");
+        } else {
+          // Redirect to the home page for regular users
+          navigate("/home");
+        }
       })
       .catch((error) => {
         setLoginError(error.message);

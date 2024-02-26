@@ -21,6 +21,7 @@ import uploadload from "./assets/loading.gif";
 import Faq from "./components/logged/Faq";
 import PostAProduct from "./components/logged/PostAProduct";
 import Marketplace from "./components/logged/Marketplace";
+import Administrator from "./components/admin/Administrator"; // Import the Administrator component
 
 function AppRoutes() {
   const location = useLocation();
@@ -58,7 +59,9 @@ function AppRoutes() {
 
   return (
     <div className="App">
-      {!isNavbarHidden && <NavbarLogged />}
+      {!isNavbarHidden && !location.pathname.startsWith("/admin") && user && (
+        <NavbarLogged />
+      )}
       <Routes>
         <Route
           path="/"
@@ -103,6 +106,17 @@ function AppRoutes() {
         <Route
           path="/recipe"
           element={user ? <Recipe /> : <Navigate to="/login" />}
+        />
+        {/* Add route for the Administrator component */}
+        <Route
+          path="/admin"
+          element={
+            user && user.email === "bacoorogmarket@gmail.com" ? (
+              <Administrator />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
       </Routes>
     </div>

@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlineMenu, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
+import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 import lock from "../../assets/lock.gif";
+import {
+  CiShop,
+  CiHome,
+  CiCircleInfo,
+  CiChat1,
+  CiCircleQuestion,
+  CiForkAndKnife,
+} from "react-icons/ci";
 
 export const NavbarNotLogged = () => {
   const [nav, setNav] = useState(false);
@@ -144,8 +152,8 @@ export const NavbarNotLogged = () => {
         <div
           className={
             nav
-              ? "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-95 ease-linear duration-500"
-              : "fixed left-0 top-0 pr-6 h-full border border-r-primary bg-white opacity-0 ease-linear duration-500 pointer-events-none"
+              ? "fixed left-0 top-0 w-[80%] h-full shadow shadow-primary bg-[#ffffff] ease-in-out duration-500"
+              : "fixed left-[-100%]"
           }
         >
           <div
@@ -154,49 +162,66 @@ export const NavbarNotLogged = () => {
           >
             {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
           </div>
-          <ul className="text-left pl-6 pr-14 flex flex-col gap-4 h-full mt-6 lg:hidden">
-            <div className="flex lg:hidden gap-2 items-center text-black border p-1 rounded-lg">
-              <input
-                type="text"
-                placeholder="Search.."
-                className="outline-none text-xs w-24"
-              ></input>
-              <AiOutlineSearch
-                className="block lg:hidden text-black"
-                size={18}
-              />
-            </div>
-            <p onClick={handleButtonToggle}>
-              <li className=" hover:text-primary">Marketplace</li>
-            </p>
-            <a href="/#home" onClick={handleNav}>
-              <li className=" hover:text-primary">Home</li>
-            </a>
-            <a href="/#about" onClick={handleNav}>
-              <li className=" hover:text-primary">About</li>
-            </a>
-            <p onClick={handleButtonToggle}>
-              <li className=" hover:text-primary">Recipe</li>
-            </p>
-            <p onClick={handleButtonToggle}>
-              <li className=" hover:text-primary">Chat</li>
-            </p>
-            <a href="/#FAQs" onClick={handleNav}>
-              <li className=" hover:text-primary">FAQs</li>
-            </a>
-            <div className="flex flex-col gap-2">
-              <Link to="/login">
-                <button className="text-white px-3 py-2 bg-primary rounded-md">
-                  Login
-                </button>
-              </Link>
-              <Link to="/register">
-                <button className="text-white px-3 py-2 bg-primary rounded-md">
-                  Register
-                </button>
-              </Link>
-            </div>
-          </ul>
+          <div>
+            <ul className="text-left text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
+              <li
+                onClick={handleButtonToggle}
+                className=" hover:text-primary flex gap-2 items-center"
+              >
+                <CiShop size={30} className="text-primary" />
+                Marketplace
+              </li>
+
+              <a href="/#home" onClick={handleNav}>
+                <li className=" hover:text-primary flex gap-2 items-center">
+                  <CiHome size={30} className="text-primary" />
+                  Home
+                </li>
+              </a>
+              <a href="/#about" onClick={handleNav}>
+                <li className=" hover:text-primary flex gap-2 items-center">
+                  <CiCircleInfo size={30} className="text-primary" />
+                  About
+                </li>
+              </a>
+
+              <li
+                onClick={handleButtonToggle}
+                className=" hover:text-primary flex gap-2 items-center"
+              >
+                <CiForkAndKnife size={30} className="text-primary" />
+                Recipe
+              </li>
+
+              <li
+                onClick={handleButtonToggle}
+                className=" hover:text-primary flex gap-2 items-center"
+              >
+                <CiChat1 size={30} className="text-primary" />
+                Chat
+              </li>
+
+              <a href="/#FAQs" onClick={handleNav}>
+                <li className=" hover:text-primary flex gap-2 items-center">
+                  <CiCircleQuestion size={30} className="text-primary" />
+                  FAQs
+                </li>
+              </a>
+              <div className="border-t-gray-500 border-t"></div>
+              <div className="flex flex-col gap-2 w-full">
+                <Link to="/login">
+                  <button className="text-white w-full px-3 py-2 bg-primary rounded-md">
+                    Login
+                  </button>
+                </Link>
+                <Link to="/register">
+                  <button className="text-white w-full px-3 py-2 bg-primary rounded-md">
+                    Register
+                  </button>
+                </Link>
+              </div>
+            </ul>
+          </div>
         </div>
         <div className="block lg:hidden">
           <img
