@@ -183,7 +183,10 @@ const PostAProduct = () => {
     try {
       const storage = getStorage();
 
-      const storageRef = ref(storage, `recipe_photos/${userUid}/${photo.name}`);
+      const storageRef = ref(
+        storage,
+        `product_photos/${userUid}/${photo.name}`
+      );
 
       setPhotoPreviews((prevPreviews) => [...prevPreviews, uploadload]);
 
@@ -265,6 +268,7 @@ const PostAProduct = () => {
     }
 
     const productData = {
+      productId: generateProductId(),
       caption,
       description,
       photos,
@@ -292,6 +296,16 @@ const PostAProduct = () => {
     } catch (error) {
       console.error("Error adding product: ", error);
     }
+  };
+
+  const generateProductId = () => {
+    const previousProductId = localStorage.getItem("productId") || "0000000000";
+    const newProductId = String(parseInt(previousProductId) + 1).padStart(
+      10,
+      "0"
+    );
+    localStorage.setItem("productId", newProductId);
+    return newProductId;
   };
 
   const closeModal = () => {
