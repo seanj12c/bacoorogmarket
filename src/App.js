@@ -22,6 +22,7 @@ import Faq from "./components/logged/Faq";
 import PostAProduct from "./components/logged/PostAProduct";
 import Marketplace from "./components/logged/Marketplace";
 import Administrator from "./components/admin/Administrator"; // Import the Administrator component
+import Products from "./components/admin/Products";
 
 function AppRoutes() {
   const location = useLocation();
@@ -109,10 +110,20 @@ function AppRoutes() {
         />
         {/* Add route for the Administrator component */}
         <Route
-          path="/admin"
+          path="/admin/users"
           element={
             user && user.email === "bacoorogmarket@gmail.com" ? (
               <Administrator />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            user && user.email === "bacoorogmarket@gmail.com" ? (
+              <Products />
             ) : (
               <Navigate to="/login" />
             )

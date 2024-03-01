@@ -42,7 +42,7 @@ const Login = () => {
 
         if (user.email === "bacoorogmarket@gmail.com") {
           // Redirect to the admin page
-          navigate("/admin");
+          navigate("/admin/users");
         } else {
           // Redirect to the home page for regular users
           navigate("/home");

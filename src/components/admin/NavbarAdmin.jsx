@@ -9,8 +9,13 @@ import { FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
+import logo from "../../assets/logo.png";
 
-export const NavbarNotLogged = () => {
+export const NavbarAdmin = ({ users, locations, products, recipes }) => {
+  const user = `${users}`;
+  const location = `${locations}`;
+  const product = `${products}`;
+  const recipe = `${recipes}`;
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
 
@@ -62,42 +67,46 @@ export const NavbarNotLogged = () => {
         } flex justify-between ease-linear duration-500 items-center h-24 shadow-md mx-auto px-6  text-primary fixed top-0 w-full  z-50`}
       >
         <div onClick={handleNav} className="block ">
-          {nav ? <AiOutlineMenu size={25} /> : <AiOutlineMenu size={25} />}
+          {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
         </div>
         <div
           className={
             nav
-              ? "fixed left-0 top-0 w-[80%] h-full shadow shadow-primary bg-[#ffffff] ease-in-out duration-500"
-              : "fixed left-[-100%]"
+              ? "fixed right-0 top-0 w-[80%] h-full shadow shadow-primary bg-[#ffffff] ease-in-out duration-500"
+              : "fixed right-[-100%]"
           }
         >
-          <div onClick={handleNav} className="flex pl-6 pt-9 justify-start ">
-            {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
-          </div>
           <div>
-            <ul className="text-left text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
-              <li className=" hover:text-primary flex gap-2 items-center">
-                <FaUsers size={30} className="text-primary" />
-                Users
-              </li>
-
-              <a href="/#home" onClick={handleNav}>
-                <li className=" hover:text-primary flex gap-2 items-center">
-                  <LiaSearchLocationSolid size={30} className="text-primary" />
+            <div>
+              <img className="h-20 mx-auto pt-4" src={logo} alt="" />
+            </div>
+            <ul className="text-left text-black  flex flex-col h-full mt-6">
+              <Link to="/admin/users">
+                <li className={`${user}p-4 flex gap-2 items-center `}>
+                  <FaUsers size={30} />
+                  Users
+                </li>
+              </Link>
+              <Link to="/admin/locations">
+                <li className={`${location} p-4 flex gap-2 items-center`}>
+                  <LiaSearchLocationSolid size={30} />
                   Locations
                 </li>
-              </a>
-              <a href="/#about" onClick={handleNav}>
-                <li className=" hover:text-primary flex gap-2 items-center">
-                  <GiMussel size={30} className="text-primary" />
+              </Link>
+
+              <Link to="/admin/products">
+                <li className={`${product} p-4 flex gap-2 items-center`}>
+                  <GiMussel size={30} />
                   Products
                 </li>
-              </a>
+              </Link>
 
-              <li className=" hover:text-primary flex gap-2 items-center">
-                <MdOutlineRestaurantMenu size={30} className="text-primary" />
-                Recipes
-              </li>
+              <Link to="/admin/recipes">
+                <li className={`${recipe} p-4 flex gap-2 items-center`}>
+                  <MdOutlineRestaurantMenu size={30} />
+                  Recipes
+                </li>
+              </Link>
             </ul>
           </div>
         </div>
@@ -115,4 +124,4 @@ export const NavbarNotLogged = () => {
   );
 };
 
-export default NavbarNotLogged;
+export default NavbarAdmin;

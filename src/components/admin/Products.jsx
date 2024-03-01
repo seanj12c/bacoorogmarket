@@ -11,37 +11,36 @@ import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 
-const Administrator = () => {
-  const [users, setUsers] = useState([]);
+const Products = () => {
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const usersCollection = collection(firestore, "registered");
-    const usersQuery = query(usersCollection, orderBy("userId", "desc"));
+    const productsCollection = collection(firestore, "products");
+    const productsQuery = query(
+      productsCollection,
+      orderBy("productId", "desc")
+    );
 
-    const unsubscribe = onSnapshot(usersQuery, (querySnapshot) => {
-      const usersData = [];
+    const unsubscribe = onSnapshot(productsQuery, (querySnapshot) => {
+      const productsData = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        // Check if the user ID and email match the specific values to be filtered out
-        if (
-          data.userId !== "z3YwfbkrJiWPGOW8U8on8kUMYlO2" &&
-          data.email !== "bacoorogmarket@gmail.com"
-        ) {
-          usersData.push({
-            id: doc.id,
-            userId: data.userId,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            // Add more fields if needed
-          });
-        }
+        productsData.push({
+          id: doc.id,
+          productId: data.productId,
+          caption: data.caption,
+          photos: data.photos,
+          price: data.price, // Added price field
+          firstName: data.firstName,
+          lastName: data.lastName,
+          // Add more fields if needed
+        });
       });
-      setUsers(usersData);
+      setProducts(productsData);
       setLoading(false);
     });
 
@@ -50,51 +49,32 @@ const Administrator = () => {
     };
   }, []);
 
-  const handleOptionsClick = (userId, user) => {
-    setSelectedUserId(selectedUserId === userId ? null : userId);
-    setSelectedUser(selectedUser === userId ? null : user);
-  };
-
-  const disableAccount = () => {
-    if (selectedUser) {
-      const { firstName, lastName, email } = selectedUser;
-      if (
-        window.confirm(
-          `Are you sure you want to disable ${firstName} ${lastName} with an email of ${email} in the database?`
-        )
-      ) {
-        // Implement disable account logic
-        console.log("Disable account for user with ID:", selectedUserId);
-      }
-    }
-  };
-
-  const deleteAccount = () => {
-    if (selectedUser) {
-      const { firstName, lastName, email } = selectedUser;
-      if (
-        window.confirm(
-          `Are you sure you want to delete ${firstName} ${lastName} with an email of ${email} in the database?`
-        )
-      ) {
-        // Implement delete account logic
-        console.log("Delete account for user with ID:", selectedUserId);
-      }
-    }
+  const handleOptionsClick = (productId, product) => {
+    setSelectedProductId(selectedProductId === productId ? null : productId);
+    setSelectedProduct(selectedProduct === productId ? null : product);
   };
 
   const closeOptions = () => {
-    setSelectedUserId(null);
-    setSelectedUser(null);
+    setSelectedProductId(null);
+    setSelectedProduct(null);
   };
 
-  // Filter users based on search query
-  const filteredUsers = users.filter((user) => {
+  const deleteProduct = (productId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      // Implement delete product logic here
+      console.log("Delete product with ID:", productId);
+    }
+  };
+
+  // Filter products based on search query
+  const filteredProducts = products.filter((product) => {
     return (
-      user.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      product.productId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.price.toString().includes(searchQuery.toLowerCase()) || // Added price field to search
+      (product.firstName + " " + product.lastName)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
     );
   });
 
@@ -112,9 +92,9 @@ const Administrator = () => {
         <div className="h-screen md:pt-0 pt-24 w-full">
           <div className="md:hidden">
             <NavbarAdmin
-              users="bg-primary text-white "
+              users="bg-white text-primary "
               locations="bg-white text-primary"
-              products="bg-white text-primary"
+              products="bg-primary text-white"
               recipes="bg-white text-primary"
             />
           </div>
@@ -129,8 +109,8 @@ const Administrator = () => {
               </div>
               <ul className="text-left text-black  flex flex-col h-full mt-6">
                 <Link to="/admin/users">
-                  <li className=" bg-primary p-4 text-white text-xs flex gap-2 items-center">
-                    <FaUsers size={25} className="text-white" />
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <FaUsers size={25} />
                     Users
                   </li>
                 </Link>
@@ -141,8 +121,8 @@ const Administrator = () => {
                   </li>
                 </Link>
                 <Link to="/admin/products">
-                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
-                    <GiMussel size={25} />
+                  <li className="bg-primary p-4 text-white text-xs flex gap-2 items-center">
+                    <GiMussel size={25} className="text-white" />
                     Products
                   </li>
                 </Link>
@@ -154,10 +134,10 @@ const Administrator = () => {
                 </Link>
               </ul>
             </div>
-            {/* User Management Table */}
+            {/* Product Management Table */}
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <h1 className="text-2xl font-bold my-4 text-center">
-                User Management
+                Product Management
               </h1>
               <div className="py-5">
                 <input
@@ -168,24 +148,22 @@ const Administrator = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div>
-                <h1 className="text-center pb-2 text-primary underline text-xs lg:hidden">
-                  Swipe left & right to view other data
-                </h1>
-              </div>
 
               <div className="overflow-auto">
                 <table className="mx-auto">
                   <thead>
                     <tr>
                       <th className="border px-4 py-2 text-xs text-center">
-                        User ID
+                        Caption
+                      </th>
+                      <th className="border px-4 py-2 text-center text-xs">
+                        Photo
+                      </th>
+                      <th className="border px-4 py-2 text-center text-xs">
+                        Price
                       </th>
                       <th className="border px-4 py-2 text-center text-xs">
                         Name
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Email
                       </th>
                       <th className="border px-4 py-2 text-center text-xs">
                         Action
@@ -193,16 +171,27 @@ const Administrator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((user) => (
-                      <tr key={user.id}>
-                        <td className="border px-4 py-2 text-xs text-center">
-                          {user.userId}
+                    {filteredProducts.map((product) => (
+                      <tr key={product.id}>
+                        <td className="border px-4 py-2 text-center text-xs">
+                          {product.caption}
                         </td>
                         <td className="border px-4 py-2 text-center text-xs">
-                          {user.firstName} {user.lastName}
+                          {product.photos && product.photos.length > 0 ? (
+                            <img
+                              src={product.photos[0]}
+                              alt={product.caption}
+                              className="h-12 w-12 object-cover rounded-md"
+                            />
+                          ) : (
+                            <span>No photo available</span>
+                          )}
                         </td>
                         <td className="border px-4 py-2 text-center text-xs">
-                          {user.email}
+                          ₱{product.price}.00
+                        </td>
+                        <td className="border px-4 py-2 text-center text-xs">
+                          {product.firstName} {product.lastName}
                         </td>
                         <td className="border px-4 py-2 text-center">
                           <div className="relative inline-block">
@@ -210,20 +199,16 @@ const Administrator = () => {
                               size={20}
                               className="text-primary cursor-pointer"
                               onClick={() =>
-                                handleOptionsClick(user.userId, user)
+                                handleOptionsClick(product.productId, product)
                               }
                             />
-                            {selectedUserId === user.userId && (
+                            {selectedProductId === product.productId && (
                               <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
                                 <button
-                                  className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-300 border border-gray-200 mt-2"
-                                  onClick={disableAccount}
-                                >
-                                  Disable
-                                </button>
-                                <button
                                   className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                                  onClick={deleteAccount}
+                                  onClick={() =>
+                                    deleteProduct(product.productId)
+                                  }
                                 >
                                   Delete
                                 </button>
@@ -250,4 +235,4 @@ const Administrator = () => {
   );
 };
 
-export default Administrator;
+export default Products;
