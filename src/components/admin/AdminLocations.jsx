@@ -48,8 +48,6 @@ const AdminLocations = () => {
       console.log("Locations Data:", locationsData);
       setLocations(locationsData);
       setLoading(false);
-
-      localStorage.setItem("productLocations", JSON.stringify(locationsData));
     });
 
     return () => {
@@ -172,33 +170,54 @@ const AdminLocations = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold my-4 text-center">
-                  Product Locations
+                  {selectedLocation
+                    ? "Selected Location Details"
+                    : "Please tap the marker on the map"}
                 </h1>
                 <div className="overflow-auto">
-                  <table className="w-full text-xs text-center border-separate	 bg-gray-200">
+                  <table className="w-full text-xs text-center border-separate bg-gray-200">
                     <thead>
                       <tr className="bg-primary text-white">
-                        <th className="p-1">First Name</th>
-                        <th className="p-1">Last Name</th>
+                        <th className="p-1">Name</th>
                         <th className="p-1">Latitude</th>
                         <th className="p-1">Longitude</th>
                         <th className="p-1">Direction</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {locations.map((location) => (
-                        <tr key={location.id}>
-                          <td className="p-1">{location.firstName}</td>
-                          <td className="p-1">{location.lastName}</td>
-                          <td className="p-1">{location.latitude}</td>
-                          <td className="p-1">{location.longitude}</td>
+                      {selectedLocation ? (
+                        <tr>
                           <td className="p-1">
-                            <button className="p-1 bg-primary text-white rounded-md">
+                            {selectedLocation.firstName}{" "}
+                            {selectedLocation.lastName}
+                          </td>
+                          <td className="p-1">
+                            {selectedLocation.latitude.toFixed(3)}
+                          </td>
+                          <td className="p-1">
+                            {selectedLocation.longitude.toFixed(3)}
+                          </td>
+                          <td className="p-1">
+                            <button
+                              className="p-1 bg-primary text-white rounded-md"
+                              onClick={() =>
+                                window.open(
+                                  `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`,
+                                  "_blank"
+                                )
+                              }
+                            >
                               Get Direction
                             </button>
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="p-1">
+                            Please tap the marker on the map
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
