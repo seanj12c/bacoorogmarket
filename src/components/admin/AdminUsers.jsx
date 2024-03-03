@@ -11,7 +11,7 @@ import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 
-const Administrator = () => {
+const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -162,7 +162,7 @@ const Administrator = () => {
               <div className="py-5">
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search for ID/Name/Email..."
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -175,72 +175,79 @@ const Administrator = () => {
               </div>
 
               <div className="overflow-auto">
-                <table className="mx-auto">
-                  <thead>
-                    <tr>
-                      <th className="border px-4 py-2 text-xs text-center">
-                        User ID
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Name
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Email
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((user) => (
-                      <tr key={user.id}>
-                        <td className="border px-4 py-2 text-xs text-center">
-                          {user.userId}
-                        </td>
-                        <td className="border px-4 py-2 text-center text-xs">
-                          {user.firstName} {user.lastName}
-                        </td>
-                        <td className="border px-4 py-2 text-center text-xs">
-                          {user.email}
-                        </td>
-                        <td className="border px-4 py-2 text-center">
-                          <div className="relative inline-block">
-                            <BsThreeDotsVertical
-                              size={20}
-                              className="text-primary cursor-pointer"
-                              onClick={() =>
-                                handleOptionsClick(user.userId, user)
-                              }
-                            />
-                            {selectedUserId === user.userId && (
-                              <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
-                                <button
-                                  className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-300 border border-gray-200 mt-2"
-                                  onClick={disableAccount}
-                                >
-                                  Disable
-                                </button>
-                                <button
-                                  className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                                  onClick={deleteAccount}
-                                >
-                                  Delete
-                                </button>
-                                <button
-                                  className="block w-full py-2 px-1 text-center rounded-md text-xs hover:bg-gray-200 border border-gray-200 mt-2"
-                                  onClick={closeOptions}
-                                >
-                                  Close
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </td>
+                {filteredUsers.length === 0 ? (
+                  <p className="text-center text-gray-500">
+                    No users found for "{searchQuery}". Please try a different
+                    search.
+                  </p>
+                ) : (
+                  <table className="mx-auto">
+                    <thead>
+                      <tr>
+                        <th className="border px-4 py-2 text-xs text-center">
+                          User ID
+                        </th>
+                        <th className="border px-4 py-2 text-center text-xs">
+                          Name
+                        </th>
+                        <th className="border px-4 py-2 text-center text-xs">
+                          Email
+                        </th>
+                        <th className="border px-4 py-2 text-center text-xs">
+                          Action
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredUsers.map((user) => (
+                        <tr key={user.id}>
+                          <td className="border px-4 py-2 text-xs text-center">
+                            {user.userId}
+                          </td>
+                          <td className="border px-4 py-2 text-center text-xs">
+                            {user.firstName} {user.lastName}
+                          </td>
+                          <td className="border px-4 py-2 text-center text-xs">
+                            {user.email}
+                          </td>
+                          <td className="border px-4 py-2 text-center">
+                            <div className="relative inline-block">
+                              <BsThreeDotsVertical
+                                size={20}
+                                className="text-primary cursor-pointer"
+                                onClick={() =>
+                                  handleOptionsClick(user.userId, user)
+                                }
+                              />
+                              {selectedUserId === user.userId && (
+                                <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
+                                  <button
+                                    className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-300 border border-gray-200 mt-2"
+                                    onClick={disableAccount}
+                                  >
+                                    Disable
+                                  </button>
+                                  <button
+                                    className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                                    onClick={deleteAccount}
+                                  >
+                                    Delete
+                                  </button>
+                                  <button
+                                    className="block w-full py-2 px-1 text-center rounded-md text-xs hover:bg-gray-200 border border-gray-200 mt-2"
+                                    onClick={closeOptions}
+                                  >
+                                    Close
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>
@@ -250,4 +257,4 @@ const Administrator = () => {
   );
 };
 
-export default Administrator;
+export default AdminUsers;
