@@ -3,20 +3,23 @@ import NavbarAdmin from "./NavbarAdmin";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
-import { BsThreeDotsVertical } from "react-icons/bs";
+
 import { FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
+import { AiOutlineLogout } from "react-icons/ai";
+import LogoutModal from "../authentication/LogoutModal";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const usersCollection = collection(firestore, "registered");
@@ -50,42 +53,26 @@ const AdminUsers = () => {
     };
   }, []);
 
-  const handleOptionsClick = (userId, user) => {
-    setSelectedUserId(selectedUserId === userId ? null : userId);
-    setSelectedUser(selectedUser === userId ? null : user);
-  };
-
-  const disableAccount = () => {
-    if (selectedUser) {
-      const { firstName, lastName, email } = selectedUser;
-      if (
-        window.confirm(
-          `Are you sure you want to disable ${firstName} ${lastName} with an email of ${email} in the database?`
-        )
-      ) {
-        // Implement disable account logic
-        console.log("Disable account for user with ID:", selectedUserId);
-      }
+  const disableAccount = (user) => {
+    if (
+      window.confirm(
+        `Are you sure you want to disable ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
+      )
+    ) {
+      // Implement disable account logic
+      console.log("Disable account for user with ID:", user.userId);
     }
   };
 
-  const deleteAccount = () => {
-    if (selectedUser) {
-      const { firstName, lastName, email } = selectedUser;
-      if (
-        window.confirm(
-          `Are you sure you want to delete ${firstName} ${lastName} with an email of ${email} in the database?`
-        )
-      ) {
-        // Implement delete account logic
-        console.log("Delete account for user with ID:", selectedUserId);
-      }
+  const deleteAccount = (user) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
+      )
+    ) {
+      // Implement delete account logic
+      console.log("Delete account for user with ID:", user.userId);
     }
-  };
-
-  const closeOptions = () => {
-    setSelectedUserId(null);
-    setSelectedUser(null);
   };
 
   // Filter users based on search query
@@ -97,6 +84,22 @@ const AdminUsers = () => {
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const authInstance = getAuth();
+    try {
+      await signOut(authInstance);
+      navigate("/");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
+
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
+  };
 
   return (
     <div>
@@ -152,6 +155,13 @@ const AdminUsers = () => {
                     Recipes
                   </li>
                 </Link>
+                <li
+                  onClick={toggleLogoutModal}
+                  className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
+                >
+                  <AiOutlineLogout size={25} />
+                  <button>Log-out</button>
+                </li>
               </ul>
             </div>
             {/* User Management Table */}
@@ -181,9 +191,9 @@ const AdminUsers = () => {
                     search.
                   </p>
                 ) : (
-                  <table className="mx-auto">
+                  <table className="mx-auto border-collapse">
                     <thead>
-                      <tr>
+                      <tr className="bg-primary text-white">
                         <th className="border px-4 py-2 text-xs text-center">
                           User ID
                         </th>
@@ -210,38 +220,19 @@ const AdminUsers = () => {
                           <td className="border px-4 py-2 text-center text-xs">
                             {user.email}
                           </td>
-                          <td className="border px-4 py-2 text-center">
-                            <div className="relative inline-block">
-                              <BsThreeDotsVertical
-                                size={20}
-                                className="text-primary cursor-pointer"
-                                onClick={() =>
-                                  handleOptionsClick(user.userId, user)
-                                }
-                              />
-                              {selectedUserId === user.userId && (
-                                <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
-                                  <button
-                                    className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-300 border border-gray-200 mt-2"
-                                    onClick={disableAccount}
-                                  >
-                                    Disable
-                                  </button>
-                                  <button
-                                    className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                                    onClick={deleteAccount}
-                                  >
-                                    Delete
-                                  </button>
-                                  <button
-                                    className="block w-full py-2 px-1 text-center rounded-md text-xs hover:bg-gray-200 border border-gray-200 mt-2"
-                                    onClick={closeOptions}
-                                  >
-                                    Close
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                          <td className="border flex gap-2 px-4 py-2 text-center">
+                            <button
+                              className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-800 border border-gray-200 mt-2"
+                              onClick={() => disableAccount(user)}
+                            >
+                              Disable
+                            </button>
+                            <button
+                              className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                              onClick={() => deleteAccount(user)}
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -252,6 +243,12 @@ const AdminUsers = () => {
             </div>
           </div>
         </div>
+      )}
+      {showLogoutModal && (
+        <LogoutModal
+          handleLogout={handleLogout}
+          closeModal={toggleLogoutModal}
+        />
       )}
     </div>
   );
