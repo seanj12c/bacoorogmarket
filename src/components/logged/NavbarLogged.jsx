@@ -14,12 +14,14 @@ import {
   CiCircleQuestion,
   CiForkAndKnife,
 } from "react-icons/ci";
+import LogoutModal from "../authentication/LogoutModal";
 
 export const NavbarLogged = () => {
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
   const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const auth = useAuth();
 
@@ -103,6 +105,10 @@ export const NavbarLogged = () => {
 
   const handleNav = () => {
     setNav(!nav);
+  };
+
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
   };
 
   return (
@@ -226,7 +232,7 @@ export const NavbarLogged = () => {
             <div className="text-left  text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
               <div className="border-t-gray-500 border-t"></div>
               <button
-                onClick={handleLogout}
+                onClick={toggleLogoutModal}
                 className="bg-red-500  text-white py-2 px-4 rounded-lg hover-bg-red-600 focus:outline-none"
               >
                 Logout
@@ -263,6 +269,12 @@ export const NavbarLogged = () => {
           </div>
         </div>
       </div>
+      {showLogoutModal && (
+        <LogoutModal
+          handleLogout={handleLogout}
+          closeModal={toggleLogoutModal}
+        />
+      )}
     </div>
   );
 };
