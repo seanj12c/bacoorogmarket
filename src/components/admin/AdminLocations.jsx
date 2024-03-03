@@ -9,11 +9,17 @@ import { GiMussel } from "react-icons/gi";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
-import { LoadScript, GoogleMap, Marker } from "@react-google-maps/api";
+import {
+  LoadScript,
+  GoogleMap,
+  Marker,
+  InfoWindow,
+} from "@react-google-maps/api";
 
 const AdminLocations = () => {
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -33,15 +39,14 @@ const AdminLocations = () => {
               id: doc.id,
               latitude: product.location.latitude,
               longitude: product.location.longitude,
-              name: product.name,
+              firstName: product.firstName,
+              lastName: product.lastName,
             });
           }
         });
         setLocations(locationsData);
         setLoading(false);
         console.log("Product Locations:", locationsData);
-
-        // Store locations in local storage
         localStorage.setItem("productLocations", JSON.stringify(locationsData));
       });
 
@@ -50,7 +55,6 @@ const AdminLocations = () => {
       };
     };
 
-    // Retrieve locations from local storage
     const storedLocations = JSON.parse(
       localStorage.getItem("productLocations")
     );
@@ -152,9 +156,26 @@ const AdminLocations = () => {
                           lat: location.latitude,
                           lng: location.longitude,
                         }}
-                        title={location.name}
+                        onClick={() => {
+                          setSelectedLocation(location);
+                        }}
                       />
                     ))}
+                    {selectedLocation && (
+                      <InfoWindow
+                        position={{
+                          lat: selectedLocation.latitude,
+                          lng: selectedLocation.longitude,
+                        }}
+                        onCloseClick={() => {
+                          setSelectedLocation(null);
+                        }}
+                      >
+                        <div>
+                          <h2>{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
+                        </div>
+                      </InfoWindow>
+                    )}
                   </GoogleMap>
                 </LoadScript>
               </div>
