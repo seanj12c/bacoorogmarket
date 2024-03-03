@@ -21,8 +21,10 @@ import uploadload from "./assets/loading.gif";
 import Faq from "./components/logged/Faq";
 import PostAProduct from "./components/logged/PostAProduct";
 import Marketplace from "./components/logged/Marketplace";
-import Administrator from "./components/admin/Administrator"; // Import the Administrator component
-import Products from "./components/admin/Products";
+import AdminUsers from "./components/admin/AdminUsers";
+import AdminProducts from "./components/admin/AdminProducts";
+import AdminLocations from "./components/admin/AdminLocations";
+import AdminRecipes from "./components/admin/AdminRecipes";
 
 function AppRoutes() {
   const location = useLocation();
@@ -63,10 +65,19 @@ function AppRoutes() {
       {!isNavbarHidden && !location.pathname.startsWith("/admin") && user && (
         <NavbarLogged />
       )}
+
       <Routes>
         <Route
           path="/"
-          element={user ? <Navigate to="/home" /> : <Landing />}
+          element={
+            user && user.email === "bacoorogmarket@gmail.com" ? (
+              <Navigate to="/admin/users" />
+            ) : user ? (
+              <Navigate to="/home" />
+            ) : (
+              <Landing />
+            )
+          }
         />
         <Route
           path="/home"
@@ -108,12 +119,11 @@ function AppRoutes() {
           path="/recipe"
           element={user ? <Recipe /> : <Navigate to="/login" />}
         />
-        {/* Add route for the Administrator component */}
         <Route
           path="/admin/users"
           element={
             user && user.email === "bacoorogmarket@gmail.com" ? (
-              <Administrator />
+              <AdminUsers />
             ) : (
               <Navigate to="/login" />
             )
@@ -123,7 +133,27 @@ function AppRoutes() {
           path="/admin/products"
           element={
             user && user.email === "bacoorogmarket@gmail.com" ? (
-              <Products />
+              <AdminProducts />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/admin/locations"
+          element={
+            user && user.email === "bacoorogmarket@gmail.com" ? (
+              <AdminLocations />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/admin/recipes"
+          element={
+            user && user.email === "bacoorogmarket@gmail.com" ? (
+              <AdminRecipes />
             ) : (
               <Navigate to="/login" />
             )
