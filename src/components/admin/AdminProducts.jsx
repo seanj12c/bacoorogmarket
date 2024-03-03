@@ -11,7 +11,7 @@ import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 
-const Products = () => {
+const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -142,90 +142,102 @@ const Products = () => {
               <div className="py-5">
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search for Caption/Price/Name..."
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <div>
+                <h1 className="text-center pb-2 text-primary underline text-xs lg:hidden">
+                  Swipe left & right to view other data
+                </h1>
+              </div>
 
               <div className="overflow-auto">
-                <table className="mx-auto">
-                  <thead>
-                    <tr>
-                      <th className="border px-4 py-2 text-xs text-center">
-                        Caption
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Photo
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Price
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Name
-                      </th>
-                      <th className="border px-4 py-2 text-center text-xs">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredProducts.map((product) => (
-                      <tr key={product.id}>
-                        <td className="border px-4 py-2 text-center text-xs">
-                          {product.caption}
-                        </td>
-                        <td className="border px-4 py-2 text-center text-xs">
-                          {product.photos && product.photos.length > 0 ? (
-                            <img
-                              src={product.photos[0]}
-                              alt={product.caption}
-                              className="h-12 w-12 object-cover rounded-md"
-                            />
-                          ) : (
-                            <span>No photo available</span>
-                          )}
-                        </td>
-                        <td className="border px-4 py-2 text-center text-xs">
-                          ₱{product.price}.00
-                        </td>
-                        <td className="border px-4 py-2 text-center text-xs">
-                          {product.firstName} {product.lastName}
-                        </td>
-                        <td className="border px-4 py-2 text-center">
-                          <div className="relative inline-block">
-                            <BsThreeDotsVertical
-                              size={20}
-                              className="text-primary cursor-pointer"
-                              onClick={() =>
-                                handleOptionsClick(product.productId, product)
-                              }
-                            />
-                            {selectedProductId === product.productId && (
-                              <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
-                                <button
-                                  className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                                  onClick={() =>
-                                    deleteProduct(product.productId)
-                                  }
-                                >
-                                  Delete
-                                </button>
-                                <button
-                                  className="block w-full py-2 px-1 text-center rounded-md text-xs hover:bg-gray-200 border border-gray-200 mt-2"
-                                  onClick={closeOptions}
-                                >
-                                  Close
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </td>
+                {filteredProducts.length === 0 ? (
+                  <p className="text-center text-gray-500">
+                    No products found for "{searchQuery}". Please try a
+                    different search.
+                  </p>
+                ) : (
+                  <table className="mx-auto">
+                    <thead>
+                      <tr>
+                        <th className="border px-4 py-2 text-xs text-center">
+                          Caption
+                        </th>
+                        <th className="border px-4 py-2 text-center text-xs">
+                          Photo
+                        </th>
+                        <th className="border px-4 py-2 text-center text-xs">
+                          Price
+                        </th>
+                        <th className="border px-4 py-2 text-center text-xs">
+                          Name
+                        </th>
+                        <th className="border px-4 py-2 text-center text-xs">
+                          Action
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {filteredProducts.map((product) => (
+                        <tr key={product.id}>
+                          <td className="border px-4 py-2 text-center text-xs">
+                            {product.caption}
+                          </td>
+                          <td className="border px-4 py-2 text-center text-xs">
+                            {product.photos && product.photos.length > 0 ? (
+                              <img
+                                src={product.photos[0]}
+                                alt={product.caption}
+                                className="h-12 w-12 object-cover rounded-md"
+                              />
+                            ) : (
+                              <span>No photo available</span>
+                            )}
+                          </td>
+                          <td className="border px-4 py-2 text-center text-xs">
+                            ₱{product.price}.00
+                          </td>
+                          <td className="border px-4 py-2 text-center text-xs">
+                            {product.firstName} {product.lastName}
+                          </td>
+                          <td className="border px-4 py-2 text-center">
+                            <div className="relative inline-block">
+                              <BsThreeDotsVertical
+                                size={20}
+                                className="text-primary cursor-pointer"
+                                onClick={() =>
+                                  handleOptionsClick(product.productId, product)
+                                }
+                              />
+                              {selectedProductId === product.productId && (
+                                <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
+                                  <button
+                                    className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                                    onClick={() =>
+                                      deleteProduct(product.productId)
+                                    }
+                                  >
+                                    Delete
+                                  </button>
+                                  <button
+                                    className="block w-full py-2 px-1 text-center rounded-md text-xs hover:bg-gray-200 border border-gray-200 mt-2"
+                                    onClick={closeOptions}
+                                  >
+                                    Close
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
               </div>
             </div>
           </div>
@@ -235,4 +247,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default AdminProducts;
