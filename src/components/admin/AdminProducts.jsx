@@ -1,22 +1,30 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { AiOutlineLogout } from "react-icons/ai";
+import { getAuth, signOut } from "firebase/auth";
+import LogoutModal from "../authentication/LogoutModal";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProductId, setSelectedProductId] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const productsCollection = collection(firestore, "products");
@@ -49,20 +57,19 @@ const AdminProducts = () => {
     };
   }, []);
 
-  const handleOptionsClick = (productId, product) => {
-    setSelectedProductId(selectedProductId === productId ? null : productId);
-    setSelectedProduct(selectedProduct === productId ? null : product);
-  };
-
-  const closeOptions = () => {
-    setSelectedProductId(null);
-    setSelectedProduct(null);
-  };
-
-  const deleteProduct = (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      // Implement delete product logic here
-      console.log("Delete product with ID:", productId);
+  const deleteProduct = async (docId, productCaption) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${productCaption}" in product database?`
+      )
+    ) {
+      try {
+        const db = firestore;
+        const productDocRef = doc(db, "products", docId);
+        await deleteDoc(productDocRef);
+      } catch (error) {
+        console.error("Error deleting product:", error);
+      }
     }
   };
 
@@ -77,6 +84,22 @@ const AdminProducts = () => {
         .includes(searchQuery.toLowerCase())
     );
   });
+
+  const navigate = useNavigate();
+
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
+  };
+
+  const handleLogout = async () => {
+    const authInstance = getAuth();
+    try {
+      await signOut(authInstance);
+      navigate("/");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
 
   return (
     <div>
@@ -132,6 +155,13 @@ const AdminProducts = () => {
                     Recipes
                   </li>
                 </Link>
+                <li
+                  onClick={toggleLogoutModal}
+                  className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
+                >
+                  <AiOutlineLogout size={25} />
+                  <button>Log-out</button>
+                </li>
               </ul>
             </div>
             {/* Product Management Table */}
@@ -161,9 +191,9 @@ const AdminProducts = () => {
                     different search.
                   </p>
                 ) : (
-                  <table className="mx-auto">
+                  <table className="mx-auto border-collapse">
                     <thead>
-                      <tr>
+                      <tr className="bg-primary text-white">
                         <th className="border px-4 py-2 text-xs text-center">
                           Caption
                         </th>
@@ -205,33 +235,14 @@ const AdminProducts = () => {
                             {product.firstName} {product.lastName}
                           </td>
                           <td className="border px-4 py-2 text-center">
-                            <div className="relative inline-block">
-                              <BsThreeDotsVertical
-                                size={20}
-                                className="text-primary cursor-pointer"
-                                onClick={() =>
-                                  handleOptionsClick(product.productId, product)
-                                }
-                              />
-                              {selectedProductId === product.productId && (
-                                <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
-                                  <button
-                                    className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                                    onClick={() =>
-                                      deleteProduct(product.productId)
-                                    }
-                                  >
-                                    Delete
-                                  </button>
-                                  <button
-                                    className="block w-full py-2 px-1 text-center rounded-md text-xs hover:bg-gray-200 border border-gray-200 mt-2"
-                                    onClick={closeOptions}
-                                  >
-                                    Close
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                            <button
+                              className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                              onClick={() =>
+                                deleteProduct(product.id, product.caption)
+                              }
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -242,6 +253,12 @@ const AdminProducts = () => {
             </div>
           </div>
         </div>
+      )}
+      {showLogoutModal && (
+        <LogoutModal
+          handleLogout={handleLogout}
+          closeModal={toggleLogoutModal}
+        />
       )}
     </div>
   );
