@@ -10,6 +10,7 @@ import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
+import LogoutModal from "../authentication/LogoutModal";
 
 export const NavbarAdmin = ({ users, locations, products, recipes }) => {
   const user = `${users}`;
@@ -18,6 +19,7 @@ export const NavbarAdmin = ({ users, locations, products, recipes }) => {
   const recipe = `${recipes}`;
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -45,6 +47,9 @@ export const NavbarAdmin = ({ users, locations, products, recipes }) => {
     } catch (error) {
       console.log("Error logging out:", error);
     }
+  };
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
   };
 
   const handleNav = () => {
@@ -115,11 +120,17 @@ export const NavbarAdmin = ({ users, locations, products, recipes }) => {
         </div>
 
         <div className="flex gap-5 items-center">
-          <button onClick={handleLogout}>
+          <button onClick={toggleLogoutModal}>
             <AiOutlineLogout size={25} />
           </button>
         </div>
       </div>
+      {showLogoutModal && (
+        <LogoutModal
+          handleLogout={handleLogout}
+          closeModal={toggleLogoutModal}
+        />
+      )}
     </div>
   );
 };
