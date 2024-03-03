@@ -8,18 +8,22 @@ import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LoadScript,
   GoogleMap,
   Marker,
   InfoWindow,
 } from "@react-google-maps/api";
+import LogoutModal from "../authentication/LogoutModal";
+import { getAuth, signOut } from "firebase/auth";
+import { AiOutlineLogout } from "react-icons/ai";
 
 const AdminLocations = () => {
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const productsCollection = collection(firestore, "products");
@@ -34,7 +38,8 @@ const AdminLocations = () => {
           product.location.latitude &&
           product.location.longitude &&
           product.firstName &&
-          product.lastName
+          product.lastName &&
+          product.address
         ) {
           locationsData.push({
             id: doc.id,
@@ -48,6 +53,8 @@ const AdminLocations = () => {
       console.log("Locations Data:", locationsData);
       setLocations(locationsData);
       setLoading(false);
+
+      // localStorage.setItem("productLocations", JSON.stringify(locationsData));
     });
 
     return () => {
@@ -58,6 +65,22 @@ const AdminLocations = () => {
   const defaultCenter = {
     lat: 14.4576,
     lng: 120.9429,
+  };
+
+  const navigate = useNavigate();
+
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
+  };
+
+  const handleLogout = async () => {
+    const authInstance = getAuth();
+    try {
+      await signOut(authInstance);
+      navigate("/");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
   };
 
   return (
@@ -114,6 +137,13 @@ const AdminLocations = () => {
                     Recipes
                   </li>
                 </Link>
+                <li
+                  onClick={toggleLogoutModal}
+                  className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
+                >
+                  <AiOutlineLogout size={25} />
+                  <button>Log-out</button>
+                </li>
               </ul>
             </div>
             {/* Map */}
@@ -130,11 +160,11 @@ const AdminLocations = () => {
                   <GoogleMap
                     mapContainerStyle={{ height: "300px", width: "100%" }}
                     center={defaultCenter}
-                    zoom={13}
+                    zoom={12}
                     options={{
                       mapTypeControl: false,
                       streetViewControl: false,
-                      fullscreenControl: false,
+
                       borderRadius: "8px",
                     }}
                   >
@@ -169,7 +199,7 @@ const AdminLocations = () => {
                 </LoadScript>
               </div>
               <div>
-                <h1 className="text-2xl font-bold my-4 text-center">
+                <h1 className="text-lg md:text-2xl font-bold my-4 text-center">
                   {selectedLocation
                     ? "Selected Location Details"
                     : "Please tap the marker on the map"}
@@ -179,8 +209,8 @@ const AdminLocations = () => {
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="p-1">Name</th>
-                        <th className="p-1">Latitude</th>
-                        <th className="p-1">Longitude</th>
+                        <th className="p-1">Address</th>
+
                         <th className="p-1">Direction</th>
                       </tr>
                     </thead>
@@ -191,12 +221,8 @@ const AdminLocations = () => {
                             {selectedLocation.firstName}{" "}
                             {selectedLocation.lastName}
                           </td>
-                          <td className="p-1">
-                            {selectedLocation.latitude.toFixed(3)}
-                          </td>
-                          <td className="p-1">
-                            {selectedLocation.longitude.toFixed(3)}
-                          </td>
+                          <td className="p-1">{selectedLocation.address}</td>
+
                           <td className="p-1">
                             <button
                               className="p-1 bg-primary text-white rounded-md"
@@ -214,7 +240,7 @@ const AdminLocations = () => {
                       ) : (
                         <tr>
                           <td colSpan="4" className="p-1">
-                            Please tap the marker on the map
+                            No location selected
                           </td>
                         </tr>
                       )}
@@ -225,6 +251,12 @@ const AdminLocations = () => {
             </div>
           </div>
         </div>
+      )}
+      {showLogoutModal && (
+        <LogoutModal
+          handleLogout={handleLogout}
+          closeModal={toggleLogoutModal}
+        />
       )}
     </div>
   );
