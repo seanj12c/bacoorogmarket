@@ -22,48 +22,39 @@ const AdminLocations = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
-    const fetchLocations = async () => {
-      const productsCollection = collection(firestore, "products");
-      const productsQuery = query(productsCollection);
+    const productsCollection = collection(firestore, "products");
+    const productsQuery = query(productsCollection);
 
-      const unsubscribe = onSnapshot(productsQuery, (querySnapshot) => {
-        const locationsData = [];
-        querySnapshot.forEach((doc) => {
-          const product = doc.data();
-          if (
-            product.location &&
-            product.location.latitude &&
-            product.location.longitude
-          ) {
-            locationsData.push({
-              id: doc.id,
-              latitude: product.location.latitude,
-              longitude: product.location.longitude,
-              firstName: product.firstName,
-              lastName: product.lastName,
-            });
-          }
-        });
-        setLocations(locationsData);
-        setLoading(false);
-        console.log("Product Locations:", locationsData);
-        localStorage.setItem("productLocations", JSON.stringify(locationsData));
+    const unsubscribe = onSnapshot(productsQuery, (querySnapshot) => {
+      const locationsData = [];
+      querySnapshot.forEach((doc) => {
+        const product = doc.data();
+        if (
+          product.location &&
+          product.location.latitude &&
+          product.location.longitude &&
+          product.firstName &&
+          product.lastName
+        ) {
+          locationsData.push({
+            id: doc.id,
+            latitude: product.location.latitude,
+            longitude: product.location.longitude,
+            firstName: product.firstName,
+            lastName: product.lastName,
+          });
+        }
       });
-
-      return () => {
-        unsubscribe();
-      };
-    };
-
-    const storedLocations = JSON.parse(
-      localStorage.getItem("productLocations")
-    );
-    if (storedLocations) {
-      setLocations(storedLocations);
+      console.log("Locations Data:", locationsData);
+      setLocations(locationsData);
       setLoading(false);
-    } else {
-      fetchLocations();
-    }
+
+      localStorage.setItem("productLocations", JSON.stringify(locationsData));
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const defaultCenter = {
@@ -178,6 +169,39 @@ const AdminLocations = () => {
                     )}
                   </GoogleMap>
                 </LoadScript>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold my-4 text-center">
+                  Product Locations
+                </h1>
+                <div className="overflow-auto">
+                  <table className="w-full text-xs text-center border-separate	 bg-gray-200">
+                    <thead>
+                      <tr className="bg-primary text-white">
+                        <th className="p-1">First Name</th>
+                        <th className="p-1">Last Name</th>
+                        <th className="p-1">Latitude</th>
+                        <th className="p-1">Longitude</th>
+                        <th className="p-1">Direction</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {locations.map((location) => (
+                        <tr key={location.id}>
+                          <td className="p-1">{location.firstName}</td>
+                          <td className="p-1">{location.lastName}</td>
+                          <td className="p-1">{location.latitude}</td>
+                          <td className="p-1">{location.longitude}</td>
+                          <td className="p-1">
+                            <button className="p-1 bg-primary text-white rounded-md">
+                              Get Direction
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
