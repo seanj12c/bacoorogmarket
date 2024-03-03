@@ -1,22 +1,32 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
-import { BsThreeDotsVertical } from "react-icons/bs";
+
 import { FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
+import LogoutModal from "../authentication/LogoutModal";
+import { AiOutlineLogout } from "react-icons/ai";
 
 const AdminRecipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const recipesCollection = collection(firestore, "recipes");
@@ -45,20 +55,19 @@ const AdminRecipes = () => {
     };
   }, []);
 
-  const handleOptionsClick = (recipeId, recipe) => {
-    setSelectedRecipeId(selectedRecipeId === recipeId ? null : recipeId);
-    setSelectedRecipe(selectedRecipe === recipeId ? null : recipe);
-  };
-
-  const closeOptions = () => {
-    setSelectedRecipeId(null);
-    setSelectedRecipe(null);
-  };
-
-  const deleteRecipe = (recipeId) => {
-    if (window.confirm("Are you sure you want to delete this recipe?")) {
-      // Implement delete recipe logic here
-      console.log("Delete recipe with ID:", recipeId);
+  const deleteRecipe = async (recipeId, recipeCaption) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete "${recipeCaption}" in recipe database?`
+      )
+    ) {
+      try {
+        const db = firestore;
+        const recipeDocRef = doc(db, "recipes", recipeId);
+        await deleteDoc(recipeDocRef);
+      } catch (error) {
+        console.error("Error deleting recipe:", error);
+      }
     }
   };
 
@@ -72,6 +81,22 @@ const AdminRecipes = () => {
         .includes(searchQuery.toLowerCase())
     );
   });
+
+  const navigate = useNavigate();
+
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
+  };
+
+  const handleLogout = async () => {
+    const authInstance = getAuth();
+    try {
+      await signOut(authInstance);
+      navigate("/");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
 
   return (
     <div>
@@ -127,6 +152,13 @@ const AdminRecipes = () => {
                     Recipes
                   </li>
                 </Link>
+                <li
+                  onClick={toggleLogoutModal}
+                  className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
+                >
+                  <AiOutlineLogout size={25} />
+                  <button>Log-out</button>
+                </li>
               </ul>
             </div>
             {/* Recipe Management Table */}
@@ -157,9 +189,9 @@ const AdminRecipes = () => {
                     search.
                   </p>
                 ) : (
-                  <table className="mx-auto">
+                  <table className="mx-auto border-collapse">
                     <thead>
-                      <tr>
+                      <tr className="bg-primary text-white">
                         <th className="border px-4 py-2 text-xs text-center">
                           Caption
                         </th>
@@ -195,33 +227,14 @@ const AdminRecipes = () => {
                             {recipe.firstName} {recipe.lastName}
                           </td>
                           <td className="border px-4 py-2 text-center">
-                            <div className="relative inline-block">
-                              <BsThreeDotsVertical
-                                size={20}
-                                className="text-primary cursor-pointer"
-                                onClick={() =>
-                                  handleOptionsClick(recipe.recipeId, recipe)
-                                }
-                              />
-                              {selectedRecipeId === recipe.recipeId && (
-                                <div className="absolute top-[-40px] right-[-20px] z-10 bg-white p-2 shadow-md rounded-md mt-2">
-                                  <button
-                                    className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                                    onClick={() =>
-                                      deleteRecipe(recipe.recipeId)
-                                    }
-                                  >
-                                    Delete
-                                  </button>
-                                  <button
-                                    className="block w-full py-2 px-1 text-center rounded-md text-xs hover:bg-gray-200 border border-gray-200 mt-2"
-                                    onClick={closeOptions}
-                                  >
-                                    Close
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                            <button
+                              className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                              onClick={() =>
+                                deleteRecipe(recipe.id, recipe.caption)
+                              }
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -232,6 +245,12 @@ const AdminRecipes = () => {
             </div>
           </div>
         </div>
+      )}
+      {showLogoutModal && (
+        <LogoutModal
+          handleLogout={handleLogout}
+          closeModal={toggleLogoutModal}
+        />
       )}
     </div>
   );
