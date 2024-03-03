@@ -17,7 +17,9 @@ import cam from "../../assets/cam.png";
 import uploadload from "../../assets/loading.gif";
 import down from "../../assets/down.gif";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import LogoutModal from "../authentication/LogoutModal";
+import { getAuth, signOut } from "firebase/auth";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -31,6 +33,7 @@ const MyAccount = () => {
   const [editedCaption, setEditedCaption] = useState("");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -245,6 +248,22 @@ const MyAccount = () => {
     }
   };
 
+  const toggleLogoutModal = () => {
+    setShowLogoutModal(!showLogoutModal);
+  };
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const authInstance = getAuth();
+    try {
+      await signOut(authInstance);
+      navigate("/");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
+
   return (
     <div className="max-w-xl  mx-auto p-4">
       {loading ? (
@@ -335,6 +354,14 @@ const MyAccount = () => {
             <p className="text-xs">
               <strong>Address:</strong> {userData.address}
             </p>
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={toggleLogoutModal}
+                className="bg-red-500  text-white py-2 px-4 rounded-lg hover-bg-red-600 focus:outline-none"
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
@@ -710,6 +737,12 @@ const MyAccount = () => {
         </div>
       ) : (
         <p>No user data available.</p>
+      )}
+      {showLogoutModal && (
+        <LogoutModal
+          handleLogout={handleLogout}
+          closeModal={toggleLogoutModal}
+        />
       )}
     </div>
   );
