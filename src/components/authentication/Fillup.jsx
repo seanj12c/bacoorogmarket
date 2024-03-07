@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  getFirestore,
-  doc,
-  updateDoc,
-  getDoc,
-  onSnapshot,
-  setDoc,
-} from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import cam from "../../assets/cam.png";
 import { useAuth } from "../../authContext";
@@ -23,9 +16,9 @@ const Fillup = () => {
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [newProfilePicture, setNewProfilePicture] = useState(null);
-  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const auth = useAuth();
+  const [photoURL, setPhotoURL] = useState(null);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -41,14 +34,6 @@ const Fillup = () => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             console.log("Fetched data:", data);
-            setUserData(data);
-
-            onSnapshot(userDocRef, (doc) => {
-              const newData = doc.data();
-              if (newData && newData.profilePhotoUrl) {
-                setUserData(newData);
-              }
-            });
 
             // Check if all necessary fields are filled, and redirect to "/home" if they are
             if (
@@ -90,7 +75,7 @@ const Fillup = () => {
         address,
         userId: userId,
         email: auth.currentUser.email,
-        profilePhotoUrl: userData?.profilePhotoUrl,
+        profilePhotoUrl: photoURL,
       });
 
       // Check if all necessary fields are filled, and redirect to "/home" if they are
@@ -106,9 +91,6 @@ const Fillup = () => {
     if (file) {
       const userId = auth.currentUser.uid;
 
-      const db = getFirestore();
-      const userDocRef = doc(db, "registered", userId);
-
       try {
         setIsUploading(true);
 
@@ -122,19 +104,13 @@ const Fillup = () => {
 
         const photoURL = await getDownloadURL(imageRef);
 
-        const updatedData = {
-          ...userData,
-          profilePhotoUrl: photoURL,
-        };
+        console.log("Profile photo uploaded:", photoURL);
 
-        await updateDoc(userDocRef, updatedData);
-
-        console.log("Profile photo updated");
-
-        setNewProfilePicture(null);
+        setNewProfilePicture(photoURL);
+        setPhotoURL(photoURL);
         setIsUploading(false);
       } catch (error) {
-        console.error("Error updating profile photo:", error);
+        console.error("Error uploading profile photo:", error);
         setIsUploading(false);
       }
     }
@@ -172,7 +148,7 @@ const Fillup = () => {
               <div className="mb-2 w-full">
                 <img
                   src={
-                    userData?.profilePhotoUrl ||
+                    newProfilePicture ||
                     "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
                   }
                   alt="Profile"
@@ -200,7 +176,7 @@ const Fillup = () => {
                         src={cam}
                         alt="upload-"
                       />
-                      Change Profile Picture
+                      Please upload your profile
                     </div>
                   )}
                   <input
@@ -228,6 +204,7 @@ const Fillup = () => {
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Juan"
                   required
                 />
               </div>
@@ -241,6 +218,7 @@ const Fillup = () => {
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Dela Cruz"
                   required
                 />
               </div>
@@ -254,6 +232,7 @@ const Fillup = () => {
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
+                  placeholder="0912345689"
                   required
                 />
               </div>
@@ -267,6 +246,7 @@ const Fillup = () => {
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
+                  placeholder="123 Main St, Bacoor City"
                   required
                 />
               </div>
