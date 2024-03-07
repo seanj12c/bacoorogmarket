@@ -93,12 +93,10 @@ const Fillup = () => {
         profilePhotoUrl: userData?.profilePhotoUrl,
       });
 
-      console.log("Document written with ID: ", userId);
-
-      setFirstName("");
-      setLastName("");
-      setContact("");
-      setAddress("");
+      // Check if all necessary fields are filled, and redirect to "/home" if they are
+      if (firstName && lastName && contact && address) {
+        navigate("/home");
+      }
     } catch (error) {
       console.error("Error adding/updating document: ", error);
     }
