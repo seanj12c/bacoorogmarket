@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 import {
   getAuth,
   setPersistence,
@@ -18,6 +18,21 @@ const firebaseConfig = {
   measurementId: "G-TTYEBJ69J9",
 };
 
+const getUserProfile = async (userId) => {
+  try {
+    const userRef = doc(firestore, "registered", userId); // Assuming your collection is named "users"
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      return userSnap.data(); // Return user profile data if user exists
+    } else {
+      return null; // Return null if user doesn't exist
+    }
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return null;
+  }
+};
+
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 const auth = getAuth(app);
@@ -33,4 +48,4 @@ setPersistence(auth, browserLocalPersistence)
     console.error("Error setting auth persistence:", error);
   });
 
-export { firestore, auth };
+export { firestore, auth, getUserProfile };

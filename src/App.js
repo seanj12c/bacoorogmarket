@@ -25,12 +25,14 @@ import AdminUsers from "./components/admin/AdminUsers";
 import AdminProducts from "./components/admin/AdminProducts";
 import AdminLocations from "./components/admin/AdminLocations";
 import AdminRecipes from "./components/admin/AdminRecipes";
+import Fillup from "./components/authentication/Fillup";
 
 function AppRoutes() {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
@@ -56,7 +58,7 @@ function AppRoutes() {
     );
   }
 
-  const navbarHiddenRoutes = ["/", "/login", "/register"];
+  const navbarHiddenRoutes = ["/", "/login", "/register,", "/fillup"];
 
   const isNavbarHidden = navbarHiddenRoutes.includes(location.pathname);
 
@@ -78,6 +80,10 @@ function AppRoutes() {
               <Landing />
             )
           }
+        />
+        <Route
+          path="/fillup"
+          element={user ? <Fillup /> : <Navigate to="/login" />}
         />
         <Route
           path="/home"

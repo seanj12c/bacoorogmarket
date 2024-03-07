@@ -15,7 +15,7 @@ const PrivacyPolicy = ({ onContinue }) => {
 
   return (
     <div className="fixed top-0 left-0 flex justify-center items-center w-full h-full bg-black bg-opacity-50">
-      <div className="bg-white w-full max-w-md p-4 rounded-lg shadow-lg">
+      <div className="bg-white w-full max-w-md lg:max-w-xl p-4 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-4 text-primary">Privacy Policy</h2>
         <div
           className="text-xs lg:text-base"
@@ -140,10 +140,11 @@ const PrivacyPolicy = ({ onContinue }) => {
               If you have any questions or concerns about this Privacy Policy or
               our data practices, please contact us at{" "}
               <span className="text-primary underline">
-                <a href="mailto:bacooroceangemmarket@gmail.com.">
-                  bacooroceangemmarket@gmail.com.
+                <a href="mailto:bacoorogmarket@gmail.com">
+                  bacoorogmarket@gmail.com
                 </a>
               </span>
+              .
             </p>
           </div>
         </div>

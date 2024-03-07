@@ -353,6 +353,9 @@ const MyAccount = () => {
             </p>
             <p className="text-xs">
               <strong>Address:</strong> {userData.address}
+            </p>{" "}
+            <p className="text-xs">
+              <strong>Contact:</strong> {userData.contact}
             </p>
             <div className="flex justify-center pt-2">
               <button
