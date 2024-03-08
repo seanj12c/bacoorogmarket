@@ -27,7 +27,7 @@ const Login = () => {
           .then((docSnap) => {
             if (docSnap.exists()) {
               // Document exists, redirect to home
-              navigate("/home");
+              navigate("/");
             } else {
               // Document doesn't exist, redirect to fillup
               navigate("/fillup");
@@ -52,8 +52,16 @@ const Login = () => {
         // No need to handle redirection here, useEffect handles it
       })
       .catch((error) => {
-        const errorMessage = "Error logging in. Please try again.";
-        setError(errorMessage); // Set generic error message
+        let errorMessage = error.message;
+
+        // Map Firebase error messages to custom messages
+        if (errorMessage.includes("auth/popup-closed-by-user")) {
+          errorMessage = "Pop-up was closed by the user";
+        } else if (errorMessage.includes("auth/user-disabled")) {
+          errorMessage = "Admin disabled your account";
+        }
+
+        setError(errorMessage);
       });
   };
 
@@ -91,15 +99,14 @@ const Login = () => {
               Welcome to{" "}
               <span className="font-bold">Bacoor Ocean Gem Market,</span>
             </p>
-            <p>sign in with</p>
           </div>
           <div className="px-5 py-3">
             <button
-              className="w-full  bg-white text-black py-2 border mt-2 rounded-lg hover:bg-gray-100 "
+              className="w-full btn bg-white text-black py-2 border mt-2 rounded-lg hover:bg-gray-100 "
               onClick={handleGoogleSignUp}
             >
               <FcGoogle className="inline-block mr-2" />
-              Google
+              Sign in using Google
             </button>
             {error && (
               <div className="text-red-500 pl-2 text-xs mt-2">{error}</div>

@@ -27,7 +27,7 @@ const Register = () => {
           .then((docSnap) => {
             if (docSnap.exists()) {
               // Document exists, redirect to home
-              navigate("/home");
+              navigate("/");
             } else {
               // Document doesn't exist, redirect to fillup
               navigate("/fillup");
@@ -91,15 +91,14 @@ const Register = () => {
               Welcome to{" "}
               <span className="font-bold">Bacoor Ocean Gem Market,</span>
             </p>
-            <p>register with</p>
           </div>
           <div className="px-5 py-3">
             <button
-              className="w-full  bg-white text-black py-2 border mt-2 rounded-lg hover:bg-gray-100 "
+              className="w-full btn bg-white text-black py-2 border mt-2 rounded-lg hover:bg-gray-100 "
               onClick={handleGoogleSignUp}
             >
               <FcGoogle className="inline-block mr-2" />
-              Google
+              Register using Google
             </button>
           </div>
           <div className="text-xs md:text-base flex justify-center text-center">

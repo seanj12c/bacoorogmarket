@@ -1,6 +1,17 @@
 const withMT = require("@material-tailwind/react/utils/withMT");
 
 module.exports = withMT({
+  daisyui: {
+    themes: [
+      {
+        mytheme: {
+          primary: "#008080",
+
+          secondary: "#0D6410",
+        },
+      },
+    ],
+  },
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "path-to-your-node_modules/@material-tailwind/react/components/**/*.{js,ts,jsx,tsx}",
@@ -16,5 +27,5 @@ module.exports = withMT({
     },
     extend: {},
   },
-  plugins: [],
+  plugins: [require("daisyui")],
 });

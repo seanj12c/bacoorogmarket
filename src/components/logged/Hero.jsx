@@ -55,8 +55,8 @@ const Hero = () => {
           </div>
           <div className="flex justify-center md:justify-start py-1">
             <Link to="/marketplace">
-              <button className="px-4 py-2 bg-primary text-white rounded-md transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]">
-                Get Started
+              <button className="btn bg-primary hover:text-primary hover:border-primary text-white">
+                Go to Marketplace
               </button>
             </Link>
           </div>

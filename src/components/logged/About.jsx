@@ -3,7 +3,7 @@ import { AiFillMessage } from "react-icons/ai";
 import { PiCookingPotFill } from "react-icons/pi";
 import { FaQuestion } from "react-icons/fa";
 import { BsFillShieldLockFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+
 const About = () => {
   return (
     <div className="md:h-screen h-full w-full py-32 px-2 lg:px-20 md:flex md:px-6 md:justify-around items-center">
@@ -18,13 +18,6 @@ const About = () => {
           love for the sea and a commitment to making the flavors of the ocean
           accessible to all seafood enthusiasts.
         </p>
-        <div className="flex justify-center md:justify-start py-1">
-          <Link to="/marketplace">
-            <button className="px-4 py-2 text-xs md:text-base bg-primary text-white rounded-md border-2 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]">
-              Get Started
-            </button>
-          </Link>
-        </div>
       </div>
       <div className="md:w-1/2">
         <div className="grid sm:grid-cols-2 justify-center gap-5 max-w-xs mx-auto sm:mx-0 sm:max-w-none">

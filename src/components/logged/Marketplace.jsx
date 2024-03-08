@@ -137,12 +137,12 @@ const Marketplace = () => {
                 </div>
               </div>
             </div>
-            <div className="border-primary border w-full px-2 flex items-center gap-2 rounded-md ">
+            <div className="border-primary border w-full bg-[#FFFFFF] px-2 flex items-center gap-2 rounded-md ">
               <FaSearch size={20} className="text-primary" />
               <input
                 type="search"
                 placeholder="Search by name, caption, or description..."
-                className="outline-none text-xs md:text-base w-full h-8 md:h-10"
+                className="outline-none text-xs  md:text-base w-full h-8 md:h-10"
                 onChange={handleSearch}
               />
             </div>

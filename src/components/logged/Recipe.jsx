@@ -90,7 +90,7 @@ const Recipe = () => {
             />
           </div>
           <div className="flex py-2 w-full justify-center items-center gap-2 px-4">
-            <div className="border-primary border w-full px-2 flex items-center gap-2 rounded-md ">
+            <div className="border-primary border bg-[#FFFFFF] w-full px-2 flex items-center gap-2 rounded-md ">
               <FaSearch size={20} className="text-primary" />
               <input
                 type="search"

@@ -115,11 +115,8 @@ const PostAProduct = () => {
   const [otherInformation, setOtherInformation] = useState("");
   const [address, setAddress] = useState("");
 
-  const handlePriceChange = (event) => {
-    const inputPrice = event.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-    const formattedPrice =
-      inputPrice === "" ? "0" : parseInt(inputPrice, 10).toLocaleString(); // Check if input is empty and set to '0'
-    setPrice(formattedPrice);
+  const handlePriceChange = (e) => {
+    setPrice(e.target.value);
   };
 
   const handleOtherInformationChange = (e) => {
@@ -419,13 +416,14 @@ const PostAProduct = () => {
             <p className="font-bold">₱</p>
             <input
               required
-              type="text"
+              type="number"
               id="priceInput"
               className="w-full focus:outline-none p-2 "
               placeholder="Price"
               style={{ WebkitAppearance: "none", MozAppearance: "textfield" }}
               value={price}
               onChange={handlePriceChange}
+              maxLength={7} // Limit the input to 7 characters
             />
           </div>
 

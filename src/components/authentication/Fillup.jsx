@@ -19,6 +19,7 @@ const Fillup = () => {
   const [loading, setLoading] = useState(true);
   const auth = useAuth();
   const [photoURL, setPhotoURL] = useState(null);
+  const [profilePictureUploaded, setProfilePictureUploaded] = useState(false);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -63,6 +64,11 @@ const Fillup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!profilePictureUploaded) {
+      alert("Please upload your profile picture.");
+      return;
+    }
 
     try {
       const userId = auth.currentUser.uid;
@@ -109,6 +115,7 @@ const Fillup = () => {
         setNewProfilePicture(photoURL);
         setPhotoURL(photoURL);
         setIsUploading(false);
+        setProfilePictureUploaded(true);
       } catch (error) {
         console.error("Error uploading profile photo:", error);
         setIsUploading(false);
@@ -170,7 +177,7 @@ const Fillup = () => {
                       />
                     </div>
                   ) : (
-                    <div className="w-full h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
+                    <div className="w-full btn h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
                       <img
                         className="w-6 object-contain"
                         src={cam}
@@ -253,7 +260,7 @@ const Fillup = () => {
 
               <button
                 type="submit"
-                className="bg-primary text-white px-4 py-2 rounded-lg w-full focus:outline-none"
+                className="bg-primary btn hover:text-primary text-white px-4 py-2 rounded-lg w-full focus:outline-none"
               >
                 Register
               </button>
