@@ -20,6 +20,7 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../authentication/LogoutModal";
 import { getAuth, signOut } from "firebase/auth";
+import EditProfileModal from "./EditProfileModal";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -34,6 +35,8 @@ const MyAccount = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -264,6 +267,10 @@ const MyAccount = () => {
     }
   };
 
+  const toggleEditProfileModal = () => {
+    setShowEditProfileModal(!showEditProfileModal);
+  };
+
   return (
     <div className="md:max-w-full max-w-xl  mx-auto md:p-0 p-4">
       {loading ? (
@@ -284,7 +291,10 @@ const MyAccount = () => {
                   <h2 className="text-2xl md:text-base lg:text-xl text-center  font-bold">
                     My Account
                   </h2>
-                  <button className="btn btn-xs btn-primary">
+                  <button
+                    className="btn btn-xs btn-primary"
+                    onClick={toggleEditProfileModal}
+                  >
                     <CiEdit />
                     Edit Profile
                   </button>
@@ -747,6 +757,17 @@ const MyAccount = () => {
       ) : (
         <p>No user data available.</p>
       )}
+      {showEditProfileModal && (
+        <EditProfileModal
+          userData={userData}
+          onClose={() => setShowEditProfileModal(false)}
+          onUpdateProfile={(updatedData) => {
+            setUserData(updatedData);
+            setShowEditProfileModal(false);
+          }}
+        />
+      )}
+
       {showLogoutModal && (
         <LogoutModal
           handleLogout={handleLogout}
