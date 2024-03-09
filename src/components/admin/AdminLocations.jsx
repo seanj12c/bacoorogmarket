@@ -205,7 +205,7 @@ const AdminLocations = () => {
                     : "Please tap the marker on the map"}
                 </h1>
                 <div className="overflow-auto">
-                  <table className="w-full text-xs text-center border-separate bg-gray-200">
+                  <table className="w-full table table-xs text-xs text-center border-separate bg-gray-200">
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="p-1">Name</th>
@@ -225,7 +225,7 @@ const AdminLocations = () => {
 
                           <td className="p-1">
                             <button
-                              className="p-1 bg-primary text-white rounded-md"
+                              className="font-normal btn-sm w-full btn btn-primary text-white"
                               onClick={() =>
                                 window.open(
                                   `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`,

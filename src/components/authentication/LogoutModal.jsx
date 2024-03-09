@@ -14,14 +14,11 @@ const LogoutModal = ({ handleLogout, closeModal }) => {
         <div className="flex justify-center gap-4">
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white font-semibold py-2 px-4 rounded-md "
+            className="btn font-normal  btn-error text-white "
           >
             Yes
           </button>
-          <button
-            onClick={closeModal}
-            className="bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md "
-          >
+          <button onClick={closeModal} className="btn font-normal  ">
             No
           </button>
         </div>

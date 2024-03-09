@@ -59,7 +59,7 @@ const Register = () => {
         } else if (errorMessage.includes("auth/user-disabled")) {
           errorMessage = "Admin disabled your account";
         } else if (errorMessage.includes("auth/cancelled-popup-request")) {
-          errorMessage = "Admin disabled your account";
+          errorMessage = "Pop-up was closed by the user";
         }
 
         setError(errorMessage);

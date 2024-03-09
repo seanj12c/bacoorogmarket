@@ -102,7 +102,7 @@ const Recipe = () => {
             <Link to="/post_recipe">
               <div className="flex flex-col items-center border w-28 md:w-36 border-primary bg-primary rounded-lg">
                 <MdOutlinePostAdd className="text-white" size={18} />
-                <p className="text-center text-xs md:text-base text-white">
+                <p className="text-center  text-xs md:text-base text-white">
                   Post a Recipe
                 </p>
               </div>

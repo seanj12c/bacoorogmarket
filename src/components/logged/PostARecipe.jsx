@@ -417,13 +417,15 @@ const PostARecipe = () => {
           </button>
         </div>
 
-        <button
-          type="submit"
-          className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Submitting..." : "Submit Recipe"}
-        </button>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="btn-wide btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit Recipe"}
+          </button>
+        </div>
       </form>
       <Modal show={isModalOpen} onClose={closeModal} />
     </div>

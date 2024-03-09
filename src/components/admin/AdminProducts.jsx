@@ -191,7 +191,7 @@ const AdminProducts = () => {
                     different search.
                   </p>
                 ) : (
-                  <table className="mx-auto border-collapse">
+                  <table className="mx-auto table table-xs border-collapse">
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="border px-4 py-2 text-xs text-center">
@@ -214,10 +214,10 @@ const AdminProducts = () => {
                     <tbody>
                       {filteredProducts.map((product) => (
                         <tr key={product.id}>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border border-gray-300 bg-gray-200 px-4 py-2 text-center text-xs">
                             {product.caption}
                           </td>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center text-xs">
                             {product.photos && product.photos.length > 0 ? (
                               <img
                                 src={product.photos[0]}
@@ -228,15 +228,15 @@ const AdminProducts = () => {
                               <span>No photo available</span>
                             )}
                           </td>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center text-xs">
                             ₱{product.price}.00
                           </td>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center text-xs">
                             {product.firstName} {product.lastName}
                           </td>
-                          <td className="border px-4 py-2 text-center">
+                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center">
                             <button
-                              className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                              className="block w-full font-normal btn-sm btn btn-error text-white mt-2"
                               onClick={() =>
                                 deleteProduct(product.id, product.caption)
                               }

@@ -6,8 +6,8 @@ module.exports = withMT({
       {
         mytheme: {
           primary: "#008080",
-
-          secondary: "#0D6410",
+          "base-100": "#fffcff",
+          error: "#ff0000",
         },
       },
     ],

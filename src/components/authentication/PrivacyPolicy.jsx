@@ -168,10 +168,10 @@ const PrivacyPolicy = ({ onContinue }) => {
         </div>
         <div className="mt-4 flex justify-center">
           <button
-            className={`bg-primary text-white py-2 px-3 rounded-lg ${
+            className={`btn btn-primary${
               isChecked
-                ? "hover:bg-primary-dark"
-                : "opacity-50 cursor-not-allowed"
+                ? ""
+                : "btn no-animation  opacity-60 cursor-not-allowed "
             } text-sm sm:text-base lg:text-lg`}
             onClick={handleContinueClick}
           >

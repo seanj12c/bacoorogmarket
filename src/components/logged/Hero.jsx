@@ -55,9 +55,7 @@ const Hero = () => {
           </div>
           <div className="flex justify-center md:justify-start py-1">
             <Link to="/marketplace">
-              <button className="btn bg-primary hover:text-primary hover:border-primary text-white">
-                Go to Marketplace
-              </button>
+              <button className="btn btn-primary">Go to Marketplace</button>
             </Link>
           </div>
         </div>

@@ -15,7 +15,7 @@ import { useAuth } from "../../authContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import cam from "../../assets/cam.png";
 import uploadload from "../../assets/loading.gif";
-
+import { CiEdit } from "react-icons/ci";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../authentication/LogoutModal";
@@ -279,9 +279,16 @@ const MyAccount = () => {
           <div className="md:flex ">
             <div className="md:fixed md:w-1/3 md:px-5">
               <div className="bg-bgray mt-2 w-full py-4 px-2 rounded-lg">
-                <h2 className="text-2xl text-center w-full font-bold mb-4">
-                  My Account
-                </h2>
+                {" "}
+                <div className="flex items-center justify-between  pb-3 px-5">
+                  <h2 className="text-2xl md:text-base lg:text-xl text-center  font-bold">
+                    My Account
+                  </h2>
+                  <button className="btn btn-xs btn-primary">
+                    <CiEdit />
+                    Edit Profile
+                  </button>
+                </div>
                 {auth.currentUser ? (
                   <div className="w-full">
                     <div className="mb-2 w-full">
@@ -289,7 +296,7 @@ const MyAccount = () => {
                         <img
                           src={userData.profilePhotoUrl}
                           alt="Profile"
-                          className="object-cover w-48 h-48 md:w-36 md:h-36 mx-auto"
+                          className="object-cover w-48 h-48 lg:w-36 lg:h-36 md:w-28 md:h-28 mx-auto"
                           style={{
                             border: "2px solid #008080",
                             borderRadius: "50%",
@@ -299,7 +306,7 @@ const MyAccount = () => {
                         <img
                           src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
                           alt="Default Profile"
-                          className="object-cover w-48 h-48 md:w-36 md:h-36  mx-auto"
+                          className="object-cover w-48 h-48 lg:w-36 lg:h-36 md:w-28 md:h-28  mx-auto"
                           style={{
                             border: "2px solid #008080",
                             borderRadius: "50%",
@@ -319,9 +326,9 @@ const MyAccount = () => {
                             />
                           </div>
                         ) : (
-                          <div className="w-full h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
+                          <div className="w-full h-full border btn-xs font-normal btn rounded-lg flex gap-1 justify-center mt-2 items-center">
                             <img
-                              className="w-6 object-contain"
+                              className="w-4 object-contain"
                               src={cam}
                               alt="upload-"
                             />
@@ -344,7 +351,7 @@ const MyAccount = () => {
                     </div>
                   </div>
                 ) : null}
-                <p className="text-center text-2xl mx-auto">
+                <p className="text-center text-2xl lg:text-2xl md:text-base mx-auto">
                   <strong>
                     {userData.firstName} {userData.lastName}
                   </strong>
@@ -361,28 +368,28 @@ const MyAccount = () => {
                 <div className="flex justify-center pt-2">
                   <button
                     onClick={toggleLogoutModal}
-                    className="bg-red-500  text-white py-2 px-4 rounded-lg hover-bg-red-600 focus:outline-none"
+                    className="btn-error btn btn-sm   text-white "
                   >
                     Logout
                   </button>
                 </div>
               </div>
 
-              <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-4">
-                <h1 className="text-2xl text-center w-full font-bold py-2">
+              <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-2">
+                <h1 className="text-lg text-center w-full font-bold pb-2">
                   Want to post something?
                 </h1>
 
                 <div className="flex justify-center gap-2">
                   <Link
                     to="/post_product"
-                    className="px-4 text-xs py-2 bg-primary rounded-md text-white"
+                    className="btn-sm md:btn-xs lg:btn-sm btn btn-primary"
                   >
                     Post a Product
                   </Link>
                   <Link
                     to="/post_recipe"
-                    className="px-4 text-xs py-2 bg-primary rounded-md text-white"
+                    className="btn-sm md:btn-xs lg:btn-sm btn btn-primary"
                   >
                     Post a Recipe
                   </Link>
@@ -391,31 +398,33 @@ const MyAccount = () => {
             </div>
 
             <div className="md:w-2/3 md:px-5 md:ml-auto">
-              <div className="md:fixed left-0 right-0 bg-bgray py-2 rounded-lg  my-4">
-                <h1 className="text-center font-bold text-black mb-2">
-                  You posts here
-                </h1>
-                <div className="flex text-xs items-center justify-center">
-                  <button
-                    onClick={() => toggleDisplay(true)}
-                    className={`mx-2 px-4 py-2 ${
-                      displayProducts
-                        ? "bg-primary text-white"
-                        : "bg-gray-400 text-black"
-                    } rounded-md`}
-                  >
-                    Products
-                  </button>
-                  <button
-                    onClick={() => toggleDisplay(false)}
-                    className={`mx-2 px-4 py-2 ${
-                      displayProducts
-                        ? "bg-gray-400 text-black"
-                        : "bg-primary text-white"
-                    } rounded-md`}
-                  >
-                    Recipes
-                  </button>
+              <div className="md:fixed md:flex justify-center  bg-bgray md:bg-transparent md:w-2/3 md:px-5 mx-auto  py-2 rounded-lg my-2">
+                <div className="md:glass md:w-full md:max-w-3xl md:h-20 rounded-lg p-2">
+                  <h1 className="text-center font-bold text-black mb-2">
+                    You posts here
+                  </h1>
+                  <div className="flex text-xs items-center justify-center">
+                    <button
+                      onClick={() => toggleDisplay(true)}
+                      className={`mx-2 px-4 py-2 ${
+                        displayProducts
+                          ? "bg-primary text-white"
+                          : "bg-gray-400 text-black"
+                      } rounded-md`}
+                    >
+                      Products
+                    </button>
+                    <button
+                      onClick={() => toggleDisplay(false)}
+                      className={`mx-2 px-4 py-2 ${
+                        displayProducts
+                          ? "bg-gray-400 text-black"
+                          : "bg-primary text-white"
+                      } rounded-md`}
+                    >
+                      Recipes
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -554,7 +563,7 @@ const MyAccount = () => {
                               .map((photo, photoIndex) => (
                                 <img
                                   key={photoIndex}
-                                  className="w-full h-40 object-cover rounded-lg mb-2"
+                                  className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
                                   src={photo}
                                   alt=""
                                 />
@@ -697,7 +706,7 @@ const MyAccount = () => {
                               .map((photo, photoIndex) => (
                                 <img
                                   key={photoIndex}
-                                  className="w-full h-40 object-cover rounded-lg mb-2"
+                                  className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
                                   src={photo}
                                   alt=""
                                 />

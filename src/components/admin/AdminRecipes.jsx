@@ -189,7 +189,7 @@ const AdminRecipes = () => {
                     search.
                   </p>
                 ) : (
-                  <table className="mx-auto border-collapse">
+                  <table className="mx-auto table table-xs border-collapse">
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="border px-4 py-2 text-xs text-center">
@@ -209,10 +209,10 @@ const AdminRecipes = () => {
                     <tbody>
                       {filteredRecipes.map((recipe) => (
                         <tr key={recipe.id}>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
                             {recipe.caption}
                           </td>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
                             {recipe.photos && recipe.photos.length > 0 ? (
                               <img
                                 src={recipe.photos[0]}
@@ -223,12 +223,12 @@ const AdminRecipes = () => {
                               <span>No photo available</span>
                             )}
                           </td>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
                             {recipe.firstName} {recipe.lastName}
                           </td>
-                          <td className="border px-4 py-2 text-center">
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center">
                             <button
-                              className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                              className="block font-normal btn-sm w-full btn btn-error text-white mt-2"
                               onClick={() =>
                                 deleteRecipe(recipe.id, recipe.caption)
                               }

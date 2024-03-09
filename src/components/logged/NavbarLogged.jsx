@@ -233,7 +233,7 @@ export const NavbarLogged = () => {
               <div className="border-t-gray-500 border-t"></div>
               <button
                 onClick={toggleLogoutModal}
-                className="bg-red-500  text-white py-2 px-4 rounded-lg hover-bg-red-600 focus:outline-none"
+                className="btn btn-error w-full text-white "
               >
                 Logout
               </button>

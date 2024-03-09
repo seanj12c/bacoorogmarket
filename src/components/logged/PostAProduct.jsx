@@ -522,7 +522,7 @@ const PostAProduct = () => {
         <div className="flex justify-center w-full">
           <button
             type="submit"
-            className="bg-primary  w-full max-w-sm text-white py-2 px-4 rounded hover:bg-primary-dark focus:outline-none cursor-pointer"
+            className="btn-wide btn btn-primary"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Submitting..." : "Submit Product"}

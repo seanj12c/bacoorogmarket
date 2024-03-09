@@ -219,7 +219,7 @@ const AdminUsers = () => {
                     search.
                   </p>
                 ) : (
-                  <table className="mx-auto border-collapse">
+                  <table className="mx-auto table table-xs border-collapse">
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="border px-4 py-2 text-xs text-center">
@@ -239,16 +239,16 @@ const AdminUsers = () => {
                     <tbody>
                       {filteredUsers.map((user) => (
                         <tr key={user.id}>
-                          <td className="border px-4 py-2 text-xs text-center">
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-xs text-center">
                             {user.userId}
                           </td>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
                             {user.firstName} {user.lastName}
                           </td>
-                          <td className="border px-4 py-2 text-center text-xs">
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
                             {user.email}
                           </td>
-                          <td className="border flex gap-2 px-4 py-2 text-center">
+                          <td className="border bg-gray-200  flex gap-2 px-4 py-2 text-center">
                             {user.disabled ? (
                               <button
                                 className="block w-full py-2 px-1 text-center bg-green-500 text-white rounded-md text-xs hover:bg-green-700 border border-gray-200 mt-2"
