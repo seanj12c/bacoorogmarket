@@ -26,15 +26,6 @@ const Login = () => {
           .then((docSnap) => {
             if (docSnap.exists()) {
               // Document exists, check if account is disabled
-              const userData = docSnap.data();
-              if (userData.disabled) {
-                // User account is disabled, sign out and display error message
-                auth.signOut();
-                window.alert("Sorry, admin disabled your account");
-              } else {
-                // User account is not disabled, redirect to appropriate page
-                navigate("/");
-              }
             } else {
               // Document doesn't exist, redirect to fillup
               navigate("/fillup");
@@ -56,7 +47,8 @@ const Login = () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then((result) => {
-        // No need to handle redirection here, useEffect handles it
+        // Redirect to /fillup after successful sign-up
+        navigate("/fillup");
       })
       .catch((error) => {
         let errorMessage = error.message;

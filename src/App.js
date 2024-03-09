@@ -27,6 +27,8 @@ import AdminLocations from "./components/admin/AdminLocations";
 import AdminRecipes from "./components/admin/AdminRecipes";
 import Fillup from "./components/authentication/Fillup";
 
+import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
+
 function AppRoutes() {
   const location = useLocation();
   const [user, setUser] = useState(null);
@@ -43,11 +45,30 @@ function AppRoutes() {
         } else {
           setAdmin(null);
         }
+        // Check if user is disabled
+        const db = getFirestore();
+        const userRef = doc(collection(db, "registered"), authUser.uid);
+
+        try {
+          const docSnap = await getDoc(userRef);
+          const userData = docSnap.data();
+          if (userData.disabled) {
+            auth.signOut();
+            window.alert(
+              "Sorry, your account has been disabled. Please contact support for assistance."
+            );
+          } else {
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error("Error getting document:", error);
+          setLoading(false);
+        }
       } else {
         setUser(null);
         setAdmin(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -80,9 +101,7 @@ function AppRoutes() {
           path="/"
           element={
             user ? (
-              user.disabled ? (
-                <Navigate to="/disabled" />
-              ) : user.email === "bacoorogmarket@gmail.com" ? (
+              user.email === "bacoorogmarket@gmail.com" ? (
                 <Navigate to="/admin/users" />
               ) : (
                 <Navigate to="/home" />
