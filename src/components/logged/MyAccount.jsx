@@ -20,7 +20,6 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../authentication/LogoutModal";
 import { getAuth, signOut } from "firebase/auth";
-import EditProfileModal from "./EditProfileModal";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -35,8 +34,12 @@ const MyAccount = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    contact: "",
+  });
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -119,6 +122,68 @@ const MyAccount = () => {
 
     fetchPosts();
   }, [auth]);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      if (auth.currentUser) {
+        const userId = auth.currentUser.uid;
+        const db = getFirestore();
+        const userDocRef = doc(db, "registered", userId);
+
+        try {
+          const docSnap = await getDoc(userDocRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setFormData({
+              firstName: data.firstName || "",
+              lastName: data.lastName || "",
+              address: data.address || "",
+              contact: data.contact || "",
+            });
+          } else {
+            console.log("No such document for this user!");
+          }
+        } catch (error) {
+          console.error("Error getting document:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.log("No user is authenticated.");
+        setLoading(false);
+      }
+    };
+
+    getCurrentUser();
+  }, [auth]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const userId = auth.currentUser.uid;
+    const db = getFirestore();
+    const userDocRef = doc(db, "registered", userId);
+
+    try {
+      await updateDoc(userDocRef, formData);
+      console.log("User data updated successfully!");
+      document.getElementById("my_modal_3").close();
+    } catch (error) {
+      console.error("Error updating user data:", error);
+    }
+  };
+
+  const closeForm = () => {
+    document.getElementById("my_modal_3").close();
+  };
 
   const toggleDisplay = (isProducts) => {
     setDisplayProducts(isProducts);
@@ -267,10 +332,6 @@ const MyAccount = () => {
     }
   };
 
-  const toggleEditProfileModal = () => {
-    setShowEditProfileModal(!showEditProfileModal);
-  };
-
   return (
     <div className="md:max-w-full max-w-xl  mx-auto md:p-0 p-4">
       {loading ? (
@@ -292,12 +353,99 @@ const MyAccount = () => {
                     My Account
                   </h2>
                   <button
+                    onClick={() =>
+                      document.getElementById("my_modal_3").showModal()
+                    }
                     className="btn btn-xs btn-primary"
-                    onClick={toggleEditProfileModal}
                   >
                     <CiEdit />
                     Edit Profile
                   </button>
+                  {/* You can open the modal using document.getElementById('ID').showModal() method */}
+
+                  <dialog id="my_modal_3" className="modal">
+                    <div className="modal-box p-6 bg-gray-200 rounded-lg shadow-lg">
+                      <button
+                        onClick={closeForm}
+                        className="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
+                      >
+                        ✕
+                      </button>
+                      <h3 className="font-bold text-lg mb-4">Edit Profile</h3>
+                      <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="flex flex-col">
+                          <label
+                            htmlFor="firstName"
+                            className="text-sm font-medium"
+                          >
+                            First Name:
+                          </label>
+                          <input
+                            type="text"
+                            id="firstName"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            className="input"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label
+                            htmlFor="lastName"
+                            className="text-sm font-medium"
+                          >
+                            Last Name:
+                          </label>
+                          <input
+                            type="text"
+                            id="lastName"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            className="input"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label
+                            htmlFor="address"
+                            className="text-sm font-medium"
+                          >
+                            Address:
+                          </label>
+                          <input
+                            type="text"
+                            id="address"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            className="input"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <label
+                            htmlFor="contact"
+                            className="text-sm font-medium"
+                          >
+                            Contact:
+                          </label>
+                          <input
+                            type="text"
+                            id="contact"
+                            name="contact"
+                            value={formData.contact}
+                            onChange={handleChange}
+                            className="input"
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          className="btn w-full btn-primary"
+                        >
+                          Update
+                        </button>
+                      </form>
+                    </div>
+                  </dialog>
                 </div>
                 {auth.currentUser ? (
                   <div className="w-full">
@@ -757,17 +905,6 @@ const MyAccount = () => {
       ) : (
         <p>No user data available.</p>
       )}
-      {showEditProfileModal && (
-        <EditProfileModal
-          userData={userData}
-          onClose={() => setShowEditProfileModal(false)}
-          onUpdateProfile={(updatedData) => {
-            setUserData(updatedData);
-            setShowEditProfileModal(false);
-          }}
-        />
-      )}
-
       {showLogoutModal && (
         <LogoutModal
           handleLogout={handleLogout}
