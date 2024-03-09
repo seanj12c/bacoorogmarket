@@ -30,15 +30,22 @@ import Fillup from "./components/authentication/Fillup";
 function AppRoutes() {
   const location = useLocation();
   const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
       if (authUser) {
         setUser(authUser);
+        if (authUser.email === "bacoorogmarket@gmail.com") {
+          setAdmin(authUser);
+        } else {
+          setAdmin(null);
+        }
       } else {
         setUser(null);
+        setAdmin(null);
       }
       setLoading(false);
     });
@@ -72,31 +79,80 @@ function AppRoutes() {
         <Route
           path="/"
           element={
-            user && user.email === "bacoorogmarket@gmail.com" ? (
-              <Navigate to="/admin/users" />
-            ) : user ? (
-              <Navigate to="/home" />
+            user ? (
+              user.disabled ? (
+                <Navigate to="/disabled" />
+              ) : user.email === "bacoorogmarket@gmail.com" ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Navigate to="/home" />
+              )
             ) : (
               <Landing />
             )
           }
         />
+
         <Route
-          path="/fillup"
-          element={user ? <Fillup /> : <Navigate to="/login" />}
+          path="/"
+          element={
+            user ? (
+              user.email === "bacoorogmarket@gmail.com" ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Navigate to="/home" />
+              )
+            ) : (
+              <Landing />
+            )
+          }
         />
+
+        <Route path="/fillup" element={<Fillup />} />
+
         <Route
           path="/home"
-          element={user ? <Hero /> : <Navigate to="/login" />}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Hero />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/about"
-          element={user ? <About /> : <Navigate to="/login" />}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <About />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/faqs"
-          element={user ? <Faq /> : <Navigate to="/login" />}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Faq />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
+
         <Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/home" />}
@@ -107,63 +163,90 @@ function AppRoutes() {
         />
         <Route
           path="/myaccount"
-          element={user ? <MyAccount /> : <Navigate to="/login" />}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <MyAccount />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/post_recipe"
-          element={user ? <PostARecipe /> : <Navigate to="/login" />}
-        />{" "}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <PostARecipe />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
         <Route
           path="/post_product"
-          element={user ? <PostAProduct /> : <Navigate to="/login" />}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <PostAProduct />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/marketplace"
-          element={user ? <Marketplace /> : <Navigate to="/login" />}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Marketplace />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/recipe"
-          element={user ? <Recipe /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/admin/users"
           element={
-            user && user.email === "bacoorogmarket@gmail.com" ? (
-              <AdminUsers />
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Recipe />
+              )
             ) : (
               <Navigate to="/login" />
             )
           }
+        />
+
+        <Route
+          path="/admin/users"
+          element={admin ? <AdminUsers /> : <Navigate to="/login" />}
         />
         <Route
           path="/admin/products"
-          element={
-            user && user.email === "bacoorogmarket@gmail.com" ? (
-              <AdminProducts />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={admin ? <AdminProducts /> : <Navigate to="/login" />}
         />
         <Route
           path="/admin/locations"
-          element={
-            user && user.email === "bacoorogmarket@gmail.com" ? (
-              <AdminLocations />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={admin ? <AdminLocations /> : <Navigate to="/login" />}
         />
         <Route
           path="/admin/recipes"
-          element={
-            user && user.email === "bacoorogmarket@gmail.com" ? (
-              <AdminRecipes />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
+          element={admin ? <AdminRecipes /> : <Navigate to="/login" />}
         />
       </Routes>
     </div>

@@ -3,14 +3,13 @@ import { Link } from "react-router-dom";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, collection, doc, getDoc } from "firebase/firestore"; // Import Firestore
 import loginbg from "../../assets/loginbg.png";
-import RegistrationCompleteModal from "./RegistrationCompleteModal";
+
 import PrivacyPolicy from "./PrivacyPolicy";
 import { useNavigate } from "react-router-dom";
 
 import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
-  const [showModal, setShowModal] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [error, setError] = useState(null); // State variable for holding error
   const navigate = useNavigate();
@@ -26,8 +25,16 @@ const Login = () => {
         getDoc(userRef)
           .then((docSnap) => {
             if (docSnap.exists()) {
-              // Document exists, redirect to home
-              navigate("/");
+              // Document exists, check if account is disabled
+              const userData = docSnap.data();
+              if (userData.disabled) {
+                // User account is disabled, sign out and display error message
+                auth.signOut();
+                window.alert("Sorry, admin disabled your account");
+              } else {
+                // User account is not disabled, redirect to appropriate page
+                navigate("/");
+              }
             } else {
               // Document doesn't exist, redirect to fillup
               navigate("/fillup");
@@ -59,18 +66,12 @@ const Login = () => {
           errorMessage = "Pop-up was closed by the user";
         } else if (errorMessage.includes("auth/user-disabled")) {
           errorMessage = "Admin disabled your account";
+        } else if (errorMessage.includes("auth/cancelled-popup-request")) {
+          errorMessage = "Admin disabled your account";
         }
 
         setError(errorMessage);
       });
-  };
-
-  const closeRegistrationModal = () => {
-    setShowModal(false);
-  };
-
-  const handleLoginNowClick = () => {
-    console.log("Login Now clicked!");
   };
 
   return (
@@ -125,13 +126,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
-      {showModal && (
-        <RegistrationCompleteModal
-          onClose={closeRegistrationModal}
-          onLoginNowClick={handleLoginNowClick}
-        />
-      )}
 
       {showPrivacyPolicy && (
         <PrivacyPolicy

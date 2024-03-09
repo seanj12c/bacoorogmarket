@@ -423,7 +423,6 @@ const PostAProduct = () => {
               style={{ WebkitAppearance: "none", MozAppearance: "textfield" }}
               value={price}
               onChange={handlePriceChange}
-              maxLength={7} // Limit the input to 7 characters
             />
           </div>
 

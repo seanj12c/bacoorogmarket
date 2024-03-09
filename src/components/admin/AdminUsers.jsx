@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  updateDoc,
+  doc,
+  deleteDoc,
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
 
@@ -40,7 +48,7 @@ const AdminUsers = () => {
             firstName: data.firstName,
             lastName: data.lastName,
             email: data.email,
-            // Add more fields if needed
+            disabled: data.disabled || false,
           });
         }
       });
@@ -53,25 +61,45 @@ const AdminUsers = () => {
     };
   }, []);
 
-  const disableAccount = (user) => {
+  const enableAccount = async (user) => {
     if (
       window.confirm(
-        `Are you sure you want to disable ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
+        `Are you sure you want to ENABLE ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
       )
     ) {
-      // Implement disable account logic
-      console.log("Disable account for user with ID:", user.userId);
+      const userRef = doc(firestore, "registered", user.id);
+      await updateDoc(userRef, {
+        disabled: false,
+      });
     }
   };
 
-  const deleteAccount = (user) => {
+  const disableAccount = async (user) => {
     if (
       window.confirm(
-        `Are you sure you want to delete ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
+        `Are you sure you want to DISABLE ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
       )
     ) {
-      // Implement delete account logic
-      console.log("Delete account for user with ID:", user.userId);
+      const userRef = doc(firestore, "registered", user.id);
+      await updateDoc(userRef, {
+        disabled: true,
+      });
+    }
+  };
+
+  const deleteAccount = async (user) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${user.firstName} ${user.lastName} with an email of ${user.email} from the database?`
+      )
+    ) {
+      try {
+        const userRef = doc(firestore, "registered", user.id);
+        await deleteDoc(userRef);
+        window.alert(`User deleted!`);
+      } catch (error) {
+        window.alert(`Error deleting user!`);
+      }
     }
   };
 
@@ -221,12 +249,21 @@ const AdminUsers = () => {
                             {user.email}
                           </td>
                           <td className="border flex gap-2 px-4 py-2 text-center">
-                            <button
-                              className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-800 border border-gray-200 mt-2"
-                              onClick={() => disableAccount(user)}
-                            >
-                              Disable
-                            </button>
+                            {user.disabled ? (
+                              <button
+                                className="block w-full py-2 px-1 text-center bg-green-500 text-white rounded-md text-xs hover:bg-green-700 border border-gray-200 mt-2"
+                                onClick={() => enableAccount(user)}
+                              >
+                                Enable
+                              </button>
+                            ) : (
+                              <button
+                                className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-800 border border-gray-200 mt-2"
+                                onClick={() => disableAccount(user)}
+                              >
+                                Disable
+                              </button>
+                            )}
                             <button
                               className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
                               onClick={() => deleteAccount(user)}
