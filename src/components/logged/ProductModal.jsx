@@ -6,6 +6,7 @@ import {
   BiSolidSkipNextCircle,
   BiSolidSkipPreviousCircle,
 } from "react-icons/bi";
+import { Link } from "react-router-dom";
 
 const libraries = ["places"];
 
@@ -68,6 +69,13 @@ const ProductModal = ({ product, closeModal }) => {
                   <p className="text-gray-500 text-xs sm:text-sm">
                     {product.timestamp}
                   </p>
+                  <Link
+                    onClick={closeModal}
+                    to={`/profile/${product.userUid}`}
+                    className="btn btn-xs text-xs btn-primary"
+                  >
+                    View Profile
+                  </Link>
                 </div>
               </div>
             </div>

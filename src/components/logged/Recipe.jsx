@@ -33,6 +33,7 @@ const Recipe = () => {
           instructions: data.instructions,
           photos: data.photos,
           recipeId: data.recipeId, // Assuming you have a field called recipeId
+          userUid: data.userUid, // Assuming you have a field called recipeId
         });
       });
       setRecipes(recipesData);
@@ -108,45 +109,53 @@ const Recipe = () => {
               </div>
             </Link>
           </div>
-          <div className="grid grid-cols-1 px-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {filteredRecipes.map((recipe) => (
-              <div
-                key={recipe.id}
-                className="bg-post rounded-lg shadow p-4 cursor-pointer"
-                onClick={() => openRecipeModal(recipe)}
-              >
-                <div className="flex gap-2 py-2 items-center justify-between">
-                  <div className="flex gap-2 items-center">
-                    <img
-                      src={recipe.profilePhotoUrl}
-                      alt="ProfilePhoto"
-                      className="w-12 h-12 rounded-full object-cover inline-block"
-                    />
-                    <div>
-                      <p className="text-primary text-sm font-semibold">
-                        {recipe.firstName} {recipe.lastName}
-                      </p>
-                      <p className="text-gray-600 text-xs">
-                        {recipe.timestamp}
-                      </p>
+
+          {filteredRecipes.length === 0 ? (
+            <p className="text-center text-gray-500">
+              No recipe found for "{searchQuery}". Please try a different
+              search.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 px-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {filteredRecipes.map((recipe) => (
+                <div
+                  key={recipe.id}
+                  className="bg-post rounded-lg shadow p-4 cursor-pointer"
+                  onClick={() => openRecipeModal(recipe)}
+                >
+                  <div className="flex gap-2 py-2 items-center justify-between">
+                    <div className="flex gap-2 items-center">
+                      <img
+                        src={recipe.profilePhotoUrl}
+                        alt="ProfilePhoto"
+                        className="w-12 h-12 rounded-full object-cover inline-block"
+                      />
+                      <div>
+                        <p className="text-primary text-sm font-semibold">
+                          {recipe.firstName} {recipe.lastName}
+                        </p>
+                        <p className="text-gray-600 text-xs">
+                          {recipe.timestamp}
+                        </p>
+                      </div>
                     </div>
                   </div>
+                  <div className="mb-4">
+                    <h1 className="text-2xl font-semibold mb-2">
+                      {recipe.caption}
+                    </h1>
+                  </div>
+                  <div>
+                    <img
+                      className="w-full h-36 object-cover rounded-lg mb-2"
+                      src={recipe.photos}
+                      alt=""
+                    />
+                  </div>
                 </div>
-                <div className="mb-4">
-                  <h1 className="text-2xl font-semibold mb-2">
-                    {recipe.caption}
-                  </h1>
-                </div>
-                <div>
-                  <img
-                    className="w-full h-36 object-cover rounded-lg mb-2"
-                    src={recipe.photos}
-                    alt=""
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       {selectedRecipe && (

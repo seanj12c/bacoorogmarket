@@ -4,6 +4,7 @@ import {
   BiSolidSkipPreviousCircle,
   BiSolidSkipNextCircle,
 } from "react-icons/bi";
+import { Link } from "react-router-dom";
 
 const RecipeModal = ({ recipe, closeModal }) => {
   const [slideshowIndex, setSlideshowIndex] = useState(0);
@@ -42,6 +43,13 @@ const RecipeModal = ({ recipe, closeModal }) => {
                 <p className="text-gray-500 text-xs sm:text-sm">
                   {recipe.timestamp}
                 </p>
+                <Link
+                  onClick={closeModal}
+                  to={`/profile/${recipe.userUid}`}
+                  className="btn btn-xs text-xs btn-primary"
+                >
+                  View Profile
+                </Link>
               </div>
             </div>
             <div>

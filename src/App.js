@@ -28,6 +28,7 @@ import AdminRecipes from "./components/admin/AdminRecipes";
 import Fillup from "./components/authentication/Fillup";
 
 import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
+import Profile from "./components/logged/Profile";
 
 function AppRoutes() {
   const location = useLocation();
@@ -111,7 +112,6 @@ function AppRoutes() {
             )
           }
         />
-
         <Route
           path="/"
           element={
@@ -126,9 +126,7 @@ function AppRoutes() {
             )
           }
         />
-
         <Route path="/fillup" element={<Fillup />} />
-
         <Route
           path="/home"
           element={
@@ -171,7 +169,6 @@ function AppRoutes() {
             )
           }
         />
-
         <Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/home" />}
@@ -207,7 +204,8 @@ function AppRoutes() {
               <Navigate to="/login" />
             )
           }
-        />
+        />{" "}
+        <Route path="/profile/:userId" element={<Profile />} />
         <Route
           path="/post_product"
           element={
@@ -250,7 +248,6 @@ function AppRoutes() {
             )
           }
         />
-
         <Route
           path="/admin/users"
           element={admin ? <AdminUsers /> : <Navigate to="/login" />}
