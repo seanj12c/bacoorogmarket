@@ -7,11 +7,13 @@ import {
   BiSolidSkipPreviousCircle,
 } from "react-icons/bi";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../authContext";
 
 const libraries = ["places"];
 
 const ProductModal = ({ product, closeModal }) => {
   const [slideshowIndex, setSlideshowIndex] = useState(0);
+  const auth = useAuth();
 
   useEffect(() => {
     setSlideshowIndex(0);
@@ -49,6 +51,8 @@ const ProductModal = ({ product, closeModal }) => {
     return null;
   }
 
+  const isSeller = auth.currentUser && auth.currentUser.uid === product.userUid;
+
   return (
     <div className="fixed h-screen rounded-lg w-full border-solid inset-0 z-50 flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
       <div className=" w-full  mx-auto ">
@@ -69,13 +73,23 @@ const ProductModal = ({ product, closeModal }) => {
                   <p className="text-gray-500 text-xs sm:text-sm">
                     {product.timestamp}
                   </p>
-                  <Link
-                    onClick={closeModal}
-                    to={`/profile/${product.userUid}`}
-                    className="btn btn-xs text-xs btn-primary"
-                  >
-                    View Profile
-                  </Link>
+                  {isSeller ? (
+                    <Link
+                      onClick={closeModal}
+                      to="/myaccount"
+                      className="btn btn-xs text-xs btn-primary"
+                    >
+                      View Profile
+                    </Link>
+                  ) : (
+                    <Link
+                      onClick={closeModal}
+                      to={`/profile/${product.userUid}`}
+                      className="btn btn-xs text-xs btn-primary"
+                    >
+                      View Profile
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -273,11 +287,13 @@ const ProductModal = ({ product, closeModal }) => {
                   </div>
                 )}
               </div>
-              <div className="flex justify-center mt-1">
-                <button className="bg-primary text-xs text-white text-center px-3 w-32 py-2 rounded-lg">
-                  Message Seller
-                </button>
-              </div>
+              {isSeller ? null : (
+                <div className="flex justify-center mt-1">
+                  <button className="bg-primary text-xs text-white text-center px-3 w-32 py-2 rounded-lg">
+                    Message Seller
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
