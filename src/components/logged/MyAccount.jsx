@@ -226,6 +226,7 @@ const MyAccount = () => {
 
   const confirmDelete = (post) => {
     deletePost(post);
+    window.alert("Post deleted successfully!");
   };
 
   const handleEditCaption = async () => {
@@ -248,7 +249,7 @@ const MyAccount = () => {
 
           await updateDoc(postDocRef, { caption: editedCaption });
 
-          console.log("Post caption updated in Firestore");
+          window.alert("Post caption updated successfully!");
 
           setIsEditing(false);
           hideOptions();

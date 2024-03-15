@@ -71,6 +71,7 @@ const AdminUsers = () => {
       await updateDoc(userRef, {
         disabled: false,
       });
+      window.alert(`User ${user.firstName}  enabled!`);
     }
   };
 
@@ -84,6 +85,7 @@ const AdminUsers = () => {
       await updateDoc(userRef, {
         disabled: true,
       });
+      window.alert(`User ${user.firstName}  disabled!`);
     }
   };
 

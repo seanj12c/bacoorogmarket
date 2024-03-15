@@ -67,6 +67,7 @@ const AdminProducts = () => {
         const db = firestore;
         const productDocRef = doc(db, "products", docId);
         await deleteDoc(productDocRef);
+        window.alert(`Product has been deleted successfully.`);
       } catch (error) {
         console.error("Error deleting product:", error);
       }

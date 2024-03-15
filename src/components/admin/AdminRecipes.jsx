@@ -65,6 +65,7 @@ const AdminRecipes = () => {
         const db = firestore;
         const recipeDocRef = doc(db, "recipes", recipeId);
         await deleteDoc(recipeDocRef);
+        window.alert(`Recipe has been deleted successfully.`);
       } catch (error) {
         console.error("Error deleting recipe:", error);
       }
