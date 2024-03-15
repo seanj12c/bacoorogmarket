@@ -5,6 +5,7 @@ import {
   BiSolidSkipNextCircle,
 } from "react-icons/bi";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../authContext";
 
 const RecipeModal = ({ recipe, closeModal }) => {
   const [slideshowIndex, setSlideshowIndex] = useState(0);
@@ -20,10 +21,10 @@ const RecipeModal = ({ recipe, closeModal }) => {
       );
     }
   };
-
+  const auth = useAuth();
   const hasIngredients = recipe.ingredients && recipe.ingredients.length > 0;
   const hasInstructions = recipe.instructions && recipe.instructions.length > 0;
-
+  const isSeller = auth.currentUser && auth.currentUser.uid === recipe.userUid;
   return (
     <div className="fixed h-screen bg-white inset-0 z-50  flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
       <div className="relative w-full mx-auto overflow-y-auto">
@@ -43,13 +44,23 @@ const RecipeModal = ({ recipe, closeModal }) => {
                 <p className="text-gray-500 text-xs sm:text-sm">
                   {recipe.timestamp}
                 </p>
-                <Link
-                  onClick={closeModal}
-                  to={`/profile/${recipe.userUid}`}
-                  className="btn btn-xs text-xs btn-primary"
-                >
-                  View Profile
-                </Link>
+                {isSeller ? (
+                  <Link
+                    onClick={closeModal}
+                    to="/myaccount"
+                    className="btn btn-xs hidden text-xs btn-primary"
+                  >
+                    Go to My Account
+                  </Link>
+                ) : (
+                  <Link
+                    onClick={closeModal}
+                    to={`/profile/${recipe.userUid}`}
+                    className="btn btn-xs text-xs btn-primary"
+                  >
+                    View Profile
+                  </Link>
+                )}
               </div>
             </div>
             <div>

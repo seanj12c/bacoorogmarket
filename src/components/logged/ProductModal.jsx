@@ -77,7 +77,7 @@ const ProductModal = ({ product, closeModal }) => {
                     <Link
                       onClick={closeModal}
                       to="/myaccount"
-                      className="btn btn-xs text-xs btn-primary"
+                      className="btn btn-xs hidden text-xs btn-primary"
                     >
                       View Profile
                     </Link>

@@ -20,6 +20,8 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../authentication/LogoutModal";
 import { getAuth, signOut } from "firebase/auth";
+import ProductModal from "./ProductModal";
+import RecipeModal from "./RecipeModal";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -34,6 +36,9 @@ const MyAccount = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -332,6 +337,19 @@ const MyAccount = () => {
     }
   };
 
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleRecipeClick = (recipe) => {
+    setSelectedRecipe(recipe);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+    setSelectedRecipe(null);
+  };
+
   return (
     <div className="md:max-w-full max-w-xl  mx-auto md:p-0 p-4">
       {loading ? (
@@ -361,7 +379,6 @@ const MyAccount = () => {
                     <CiEdit />
                     Edit Profile
                   </button>
-                  {/* You can open the modal using document.getElementById('ID').showModal() method */}
 
                   <dialog id="my_modal_3" className="modal">
                     <div className="modal-box p-6 bg-gray-200 rounded-lg shadow-lg">
@@ -709,6 +726,7 @@ const MyAccount = () => {
                           </h1>
                         </div>
                         <div
+                          onClick={() => handleProductClick(product)}
                           className={
                             product.photos && product.photos.length > 1
                               ? "grid gap-2 grid-cols-2"
@@ -852,6 +870,7 @@ const MyAccount = () => {
                           </h1>
                         </div>
                         <div
+                          onClick={() => handleRecipeClick(recipe)}
                           className={
                             recipe.photos && recipe.photos.length > 1
                               ? "grid gap-2 grid-cols-2"
@@ -910,6 +929,14 @@ const MyAccount = () => {
           handleLogout={handleLogout}
           closeModal={toggleLogoutModal}
         />
+      )}
+      {selectedProduct && (
+        <ProductModal product={selectedProduct} closeModal={closeModal} />
+      )}
+
+      {/* Render Recipe Modal */}
+      {selectedRecipe && (
+        <RecipeModal recipe={selectedRecipe} closeModal={closeModal} />
       )}
     </div>
   );
