@@ -130,10 +130,9 @@ const Marketplace = () => {
                     value={productFilter}
                     onChange={handleProductFilter}
                   >
-                    <option value="None">-None-</option>
-                    <option value="Tahong">Tahong</option>
-                    <option value="Talaba">Talaba</option>
-                    <option value="Tahong & Talaba">Tahong & Talaba</option>
+                    <option value="None">Tahong & Talaba</option>
+                    <option value="Tahong">Tahong Only</option>
+                    <option value="Talaba">Talaba Only</option>
                   </select>
                 </div>
               </div>
@@ -156,7 +155,7 @@ const Marketplace = () => {
               </div>
             </Link>
           </div>
-          <div className="px-4 md:hidden">
+          <div className="px-4 pb-2 md:hidden">
             <div className="flex justify-between items-center border p-1 border-primary bg-primary rounded-lg">
               <div className="flex items-center gap-2">
                 <MdOutlineSort className="text-white text-2xl sm:text-4xl" />
@@ -177,10 +176,9 @@ const Marketplace = () => {
                   value={productFilter}
                   onChange={handleProductFilter}
                 >
-                  <option value="None">-None-</option>
-                  <option value="Tahong">Tahong</option>
-                  <option value="Talaba">Talaba</option>
-                  <option value="Tahong & Talaba">Tahong & Talaba</option>
+                  <option value="None">Tahong & Talaba</option>
+                  <option value="Tahong">Tahong Only</option>
+                  <option value="Talaba">Talaba Only</option>
                 </select>
               </div>
             </div>
@@ -196,7 +194,7 @@ const Marketplace = () => {
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-post rounded-lg shadow p-4 cursor-pointer"
+                  className=" glass rounded-lg shadow p-4 cursor-pointer"
                   onClick={() => openProductModal(product)}
                 >
                   <div className="flex gap-2 py-2 items-center justify-between">
@@ -229,7 +227,11 @@ const Marketplace = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div
+                    className={`grid ${
+                      product.photos.length > 1 ? "grid-cols-2" : "grid-cols-1"
+                    } gap-2`}
+                  >
                     {product.photos.slice(0, 3).map((photo, index) => (
                       <img
                         key={index}
@@ -238,6 +240,7 @@ const Marketplace = () => {
                         alt={`PostPic ${index} by ${product.firstName} ${product.lastName}`}
                       />
                     ))}
+
                     {product.photos.length > 3 && (
                       <div
                         className="w-full shadow-primary shadow-sm h-36 object-cover rounded-lg mb-2 flex items-center justify-center cursor-pointer relative"
