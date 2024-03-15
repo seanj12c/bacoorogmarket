@@ -25,6 +25,15 @@ const RecipeModal = ({ recipe, closeModal }) => {
   const hasIngredients = recipe.ingredients && recipe.ingredients.length > 0;
   const hasInstructions = recipe.instructions && recipe.instructions.length > 0;
   const isSeller = auth.currentUser && auth.currentUser.uid === recipe.userUid;
+  const handleOpenInNewTab = () => {
+    const confirmOpen = window.confirm(
+      "Do you want to view this photo in a new tab?"
+    );
+    if (confirmOpen) {
+      window.open(recipe.photos[slideshowIndex], "_blank");
+    }
+  };
+
   return (
     <div className="fixed h-screen bg-white inset-0 z-50  flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
       <div className="relative w-full mx-auto overflow-y-auto">
@@ -89,18 +98,21 @@ const RecipeModal = ({ recipe, closeModal }) => {
                   <div className="flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center mb-2">
                       <div className="w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
-                        {/* background ito */}
-                        <img
-                          src={recipe.photos[slideshowIndex]}
-                          alt={`Recipe-Photos ${slideshowIndex + 1}`}
-                          className="w-full h-full absolute inset-0 z-0 opacity-60 blur-sm object-cover rounded-lg"
-                        />
-                        {/* mismong pic dito */}
-                        <img
-                          src={recipe.photos[slideshowIndex]}
-                          alt={`Recipe-Photos ${slideshowIndex + 1}`}
-                          className="w-full max-w-md mx-auto h-56 sm:h-64 p-1 lg:h-80 object-contain rounded-lg relative z-10"
-                        />
+                        {/* Wrap the div in an onClick event handler */}
+                        <div onClick={handleOpenInNewTab}>
+                          {/* Background image */}
+                          <img
+                            src={recipe.photos[slideshowIndex]}
+                            alt={`Recipe-Photos ${slideshowIndex + 1}`}
+                            className="w-full h-full absolute inset-0 z-0 opacity-60 blur-sm object-cover rounded-lg"
+                          />
+                          {/* Image */}
+                          <img
+                            src={recipe.photos[slideshowIndex]}
+                            alt={`Recipe-Photos ${slideshowIndex + 1}`}
+                            className="w-full max-w-md mx-auto h-56 sm:h-64 p-1 lg:h-80 object-contain rounded-lg relative z-10"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="flex">

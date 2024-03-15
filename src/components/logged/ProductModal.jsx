@@ -47,6 +47,15 @@ const ProductModal = ({ product, closeModal }) => {
     );
   };
 
+  const handleOpenInNewTab = () => {
+    const confirmOpen = window.confirm(
+      "Do you want to view this photo in a new tab?"
+    );
+    if (confirmOpen) {
+      window.open(product.photos[slideshowIndex], "_blank");
+    }
+  };
+
   if (!product) {
     return null;
   }
@@ -77,9 +86,9 @@ const ProductModal = ({ product, closeModal }) => {
                     <Link
                       onClick={closeModal}
                       to="/myaccount"
-                      className="btn btn-xs hidden text-xs btn-primary"
+                      className="btn hidden btn-xs text-xs btn-primary"
                     >
-                      View Profile
+                      Go to My Account
                     </Link>
                   ) : (
                     <Link
@@ -116,19 +125,22 @@ const ProductModal = ({ product, closeModal }) => {
                 {product.photos && product.photos.length > 0 && (
                   <div className="flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center mb-2">
-                      <div className=" w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
-                        {/* background ito */}
-                        <img
-                          src={product.photos[slideshowIndex]}
-                          alt={`Product-Photos ${slideshowIndex + 1}`}
-                          className="w-full h-full absolute inset-0 z-0 opacity-60 blur-sm object-cover rounded-lg"
-                        />
-                        {/* mismong pic dito */}
-                        <img
-                          src={product.photos[slideshowIndex]}
-                          alt={`Product-Photos ${slideshowIndex + 1}`}
-                          className="w-full max-w-md mx-auto h-56 sm:h-64 p-1 lg:h-80 object-contain rounded-lg relative z-10"
-                        />
+                      <div className="w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
+                        {/* Wrap the div in an onClick event handler */}
+                        <div onClick={handleOpenInNewTab}>
+                          {/* Background image */}
+                          <img
+                            src={product.photos[slideshowIndex]}
+                            alt={`Product-Photos ${slideshowIndex + 1}`}
+                            className="w-full h-full absolute inset-0 z-0 opacity-60 blur-sm object-cover rounded-lg"
+                          />
+                          {/* Image */}
+                          <img
+                            src={product.photos[slideshowIndex]}
+                            alt={`Product-Photos ${slideshowIndex + 1}`}
+                            className="w-full max-w-md mx-auto h-56 sm:h-64 p-1 lg:h-80 object-contain rounded-lg relative z-10"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="flex">
