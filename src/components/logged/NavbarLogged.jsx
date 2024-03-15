@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-import { FaUserCircle } from "react-icons/fa";
+import { FaArrowAltCircleUp, FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../authContext";
@@ -24,6 +24,12 @@ export const NavbarLogged = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const auth = useAuth();
+  const handleGoToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,7 +123,7 @@ export const NavbarLogged = () => {
         className={`${
           fix
             ? "bg-white opacity-95 transition-all ease-in-out duration-300"
-            : ""
+            : "bg-white opacity-100 transition-all ease-in-out duration-300"
         } flex md:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 md:px-2 text-primary fixed top-0 w-full md:w-full z-50`}
       >
         <div className="flex md:w-full justify-between md:justify-around  items-center">
@@ -268,6 +274,18 @@ export const NavbarLogged = () => {
             </Link>
           </div>
         </div>
+      </div>
+      <div>
+        <button
+          className={`${
+            fix
+              ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10"
+              : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10 hidden"
+          } `}
+          onClick={handleGoToTop}
+        >
+          <FaArrowAltCircleUp size={30} />
+        </button>
       </div>
       {showLogoutModal && (
         <LogoutModal
