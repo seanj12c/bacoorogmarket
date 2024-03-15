@@ -120,7 +120,7 @@ const Recipe = () => {
               {filteredRecipes.map((recipe) => (
                 <div
                   key={recipe.id}
-                  className="bg-post rounded-lg shadow p-4 cursor-pointer"
+                  className="glass rounded-lg shadow p-4 cursor-pointer"
                   onClick={() => openRecipeModal(recipe)}
                 >
                   <div className="flex gap-2 py-2 items-center justify-between">
