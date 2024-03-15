@@ -176,13 +176,27 @@ const PostAProduct = () => {
     }
   };
 
+  const generateRandomName = () => {
+    const characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const length = 10; // Adjust the length of the random string as needed
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(
+        Math.floor(Math.random() * characters.length)
+      );
+    }
+    return result;
+  };
+
   const uploadPhoto = async (photo) => {
     try {
       const storage = getStorage();
-
+      const randomName = generateRandomName();
+      const fileExtension = photo.name.split(".").pop(); // Get the file extension
       const storageRef = ref(
         storage,
-        `product_photos/${userUid}/${photo.name}`
+        `product_photos/${userUid}/${randomName}.${fileExtension}`
       );
 
       setPhotoPreviews((prevPreviews) => [...prevPreviews, uploadload]);
