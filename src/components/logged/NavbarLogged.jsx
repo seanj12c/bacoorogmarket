@@ -163,8 +163,9 @@ export const NavbarLogged = () => {
             </ul>
           </div>
 
-          <div className="md:flex gap-5 items-center hidden">
-            <Link to={"/myaccount"}>
+          <div className="md:flex gap-5 items-center hidden"></div>
+          <div className="dropdown dropdown-bottom dropdown-end dropdown-hover">
+            <div tabIndex={0} role="button">
               {profilePicture ? (
                 <img
                   src={profilePicture}
@@ -177,7 +178,24 @@ export const NavbarLogged = () => {
                   size={40}
                 />
               )}
-            </Link>
+            </div>
+            <div
+              tabIndex={0}
+              className="dropdown-content items-center justify-center flex flex-col gap-2 z-[1] menu p-2 shadow bg-base-200 rounded-box w-36"
+            >
+              <Link to={"/myaccount"}>
+                <button className="btn btn-primary btn-sm w-28  ">
+                  Go to My Account
+                </button>
+              </Link>
+
+              <button
+                onClick={toggleLogoutModal}
+                className="btn btn-error btn-sm text-white w-28 "
+              >
+                Log-out
+              </button>
+            </div>
           </div>
         </div>
 
