@@ -112,6 +112,9 @@ const RecipeModal = ({ recipe, closeModal }) => {
                             alt={`Recipe-Photos ${slideshowIndex + 1}`}
                             className="w-full max-w-md mx-auto h-56 sm:h-64 p-1 lg:h-80 object-contain rounded-lg relative z-10"
                           />
+                          <h1 className="text-center underline text-xs md:text-base">
+                            Click the photo to view in full-screen
+                          </h1>
                         </div>
                       </div>
                     </div>
