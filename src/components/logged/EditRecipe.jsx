@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { getDoc, doc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
+import check from "../../assets/check.gif";
 
 const EditRecipe = () => {
   const { recipeId } = useParams();
 
   const [recipeData, setRecipeData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
@@ -28,15 +30,18 @@ const EditRecipe = () => {
     };
     fetchRecipeData();
   }, [recipeId]);
-  const navigate = useNavigate();
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
       await updateDoc(doc(firestore, "recipes", recipeId), recipeData);
-      window.alert("Recipe updated successfully!");
-      navigate("/recipe");
+      setIsModalOpen(true);
     } catch (error) {
       console.error("Error updating recipe: ", error);
     } finally {
@@ -82,6 +87,37 @@ const EditRecipe = () => {
       ...recipeData,
       instructions: updatedInstructions,
     });
+  };
+
+  const Modal = ({ show }) => {
+    if (!show) {
+      return null;
+    }
+
+    return (
+      <div className="h-screen bg-black px-4 md:px-0 bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
+        <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
+          <h2 className="md:text-2xl text-center text-xl font-semibold my-2">
+            Recipe Updated!
+          </h2>
+          <img className="mx-auto h-20 object-contain" src={check} alt="" />
+          <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-6 mt-4">
+            <Link
+              to="/recipe"
+              className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+            >
+              Go to Recipe Page
+            </Link>
+            <Link
+              to="/myaccount"
+              className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
+            >
+              Go to My Account
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -191,6 +227,7 @@ const EditRecipe = () => {
               </button>
             </div>
           </form>
+          <Modal show={isModalOpen} onClose={closeModal} />
         </div>
       )}
     </div>

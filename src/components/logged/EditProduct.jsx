@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   GoogleMap,
   LoadScript,
@@ -132,13 +132,11 @@ const EditProduct = () => {
       [name]: value,
     });
   };
-  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await updateDoc(doc(firestore, "products", productId), formData);
-      window.alert("Product successfully updated!");
-      navigate("/marketplace");
     } catch (error) {
       console.error("Error updating document: ", error);
     }
@@ -311,7 +309,7 @@ const EditProduct = () => {
                 id="otherInformation"
                 name="otherInformation"
                 className="w-full border rounded p-2 mb-3"
-                placeholder="Other Information of the Product"
+                placeholder="Optional"
                 value={formData.otherInformation}
                 onChange={handleChange}
               />
