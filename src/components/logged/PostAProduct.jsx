@@ -278,8 +278,16 @@ const PostAProduct = () => {
       return;
     }
 
+    const generateProductId = () => {
+      const timestamp = new Date().getTime(); // Get current timestamp
+      const randomString = Math.random().toString(36).substring(7); // Generate random string
+      return `${timestamp}_${randomString}`; // Combine timestamp and random string
+    };
+
+    const productId = generateProductId(); // Assuming this function generates a unique product ID
+
     const productData = {
-      productId: generateProductId(),
+      productId, // Set productId explicitly
       caption,
       description,
       photos,
@@ -302,21 +310,11 @@ const PostAProduct = () => {
 
     try {
       setIsSubmitting(true);
-      await addDoc(productsRef, productData);
+      await addDoc(productsRef, productData); // Firebase will generate the document ID
       setIsModalOpen(true);
     } catch (error) {
       console.error("Error adding product: ", error);
     }
-  };
-
-  const generateProductId = () => {
-    const previousProductId = localStorage.getItem("productId") || "0000000000";
-    const newProductId = String(parseInt(previousProductId) + 1).padStart(
-      10,
-      "0"
-    );
-    localStorage.setItem("productId", newProductId);
-    return newProductId;
   };
 
   const closeModal = () => {
