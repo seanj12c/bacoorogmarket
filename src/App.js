@@ -29,6 +29,8 @@ import Fillup from "./components/authentication/Fillup";
 
 import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
 import Profile from "./components/logged/Profile";
+import EditProduct from "./components/logged/EditProduct";
+import EditRecipe from "./components/logged/EditRecipe";
 
 function AppRoutes() {
   const location = useLocation();
@@ -206,6 +208,8 @@ function AppRoutes() {
           }
         />{" "}
         <Route path="/profile/:userId" element={<Profile />} />
+        <Route path="/edit_product/:productId" element={<EditProduct />} />
+        <Route path="/edit_recipe/:recipeId" element={<EditRecipe />} />
         <Route
           path="/post_product"
           element={
