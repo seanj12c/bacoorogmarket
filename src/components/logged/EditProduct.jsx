@@ -10,6 +10,10 @@ import {
 } from "@react-google-maps/api";
 import check from "../../assets/check.gif";
 import uploadload from "../../assets/loading.gif";
+import {
+  BiSolidSkipNextCircle,
+  BiSolidSkipPreviousCircle,
+} from "react-icons/bi";
 
 const Modal = ({ show }) => {
   if (!show) {
@@ -51,7 +55,7 @@ const EditProduct = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const libraries = ["places"];
   const [loading, setLoading] = useState(true);
-
+  const [slideshowIndex, setSlideshowIndex] = useState(0);
   const [formData, setFormData] = useState({
     caption: "",
     description: "",
@@ -150,6 +154,19 @@ const EditProduct = () => {
     }
   };
 
+  const handleSlideshowChange = (direction) => {
+    const lastIndex = formData.photoPreviews.length - 1;
+    setSlideshowIndex((prevIndex) =>
+      direction === "prev"
+        ? prevIndex > 0
+          ? prevIndex - 1
+          : lastIndex
+        : prevIndex < lastIndex
+        ? prevIndex + 1
+        : 0
+    );
+  };
+
   return (
     <div>
       {loading ? (
@@ -162,9 +179,46 @@ const EditProduct = () => {
         </div>
       ) : (
         <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-          <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-3">
+          <h2 className="text-2xl text-center font-bold text-primary pt-24 ">
             Edit Product
           </h2>
+          <h1 className="text-error mb-3 text-xs text-center">
+            Sorry, you can't add or delete an image
+          </h1>
+
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex items-center justify-center mb-2">
+              <div className="w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
+                <div>
+                  <img
+                    src={formData.photoPreviews[slideshowIndex]}
+                    alt={`Product-Photos ${slideshowIndex + 1}`}
+                    className="w-full h-full absolute inset-0 z-0 opacity-60 blur-sm object-cover rounded-lg"
+                  />
+                  <img
+                    src={formData.photoPreviews[slideshowIndex]}
+                    alt={`Product-Photos ${slideshowIndex + 1}`}
+                    className="w-full max-w-md mx-auto h-56 sm:h-64 p-1 lg:h-72 object-contain rounded-lg relative z-10"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-center gap-20 pb-5 w-full">
+              <button
+                onClick={() => handleSlideshowChange("prev")}
+                className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+              >
+                <BiSolidSkipPreviousCircle />
+              </button>
+              <button
+                onClick={() => handleSlideshowChange("next")}
+                className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+              >
+                <BiSolidSkipNextCircle />
+              </button>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="caption" className="text-lg text-primary">

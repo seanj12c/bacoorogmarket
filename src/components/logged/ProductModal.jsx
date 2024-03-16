@@ -146,16 +146,16 @@ const ProductModal = ({ product, closeModal }) => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex">
+                    <div className="flex justify-center gap-20 pb-5 w-full">
                       <button
                         onClick={() => handleSlideshowChange("prev")}
-                        className="text-primary text-xs sm:text-sm font-semibold py-2 px-4 rounded-full mr-4"
+                        className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
                       >
                         <BiSolidSkipPreviousCircle size={30} />
                       </button>
                       <button
                         onClick={() => handleSlideshowChange("next")}
-                        className="text-primary  text-xs sm:text-sm font-semibold py-2 px-4 rounded-full ml-4"
+                        className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
                       >
                         <BiSolidSkipNextCircle size={30} />
                       </button>
