@@ -26,7 +26,7 @@ import AdminProducts from "./components/admin/AdminProducts";
 import AdminLocations from "./components/admin/AdminLocations";
 import AdminRecipes from "./components/admin/AdminRecipes";
 import Fillup from "./components/authentication/Fillup";
-
+import Chat from "./components/logged/Chat";
 import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
 import Profile from "./components/logged/Profile";
 import EditProduct from "./components/logged/EditProduct";
@@ -165,6 +165,20 @@ function AppRoutes() {
                 <Navigate to="/admin/users" />
               ) : (
                 <Faq />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />{" "}
+        <Route
+          path="/chat"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Chat />
               )
             ) : (
               <Navigate to="/login" />
