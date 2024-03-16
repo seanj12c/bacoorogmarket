@@ -56,10 +56,10 @@ const RecipeModal = ({ recipe, closeModal }) => {
                 {isSeller ? (
                   <Link
                     onClick={closeModal}
-                    to="/myaccount"
-                    className="btn btn-xs hidden text-xs btn-primary"
+                    to={`/edit_recipe/${recipe.id}`}
+                    className="btn  btn-xs text-xs btn-primary"
                   >
-                    Go to My Account
+                    Edit Recipe
                   </Link>
                 ) : (
                   <Link

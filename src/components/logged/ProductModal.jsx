@@ -85,10 +85,10 @@ const ProductModal = ({ product, closeModal }) => {
                   {isSeller ? (
                     <Link
                       onClick={closeModal}
-                      to="/myaccount"
-                      className="btn hidden btn-xs text-xs btn-primary"
+                      to={`/edit_product/${product.id}`}
+                      className="btn  btn-xs text-xs btn-primary"
                     >
-                      Go to My Account
+                      Edit Product
                     </Link>
                   ) : (
                     <Link
