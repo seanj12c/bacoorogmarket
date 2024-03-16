@@ -164,7 +164,7 @@ export const NavbarLogged = () => {
           </div>
 
           <div className="md:flex gap-5 items-center hidden"></div>
-          <div className="dropdown dropdown-bottom dropdown-end dropdown-hover">
+          <div className="md:dropdown hidden  dropdown-bottom dropdown-end dropdown-hover">
             <div tabIndex={0} role="button">
               {profilePicture ? (
                 <img
