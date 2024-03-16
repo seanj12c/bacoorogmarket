@@ -11,7 +11,10 @@ import { useParams } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
 import ProductModal from "./ProductModal";
 import RecipeModal from "./RecipeModal";
+import { MdOutlineAttachEmail } from "react-icons/md";
+import { FaPhone } from "react-icons/fa";
 
+import { CiLocationArrow1 } from "react-icons/ci";
 const Profile = () => {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
@@ -121,7 +124,7 @@ const Profile = () => {
         <div className="h-full pt-24 w-full ">
           <div className="md:flex ">
             <div className="md:fixed md:w-1/3 md:px-5">
-              <div className="bg-bgray mt-2 w-full py-4 px-2 rounded-lg">
+              <div className="bg-bgray md:px-5 mt-2 w-full py-4 px-2 rounded-lg">
                 <div className="">
                   <h2 className="text-2xl md:text-base lg:text-xl text-center font-bold">
                     Viewing Profile
@@ -145,15 +148,21 @@ const Profile = () => {
                     {user.firstName} {user.lastName}
                   </strong>
                 </p>
-                <p className="text-xs">
-                  <strong>Email:</strong> {user.email}
+                <a
+                  href={`mailto:${user.email}`}
+                  className="text-xs flex items-center hover:text-primary hover:translate-x-1 transition-all ease-in-out duration-300 py-1  gap-2"
+                >
+                  <MdOutlineAttachEmail size={15} /> {user.email}
+                </a>
+                <p className="text-xs flex items-center hover:text-primary  hover:translate-x-1 transition-all ease-in-out duration-300 py-1 gap-2">
+                  <CiLocationArrow1 size={15} /> {user.address}
                 </p>
-                <p className="text-xs">
-                  <strong>Address:</strong> {user.address}
-                </p>
-                <p className="text-xs">
-                  <strong>Contact:</strong> {user.contact}
-                </p>
+                <a
+                  href={`tel:${user.contact}`}
+                  className="text-xs flex items-center hover:text-primary py-1 hover:translate-x-1 transition-all ease-in-out duration-300 gap-2"
+                >
+                  <FaPhone size={15} /> {user.contact}
+                </a>
               </div>
               <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-2">
                 <h1 className="text-lg text-center w-full font-bold pb-2">
