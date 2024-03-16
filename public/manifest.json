@@ -1,7 +1,7 @@
 {
   "name": "Bacoor Ocean Gem Market",
   "short_name": "Bacoor Market",
-  "start_url": "/index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
