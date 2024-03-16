@@ -38,6 +38,7 @@ const Marketplace = () => {
           ) {
             productsData.push({
               id: doc.id,
+              productId: data.productId,
               caption: data.caption,
               description: data.description,
               location: data.location,
