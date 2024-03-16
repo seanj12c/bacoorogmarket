@@ -182,9 +182,6 @@ const EditProduct = () => {
           <h2 className="text-2xl text-center font-bold text-primary pt-24 ">
             Edit Product
           </h2>
-          <h1 className="text-error mb-3 text-xs text-center">
-            Sorry, you can't add or delete an image
-          </h1>
 
           <div className="flex flex-col items-center justify-center">
             <div className="flex items-center justify-center mb-2">
@@ -203,6 +200,9 @@ const EditProduct = () => {
                 </div>
               </div>
             </div>
+            <h1 className="text-error mb-3 text-xs text-center">
+              Sorry, image can't be edited.
+            </h1>
             <div className="flex justify-center gap-20 pb-5 w-full">
               <button
                 onClick={() => handleSlideshowChange("prev")}

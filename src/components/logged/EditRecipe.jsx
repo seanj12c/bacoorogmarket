@@ -153,9 +153,7 @@ const EditRecipe = () => {
           <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-4">
             Edit Recipe
           </h2>
-          <h1 className="text-error mb-3 text-xs text-center">
-            Sorry, you can't add or delete an image
-          </h1>
+
           {recipeData.photos && recipeData.photos.length > 0 && (
             <div className="flex flex-col items-center justify-center mb-2">
               <div className="w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
@@ -172,6 +170,9 @@ const EditRecipe = () => {
                   />
                 </div>
               </div>
+              <h1 className="text-error mb-3 text-xs text-center">
+                Sorry, image can't be edited.
+              </h1>
               <div className="flex justify-center gap-20 pb-5 w-full">
                 <button
                   onClick={() => handleSlideshowChange("prev")}
@@ -189,7 +190,7 @@ const EditRecipe = () => {
             </div>
           )}
           <form onSubmit={handleSubmit}>
-            {/* Render form fields for editing recipe data */}
+            <h3 className="text-lg text-primary">Caption</h3>
             <input
               type="text"
               name="recipeName"
@@ -197,6 +198,7 @@ const EditRecipe = () => {
               placeholder="Recipe Name"
               value={recipeData.caption || ""}
               onChange={handleChange}
+              required
             />
             {/* Ingredients */}
             <div className="mb-4">
@@ -216,6 +218,7 @@ const EditRecipe = () => {
                         ingredients: updatedIngredients,
                       });
                     }}
+                    required
                   />
                   <button
                     type="button"
@@ -252,6 +255,7 @@ const EditRecipe = () => {
                         instructions: updatedInstructions,
                       });
                     }}
+                    required
                   />
                   <button
                     type="button"
