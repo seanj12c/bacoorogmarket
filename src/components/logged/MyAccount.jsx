@@ -15,7 +15,10 @@ import { useAuth } from "../../authContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import cam from "../../assets/cam.png";
 import uploadload from "../../assets/loading.gif";
-import { CiEdit } from "react-icons/ci";
+import { MdOutlineAttachEmail } from "react-icons/md";
+import { FaPhone } from "react-icons/fa";
+
+import { CiEdit, CiLocationArrow1 } from "react-icons/ci";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../authentication/LogoutModal";
@@ -31,8 +34,8 @@ const MyAccount = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedCaption, setEditedCaption] = useState("");
+  const [isEditing] = useState(false);
+  const [setEditedCaption] = useState("");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -200,10 +203,6 @@ const MyAccount = () => {
     setEditedCaption(post.caption || post.name);
   };
 
-  const hideOptions = () => {
-    setSelectedPost(null);
-  };
-
   const deletePost = async (postId) => {
     try {
       if (postId && postId.type) {
@@ -226,40 +225,6 @@ const MyAccount = () => {
 
   const confirmDelete = (post) => {
     deletePost(post);
-    window.alert("Post deleted successfully!");
-  };
-
-  const handleEditCaption = async () => {
-    if (selectedPost) {
-      const updatedPost = { ...selectedPost, caption: editedCaption };
-
-      const updatedPosts = userPosts.map((post) =>
-        post === selectedPost ? updatedPost : post
-      );
-      setUserPosts(updatedPosts);
-
-      try {
-        if (selectedPost.id) {
-          const db = getFirestore();
-          const postDocRef = doc(
-            db,
-            selectedPost.type === "product" ? "products" : "recipes",
-            selectedPost.id
-          );
-
-          await updateDoc(postDocRef, { caption: editedCaption });
-
-          window.alert("Post caption updated successfully!");
-
-          setIsEditing(false);
-          hideOptions();
-        } else {
-          console.error("Selected post doesn't have an ID");
-        }
-      } catch (error) {
-        console.error("Error updating post caption in Firestore:", error);
-      }
-    }
   };
 
   const handleDeletePost = (post) => {
@@ -277,11 +242,6 @@ const MyAccount = () => {
     if (file) {
       uploadProfilePicture(file);
     }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditedCaption(selectedPost.caption || selectedPost.name); // Reset the edited caption if editing is canceled
   };
 
   const uploadProfilePicture = async (file) => {
@@ -532,15 +492,21 @@ const MyAccount = () => {
                     {userData.firstName} {userData.lastName}
                   </strong>
                 </p>
-                <p className="text-xs">
-                  <strong>Email:</strong> {userData.email}
+                <a
+                  href={`mailto:${userData.email}`}
+                  className="text-xs flex items-center hover:text-primary hover:translate-x-1 transition-all ease-in-out duration-300 py-1  gap-2"
+                >
+                  <MdOutlineAttachEmail size={15} /> {userData.email}
+                </a>
+                <p className="text-xs flex items-center hover:text-primary  hover:translate-x-1 transition-all ease-in-out duration-300 py-1 gap-2">
+                  <CiLocationArrow1 size={15} /> {userData.address}
                 </p>
-                <p className="text-xs">
-                  <strong>Address:</strong> {userData.address}
-                </p>{" "}
-                <p className="text-xs">
-                  <strong>Contact:</strong> {userData.contact}
-                </p>
+                <a
+                  href={`tel:${userData.contact}`}
+                  className="text-xs flex items-center hover:text-primary py-1 hover:translate-x-1 transition-all ease-in-out duration-300 gap-2"
+                >
+                  <FaPhone size={15} /> {userData.contact}
+                </a>
                 <div className="flex justify-center pt-2">
                   <button
                     onClick={toggleLogoutModal}
@@ -652,47 +618,12 @@ const MyAccount = () => {
                                   className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
                                   style={{ top: "-40px", right: "-20px" }}
                                 >
-                                  {!isEditing ? (
-                                    <p
-                                      onClick={() => setIsEditing(true)}
-                                      className=" cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
-                                    >
-                                      Edit
-                                    </p>
-                                  ) : (
-                                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                                      <div className="bg-white w-full max-w-md p-6 rounded-lg">
-                                        <p className="text-lg mb-4 text-primary">
-                                          Edit Caption
-                                        </p>
-                                        <div className="relative">
-                                          <input
-                                            type="text"
-                                            value={editedCaption}
-                                            onChange={(e) =>
-                                              setEditedCaption(e.target.value)
-                                            }
-                                            className="bg-gray-100 border rounded px-2 py-1 w-full"
-                                            placeholder="Enter new caption"
-                                          />
-                                          <div className="flex justify-end mt-2">
-                                            <button
-                                              onClick={handleEditCaption}
-                                              className="bg-green-400 rounded text-white px-4 py-1 mr-2"
-                                            >
-                                              Save
-                                            </button>
-                                            <button
-                                              onClick={handleCancelEdit}
-                                              className="bg-red-400 rounded text-white px-4 py-1"
-                                            >
-                                              Cancel
-                                            </button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
+                                  <Link
+                                    to={`/edit_product/${product.id}`}
+                                    className="cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
+                                  >
+                                    Edit
+                                  </Link>
 
                                   <div className="flex flex-col gap-1 justify-center">
                                     {!isEditing ? (
@@ -798,47 +729,12 @@ const MyAccount = () => {
                                   className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
                                   style={{ top: "-40px", right: "-20px" }}
                                 >
-                                  {!isEditing ? (
-                                    <p
-                                      onClick={() => setIsEditing(true)}
-                                      className=" cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
-                                    >
-                                      Edit
-                                    </p>
-                                  ) : (
-                                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                                      <div className="bg-white w-full max-w-md p-6 rounded-lg">
-                                        <p className="text-lg mb-4 text-primary">
-                                          Edit Caption
-                                        </p>
-                                        <div className="relative">
-                                          <input
-                                            type="text"
-                                            value={editedCaption}
-                                            onChange={(e) =>
-                                              setEditedCaption(e.target.value)
-                                            }
-                                            className="bg-gray-100 border rounded px-2 py-1 w-full"
-                                            placeholder="Enter new caption"
-                                          />
-                                          <div className="flex justify-end mt-2">
-                                            <button
-                                              onClick={handleEditCaption}
-                                              className="bg-green-400 rounded text-white px-4 py-1 mr-2"
-                                            >
-                                              Save
-                                            </button>
-                                            <button
-                                              onClick={handleCancelEdit}
-                                              className="bg-red-400 rounded text-white px-4 py-1"
-                                            >
-                                              Cancel
-                                            </button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  )}
+                                  <Link
+                                    to={`/edit_recipe/${recipe.id}`}
+                                    className="cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
+                                  >
+                                    Edit
+                                  </Link>
 
                                   <div className="flex flex-col gap-1 justify-center">
                                     {!isEditing ? (
