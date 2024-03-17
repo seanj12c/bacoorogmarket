@@ -164,7 +164,7 @@ const Chat = () => {
       ) : (
         <div className="px-4 pt-5 sm:px-6 md:px-8 lg:px-10">
           <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-1">
-            Choose a User to Chat With
+            Chat
           </h2>
           <div className="mb-2">
             <input
@@ -180,20 +180,20 @@ const Chat = () => {
               className="w-full lg:w-1/4 overflow-y-auto"
               style={{ maxHeight: "400px" }}
             >
-              <div className="flex flex-col gap-1">
+              <div className="flex lg:flex-col gap-1">
                 {filteredUsers.map((user) => (
                   <div
                     key={user.id}
-                    className="border p-4 rounded-lg cursor-pointer"
+                    className="border object-cover p-4 rounded-lg cursor-pointer"
                     onClick={() => handleUserSelect(user)}
                   >
-                    <div className="flex gap-2 items-center">
+                    <div className="flex lg:flex-row flex-col gap-2 items-center">
                       <img
                         src={user.profilePhotoUrl}
                         alt={`${user.firstName} ${user.lastName}`}
-                        className="w-12 h-12 object-cover rounded-full"
+                        className="w-9 h-9 object-cover rounded-full"
                       />
-                      <h3 className="text-lg font-bold">
+                      <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
                         {user.firstName} {user.lastName}
                       </h3>
                     </div>
@@ -225,7 +225,7 @@ const Chat = () => {
                         document.getElementById("deletemodal").showModal()
                       }
                     >
-                      Delete Conversation
+                      Delete
                     </button>
                     <dialog id="deletemodal" className="modal">
                       <div className="modal-box">

@@ -33,7 +33,7 @@ export const NavbarLogged = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY >= 50) {
+      if (window.scrollY >= 500) {
         setFix(true);
       } else {
         setFix(false);
