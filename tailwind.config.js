@@ -8,6 +8,7 @@ module.exports = withMT({
           primary: "#008080",
           "base-100": "#fffcff",
           error: "#ff0000",
+          info: "#DFDEDF",
         },
       },
     ],
