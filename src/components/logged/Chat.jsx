@@ -203,7 +203,43 @@ const Chat = () => {
             </div>
             {selectedUser ? (
               <div className="w-full border h-[400px] p-4 rounded-lg mb-4 lg:w-3/4 flex flex-col justify-between">
-                <h2>Conversation with {selectedUser.firstName}</h2>
+                <div className="flex justify-between items-center border-b pb-2">
+                  <div className="flex gap-2 items-center ">
+                    <img
+                      className="h-10 w-10 object-cover rounded-full"
+                      src={selectedUser.profilePhotoUrl}
+                      alt=""
+                    />
+                    <h2 className="font-bold">
+                      {selectedUser.firstName} {selectedUser.lastName}
+                    </h2>
+                  </div>
+                  <div>
+                    {/* <button className="btn btn-error text-white">
+                      Delete Conversation
+                    </button> */}
+
+                    <button
+                      className="btn  btn-error text-white"
+                      onClick={() =>
+                        document.getElementById("deletemodal").showModal()
+                      }
+                    >
+                      Delete Conversation
+                    </button>
+                    <dialog id="deletemodal" className="modal">
+                      <div className="modal-box">
+                        <form method="dialog">
+                          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                            ✕
+                          </button>
+                        </form>
+                        <h3 className="font-bold text-lg">Wala Pa</h3>
+                        <p className="py-4">Tinatamad pa ako gawan function.</p>
+                      </div>
+                    </dialog>
+                  </div>
+                </div>
                 <div
                   className=""
                   style={{ maxHeight: "400px", overflowY: "auto" }}
@@ -256,7 +292,7 @@ const Chat = () => {
                   />
                   <button
                     onClick={handleSendMessage}
-                    className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                    className="btn btn-primary text-white"
                   >
                     Send
                   </button>
