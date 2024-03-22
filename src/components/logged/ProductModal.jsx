@@ -303,10 +303,16 @@ const ProductModal = ({ product, closeModal }) => {
                 )}
               </div>
               {isSeller ? null : (
-                <div className="flex justify-center mt-1">
-                  <button className="bg-primary text-xs text-white text-center px-3 w-32 py-2 rounded-lg">
-                    Message Seller
-                  </button>
+                <div className="flex flex-col justify-center mt-1">
+                  <h1 className="text-lg text-center w-full font-bold pb-2">
+                    Want to talk to {product.firstName}?
+                  </h1>
+
+                  <div className="flex justify-center">
+                    <button className="btn-sm md:btn-xs lg:btn-sm btn btn-primary">
+                      <Link to="/chat">Go to Chats</Link>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

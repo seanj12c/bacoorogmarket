@@ -7,7 +7,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
 import ProductModal from "./ProductModal";
 import RecipeModal from "./RecipeModal";
@@ -171,7 +171,7 @@ const Profile = () => {
 
                 <div className="flex justify-center">
                   <button className="btn-sm md:btn-xs lg:btn-sm btn btn-primary">
-                    Send a Message
+                    <Link to="/chat">Go to Chats</Link>
                   </button>
                 </div>
               </div>
