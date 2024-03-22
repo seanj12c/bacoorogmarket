@@ -7,6 +7,7 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
+  deleteDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
 import { useAuth } from "../../authContext";
@@ -97,6 +98,20 @@ const Chat = () => {
         user.email.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   });
+
+  const deleteConversation = async () => {
+    try {
+      if (selectedUser) {
+        const chatId = [currentUser.uid, selectedUser.id].sort().join("");
+        const chatDocRef = doc(firestore, "chats", chatId);
+        await deleteDoc(chatDocRef); // Delete the conversation document
+        console.log("Conversation deleted successfully!");
+        setSelectedUser(null); // Clear the selected user after deleting conversation
+      }
+    } catch (error) {
+      console.error("Error deleting conversation:", error);
+    }
+  };
 
   const sendMessage = async (messageContent) => {
     try {
@@ -215,27 +230,39 @@ const Chat = () => {
                     </h2>
                   </div>
                   <div>
-                    {/* <button className="btn btn-error text-white">
-                      Delete Conversation
-                    </button> */}
-
-                    <button
-                      className="btn  btn-error text-white"
-                      onClick={() =>
-                        document.getElementById("deletemodal").showModal()
-                      }
-                    >
-                      Delete
-                    </button>
-                    <dialog id="deletemodal" className="modal">
+                    {messages.length > 0 && ( // Conditionally render the button
+                      <button
+                        className="btn btn-error text-white"
+                        onClick={() =>
+                          document.getElementById("deleteconvo").showModal()
+                        }
+                      >
+                        Delete
+                      </button>
+                    )}
+                    <dialog id="deleteconvo" className="modal">
                       <div className="modal-box">
-                        <form method="dialog">
-                          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                            ✕
+                        <h3 className="font-bold text-lg">
+                          Delete a Conversation
+                        </h3>
+                        <p className="py-4">
+                          This message will be going to delete in the database.
+                          So, {selectedUser.firstName} can also not be able to
+                          see it anymore. Are you sure you want to delete this
+                          conversation? This action cannot be undone.
+                        </p>
+                        <div className="modal-action">
+                          <button
+                            onClick={deleteConversation}
+                            className="btn btn-error text-white"
+                          >
+                            Delete
                           </button>
-                        </form>
-                        <h3 className="font-bold text-lg">Wala Pa</h3>
-                        <p className="py-4">Tinatamad pa ako gawan function.</p>
+                          <form method="dialog">
+                            {/* if there is a button in form, it will close the modal */}
+                            <button className="btn">Close</button>
+                          </form>
+                        </div>
                       </div>
                     </dialog>
                   </div>
@@ -256,21 +283,39 @@ const Chat = () => {
                               message.senderId === currentUser.uid
                                 ? "chat chat-end "
                                 : "chat chat-start "
-                            } p-2  mb-2 w-full flex flex-col`}
+                            } p-2  mb-1 w-full flex flex-col`}
                           >
-                            <div className="chat-header">
-                              {message.senderId === currentUser.uid
-                                ? "You"
-                                : selectedUser.firstName}
-                            </div>
-                            <div
-                              className={`${
-                                message.senderId === currentUser.uid
-                                  ? "chat-bubble-primary "
-                                  : "chat-bubble-info"
-                              } chat-bubble`}
-                            >
-                              {message.content}
+                            <div className="flex items-center">
+                              {message.senderId === currentUser.uid ? (
+                                <>
+                                  <img
+                                    src={currentUser.profilePhotoUrl} // Displaying current user's profile photo
+                                    alt={currentUser.firstName}
+                                    className="w-8 h-8 hidden rounded-full mr-2"
+                                  />
+                                </>
+                              ) : (
+                                <>
+                                  <img
+                                    src={selectedUser.profilePhotoUrl} // Displaying selected user's profile photo
+                                    alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                                    className="w-8 h-8 object-cover rounded-full mr-2"
+                                  />
+                                </>
+                              )}
+                              <div className="">
+                                <div>
+                                  <h1
+                                    className={`${
+                                      message.senderId === currentUser.uid
+                                        ? "chat-bubble-primary "
+                                        : "chat-bubble-info"
+                                    } chat-bubble max-w-xs text-base overflow-x-hidden break-all  md:max-w-lg`}
+                                  >
+                                    {message.content}
+                                  </h1>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
