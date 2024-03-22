@@ -155,7 +155,7 @@ export const NavbarLogged = () => {
                 <li className="p-2 lg:p-3 hover:text-primary">Recipe</li>
               </Link>
               <Link to={"/chat"}>
-                <li className="p-2 lg:p-3 hover:text-primary">Chat</li>
+                <li className="p-2 lg:p-3 hover:text-primary">Chats</li>
               </Link>
               <Link to={"/faqs"}>
                 <li className="p-2 lg:p-3 hover:text-primary">FAQs</li>
@@ -242,7 +242,7 @@ export const NavbarLogged = () => {
                 <Link to={"/chat"} onClick={handleNav}>
                   <li className=" hover:text-primary flex gap-2 items-center">
                     <CiChat1 size={30} className="text-primary" />
-                    Chat
+                    Chats
                   </li>
                 </Link>
                 <Link to={"/faqs"} onClick={handleNav}>

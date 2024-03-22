@@ -98,7 +98,7 @@ export const NavbarNotLogged = () => {
                   <li className="p-4 hover:text-primary">Recipe</li>
                 </button>
                 <button onClick={toggleOverlay}>
-                  <li className="p-4 hover:text-primary">Chat</li>
+                  <li className="p-4 hover:text-primary">Chats</li>
                 </button>
                 <a href="/#FAQs">
                   <li className="p-4 hover:text-primary">FAQs</li>
@@ -198,7 +198,7 @@ export const NavbarNotLogged = () => {
                 className=" hover:text-primary flex gap-2 items-center"
               >
                 <CiChat1 size={30} className="text-primary" />
-                Chat
+                Chats
               </li>
 
               <a href="/#FAQs" onClick={handleNav}>
