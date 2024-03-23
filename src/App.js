@@ -16,7 +16,7 @@ import Register from "./components/authentication/Register";
 import MyAccount from "./components/logged/MyAccount";
 import PostARecipe from "./components/logged/PostARecipe";
 import Recipe from "./components/logged/Recipe";
-import { auth } from "./firebase";
+import { auth, generateToken } from "./firebase";
 import uploadload from "./assets/loading.gif";
 import Faq from "./components/logged/Faq";
 import PostAProduct from "./components/logged/PostAProduct";
@@ -288,6 +288,10 @@ function AppRoutes() {
 }
 
 function App() {
+  useEffect(() => {
+    generateToken();
+  }, []);
+
   return (
     <Router>
       <AppRoutes />
