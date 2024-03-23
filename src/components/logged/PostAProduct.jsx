@@ -110,7 +110,7 @@ const PostAProduct = () => {
   const searchBoxRef = useRef(null);
   const [description, setDescription] = useState("");
   const [freshnessValue, setFreshnessValue] = useState("Fresh");
-  const [productNameValue, setProductNameValue] = useState("Tahong");
+  const [productNameValue, setProductNameValue] = useState("Tahong & Talaba");
   const [price, setPrice] = useState("");
   const [otherInformation, setOtherInformation] = useState("");
   const [address, setAddress] = useState("");
@@ -366,9 +366,9 @@ const PostAProduct = () => {
               value={productNameValue}
               onChange={handleProductNameChange}
             >
-              <option value="Tahong">Tahong</option>
-              <option value="Talaba">Talaba</option>
               <option value="Tahong & Talaba">Tahong & Talaba</option>
+              <option value="Tahong">Tahong Only</option>
+              <option value="Talaba">Talaba Only</option>
             </select>
           </div>
         </div>
@@ -438,11 +438,11 @@ const PostAProduct = () => {
             />
           </div>
 
-          <h3 className="text-lg text-primary">Address</h3>
+          <h3 className="text-lg text-primary">Your Full Address</h3>
           <input
             type="text"
             className="w-full border rounded p-2 mb-3"
-            placeholder="Your full address here"
+            placeholder="House Number, Street, Barangay, Bacoor city, Cavite"
             value={address}
             onChange={handleAddressChange}
             required
