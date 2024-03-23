@@ -370,6 +370,7 @@ const PostARecipe = () => {
           <h3 className="text-lg text-primary">Ingredients</h3>
           {ingredients.map((ingredient, index) => (
             <div key={index} className="flex items-center mb-2">
+              <h1 className="font-bold">{index + 1}.) </h1>
               <input
                 type="text"
                 className="w-full border rounded p-2"
@@ -381,7 +382,7 @@ const PostARecipe = () => {
                 <button
                   type="button"
                   onClick={() => removeIngredient(index)}
-                  className="text-primary ml-2 hover:text-primary-dark cursor-pointer"
+                  className="btn btn-sm px-2 ml-1 btn-error text-white"
                 >
                   Remove
                 </button>
@@ -394,7 +395,7 @@ const PostARecipe = () => {
           <button
             type="button"
             onClick={addIngredient}
-            className="text-primary hover:text-primary-dark cursor-pointer"
+            className="btn btn-primary btn-xs text-white"
           >
             Add Ingredient
           </button>
@@ -404,6 +405,7 @@ const PostARecipe = () => {
           <h3 className="text-lg text-primary">Instructions</h3>
           {instructions.map((instruction, index) => (
             <div key={index} className="flex items-center mb-2">
+              <h1 className="font-bold">{index + 1}.) </h1>
               <input
                 type="text"
                 className="w-full border rounded p-2"
@@ -415,7 +417,7 @@ const PostARecipe = () => {
                 <button
                   type="button"
                   onClick={() => removeInstruction(index)}
-                  className="text-primary ml-2 hover:text-primary-dark cursor-pointer"
+                  className="btn btn-sm px-2 ml-1 btn-error text-white"
                 >
                   Remove
                 </button>
@@ -428,7 +430,7 @@ const PostARecipe = () => {
           <button
             type="button"
             onClick={addInstruction}
-            className="text-primary hover:text-primary-dark cursor-pointer"
+            className="btn btn-primary btn-xs text-white"
           >
             Add Instruction
           </button>
