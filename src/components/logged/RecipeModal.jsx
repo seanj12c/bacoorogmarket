@@ -136,33 +136,37 @@ const RecipeModal = ({ recipe, closeModal }) => {
                 )}
               </div>
             </div>
-            <div className="md:flex">
+            <div className="justify-center w-full">
               {hasIngredients && (
-                <div className="mb-4">
-                  <h2 className="text-xl sm:text-2xl font-semibold mb-2 text-primary">
+                <div className="mb-4 ">
+                  <h2 className="text-xl text-center sm:text-2xl font-semibold mb-2 text-primary">
                     Ingredients:
                   </h2>
-                  <ul className="list-disc ml-6 text-xs ">
-                    {recipe.ingredients.map((ingredient, index) => (
-                      <li key={index} className="mb-1">
-                        {ingredient}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="w-full flex justify-center">
+                    <ul className=" lg:grid lg:grid-cols-2 gap-x-6 lg:gap-x-10 list-disc text-xs  ">
+                      {recipe.ingredients.map((ingredient, index) => (
+                        <li key={index} className="mb-1">
+                          {ingredient}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
               {hasInstructions && (
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-semibold mb-2 text-primary">
+                <div className="mb-4">
+                  <h2 className="text-xl text-center sm:text-2xl font-semibold mb-2 text-primary">
                     Instructions:
                   </h2>
-                  <ol className="list-decimal ml-6 text-xs">
-                    {recipe.instructions.map((instruction, index) => (
-                      <li key={index} className="mb-1">
-                        {instruction}
-                      </li>
-                    ))}
-                  </ol>
+                  <div className="w-full flex justify-center">
+                    <ol className="list-decimal max-w-sm lg:max-w-2xl  text-xs   ">
+                      {recipe.instructions.map((instruction, index) => (
+                        <li key={index} className="mb-1">
+                          {instruction}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 </div>
               )}
             </div>
