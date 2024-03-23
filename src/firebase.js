@@ -5,7 +5,6 @@ import {
   setPersistence,
   browserLocalPersistence, // Change this to browserLocalPersistence
 } from "firebase/auth";
-import { getMessaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDUyOGtGwxZsV90FB55P8rRp705zjb2GtA",
@@ -37,12 +36,6 @@ const getUserProfile = async (userId) => {
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 const auth = getAuth(app);
-const messaging = getMessaging(app);
-
-export const generateToken = async () => {
-  const permission = await Notification.requestPermission();
-  console.log(permission);
-};
 
 // Set persistence to LOCAL for maintaining the user's login state even after closing the browser
 setPersistence(auth, browserLocalPersistence)
