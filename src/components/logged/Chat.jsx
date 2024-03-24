@@ -22,6 +22,7 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState(""); // State to hold the message text
   const [unsubscribe, setUnsubscribe] = useState(null);
+  const [lastMessages, setLastMessages] = useState({}); // State to hold last messages for each user
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -82,6 +83,27 @@ const Chat = () => {
     };
   }, [selectedUser, currentUser, unsubscribe]);
 
+  useEffect(() => {
+    const unsubscribeSnapshot = users.map((user) => {
+      const chatId = [currentUser.uid, user.id].sort().join("");
+      const chatDocRef = doc(firestore, "chats", chatId);
+      return onSnapshot(chatDocRef, (doc) => {
+        const chatData = doc.data();
+        const lastMessage = chatData?.messages?.[chatData.messages.length - 1];
+        if (lastMessage) {
+          setLastMessages((prevMessages) => ({
+            ...prevMessages,
+            [user.id]: lastMessage,
+          }));
+        }
+      });
+    });
+
+    return () => {
+      unsubscribeSnapshot.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [users, currentUser]);
+
   const handleUserSelect = (user) => {
     setSelectedUser(user);
   };
@@ -90,14 +112,35 @@ const Chat = () => {
     setSearchQuery(e.target.value.trim());
   };
 
-  const filteredUsers = users.filter((user) => {
-    return (
-      user.email !== "bacoorogmarket@gmail.com" &&
-      (user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  });
+  const filteredUsers = users
+    .filter((user) => {
+      return (
+        user.email !== "bacoorogmarket@gmail.com" &&
+        (user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    })
+    .sort((a, b) => {
+      const lastMessageA = lastMessages[a.id];
+      const lastMessageB = lastMessages[b.id];
+
+      if (!lastMessageA && !lastMessageB) return 0; // No messages for both users
+      if (!lastMessageA) return 1; // User A has no messages
+      if (!lastMessageB) return -1; // User B has no messages
+
+      // Sort by message timestamp in descending order
+      return lastMessageB.timestamp - lastMessageA.timestamp;
+    });
+
+  // Add a function to update the last message state
+  const updateLastMessage = (userId) => {
+    setLastMessages((prevMessages) => {
+      const updatedMessages = { ...prevMessages };
+      delete updatedMessages[userId];
+      return updatedMessages;
+    });
+  };
 
   const deleteConversation = async () => {
     try {
@@ -107,6 +150,7 @@ const Chat = () => {
         await deleteDoc(chatDocRef); // Delete the conversation document
         console.log("Conversation deleted successfully!");
         setSelectedUser(null); // Clear the selected user after deleting conversation
+        updateLastMessage(selectedUser.id); // Update last message state
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);
@@ -199,18 +243,35 @@ const Chat = () => {
                 {filteredUsers.map((user) => (
                   <div
                     key={user.id}
-                    className="border object-cover p-4 rounded-lg cursor-pointer"
+                    className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
+                      selectedUser && selectedUser.id === user.id
+                        ? "bg-gray-200"
+                        : ""
+                    }`}
                     onClick={() => handleUserSelect(user)}
                   >
-                    <div className="flex lg:flex-row flex-col gap-2 items-center">
+                    <div className="flex w-28 md:w-full lg:flex-row flex-col gap-2 items-center">
                       <img
                         src={user.profilePhotoUrl}
                         alt={`${user.firstName} ${user.lastName}`}
                         className="w-9 h-9 object-cover rounded-full"
                       />
-                      <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
-                        {user.firstName} {user.lastName}
-                      </h3>
+                      <div>
+                        <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
+                          {user.firstName} {user.lastName}
+                        </h3>
+                        {lastMessages[user.id] && (
+                          <p className="text-sm text-gray-500">
+                            {lastMessages[user.id].senderId === currentUser.uid
+                              ? "You: "
+                              : `${user.firstName}: `}
+                            {lastMessages[user.id].content.length > 7
+                              ? lastMessages[user.id].content.substring(0, 7) +
+                                "..."
+                              : lastMessages[user.id].content}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
