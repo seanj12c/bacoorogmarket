@@ -12,6 +12,7 @@ import {
 import { firestore } from "../../firebase"; // Import your Firebase instance
 import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
+import { toast } from "react-toastify";
 
 const Chat = () => {
   const { currentUser } = useAuth(); // Get the current authenticated user
@@ -95,6 +96,12 @@ const Chat = () => {
             ...prevMessages,
             [user.id]: lastMessage,
           }));
+          if (lastMessage.recipientId === currentUser.uid) {
+            // Check if the last message is directed to the current user
+            toast.info(`${user.firstName} sent you a message`, {
+              autoClose: 5000, // Automatically close the notification after 3 seconds
+            });
+          }
         }
       });
     });
@@ -210,6 +217,11 @@ const Chat = () => {
     setMessageText(""); // Clear the message input after sending
   };
 
+  const handleFormSubmit = (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+    handleSendMessage(); // Call the sendMessage function when the form is submitted
+  };
+
   return (
     <div>
       {loading ? (
@@ -239,7 +251,7 @@ const Chat = () => {
               className="w-full lg:w-1/4 overflow-y-auto"
               style={{ maxHeight: "400px" }}
             >
-              <div className="flex lg:flex-col gap-1">
+              <div className="flex  lg:flex-col gap-1">
                 {filteredUsers.map((user) => (
                   <div
                     key={user.id}
@@ -388,7 +400,7 @@ const Chat = () => {
                     </p>
                   )}
                 </div>
-                <div className="flex items-center">
+                <form onSubmit={handleFormSubmit} className="flex items-center">
                   <input
                     type="text"
                     placeholder="Type your message..."
@@ -396,13 +408,10 @@ const Chat = () => {
                     onChange={handleMessageChange}
                     className="w-full border rounded p-2 mr-2"
                   />
-                  <button
-                    onClick={handleSendMessage}
-                    className="btn btn-primary text-white"
-                  >
+                  <button type="submit" className="btn btn-primary text-white">
                     Send
                   </button>
-                </div>
+                </form>
               </div>
             ) : (
               <div className="w-full border h-[400px] items-center p-4 rounded-lg mb-4 lg:w-3/4 grid justify-center">

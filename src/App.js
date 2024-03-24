@@ -31,6 +31,8 @@ import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
 import Profile from "./components/logged/Profile";
 import EditProduct from "./components/logged/EditProduct";
 import EditRecipe from "./components/logged/EditRecipe";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function AppRoutes() {
   const location = useLocation();
@@ -283,6 +285,7 @@ function AppRoutes() {
           element={admin ? <AdminRecipes /> : <Navigate to="/login" />}
         />
       </Routes>
+      <ToastContainer />
     </div>
   );
 }
