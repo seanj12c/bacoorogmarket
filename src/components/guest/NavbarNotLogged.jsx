@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-import { FaUserCircle } from "react-icons/fa";
+import { FaArrowAltCircleUp, FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 import lock from "../../assets/lock.gif";
@@ -17,6 +17,29 @@ export const NavbarNotLogged = () => {
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
+
+  const handleGoToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY >= 500) {
+        setFix(true);
+      } else {
+        setFix(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
@@ -64,7 +87,7 @@ export const NavbarNotLogged = () => {
       >
         <div className="lg:flex lg:w-full justify-between lg:justify-around  items-center">
           <div className="lg:flex items-center lg:gap-2">
-            <a href="/">
+            <a href="/#home">
               <div className="lg:flex items-center gap-3 hidden">
                 <img
                   className="object-contain lg:w-20 w-16 select-none pointer-events-none"
@@ -86,22 +109,34 @@ export const NavbarNotLogged = () => {
                   onClick={toggleOverlay}
                   className="border-r border-black pr-4"
                 >
-                  <li className="p-4 hover:text-primary">Marketplace</li>
+                  <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
+                    Marketplace
+                  </li>
                 </button>
                 <a href="/#home">
-                  <li className="p-4 hover:text-primary">Home</li>
+                  <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
+                    Home
+                  </li>
                 </a>
                 <a href="/#about">
-                  <li className="p-4 hover:text-primary">About</li>
+                  <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
+                    About
+                  </li>
                 </a>
                 <button onClick={toggleOverlay}>
-                  <li className="p-4 hover:text-primary">Recipe</li>
+                  <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
+                    Recipe
+                  </li>
                 </button>
                 <button onClick={toggleOverlay}>
-                  <li className="p-4 hover:text-primary">Chats</li>
+                  <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
+                    Chats
+                  </li>
                 </button>
                 <a href="/#FAQs">
-                  <li className="p-4 hover:text-primary">FAQs</li>
+                  <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
+                    FAQs
+                  </li>
                 </a>
               </ul>
             </div>
@@ -135,16 +170,10 @@ export const NavbarNotLogged = () => {
           )}
 
           <div className="text-primary font-semibold gap-4 hidden lg:flex">
-            <Link
-              to={"/login"}
-              className="px-4 py-2 bg-white rounded-md border-2 transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]"
-            >
+            <Link to={"/login"} className="btn bg-white text-primary">
               Login
             </Link>
-            <Link
-              to={"/register"}
-              className="px-4 py-2 bg-primary text-white rounded-md transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none active:shadow-none shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85]"
-            >
+            <Link to={"/register"} className="btn btn-primary text-white">
               Join Now!
             </Link>
           </div>
@@ -210,12 +239,12 @@ export const NavbarNotLogged = () => {
               <div className="border-t-gray-500 border-t"></div>
               <div className="flex flex-col gap-2 w-full">
                 <Link to="/login">
-                  <button className="text-white w-full px-3 py-2 bg-primary rounded-md">
+                  <button className="btn btn-primary text-white w-full">
                     Login
                   </button>
                 </Link>
                 <Link to="/register">
-                  <button className="text-white w-full px-3 py-2 bg-primary rounded-md">
+                  <button className="btn btn-primary text-white w-full">
                     Register
                   </button>
                 </Link>
@@ -237,6 +266,18 @@ export const NavbarNotLogged = () => {
             </button>
           </div>
         </div>
+      </div>
+      <div>
+        <button
+          className={`${
+            fix
+              ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10"
+              : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10 hidden"
+          } `}
+          onClick={handleGoToTop}
+        >
+          <FaArrowAltCircleUp size={30} />
+        </button>
       </div>
     </div>
   );
