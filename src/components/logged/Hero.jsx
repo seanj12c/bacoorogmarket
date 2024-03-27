@@ -1,15 +1,15 @@
 import React from "react";
-import bacoor from "../../assets/bacoor.png";
+import bacoor from "../../assets/oystermussel.jpg";
 
 import { AiFillCheckCircle } from "react-icons/ai";
 import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div>
-      <div className="h-screen items-center w-full pt-24 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse">
-        <div className="md:w-1/2 flex justify-center">
+      <div className="h-screen gap-2 items-center w-full pt-24 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse">
+        <div className="md:w-1/2 flex justify-center rounded-md">
           <img
-            className="h-72 md:h-96 lg:h-[450px] md:ml-auto object-contain md:pl-10"
+            className="h-72 md:h-96 lg:h-[450px] md:ml-auto rounded-md object-cover"
             src={bacoor}
             alt=""
           />

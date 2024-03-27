@@ -1,26 +1,27 @@
 import React from "react";
-import bacoor from "../../assets/bacoor.png";
+import bacoor from "../../assets/oystermussel.jpg";
 import { AiFillCheckCircle } from "react-icons/ai";
 import NavbarNotLogged from "./NavbarNotLogged";
 import GAbout from "./GAbout";
 import GFaq from "./GFaq";
+import { Link } from "react-router-dom";
 const Landing = () => {
   return (
     <div>
       <NavbarNotLogged />
       <div
         id="home"
-        className="h-screen items-center w-full py-24 lg:pt-28 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse"
+        className="h-screen gap-2 items-center w-full pt-24 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse"
       >
-        <div className="md:w-1/2 flex justify-center">
+        <div className="md:w-1/2 flex justify-center rounded-md">
           <img
-            className="h-72 md:h-96 lg:h-[450px] md:ml-auto object-contain md:pl-10"
+            className="h-72 md:h-96 lg:h-[450px] md:ml-auto rounded-md object-cover"
             src={bacoor}
             alt=""
           />
         </div>
         <div className="md:w-1/2">
-          <h1 className="text-center text-base md:text-left md:text-3xl lg:text-4xl xl:text-5xl font-semibold">
+          <h1 className="text-center md:text-left md:text-3xl lg:text-5xl font-semibold">
             A <span className="text-primary">Marketplace</span> that you are
             looking for
           </h1>
@@ -58,6 +59,11 @@ const Landing = () => {
               you the finest and freshest harvest oysters and mussels.
             </div>
           </div>
+          <div className="flex justify-center md:justify-start py-1">
+            <Link to="/login">
+              <button className="btn btn-primary">Log-in now!</button>
+            </Link>
+          </div>
         </div>
       </div>
       <div id="about">
@@ -65,6 +71,15 @@ const Landing = () => {
       </div>
       <div id="faqs">
         <GFaq />
+      </div>
+
+      <div className="text-center py-4">
+        <p className="text-xs">
+          You are at the bottom of the page. Log in to explore the features.
+        </p>
+        <Link to="/login">
+          <button className="btn btn-primary btn-xs">Log-in now!</button>
+        </Link>
       </div>
     </div>
   );
