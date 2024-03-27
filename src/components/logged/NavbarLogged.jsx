@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../authContext";
 import { getFirestore, doc, onSnapshot, getDoc } from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth";
+
 import {
   CiShop,
   CiHome,
@@ -15,6 +16,7 @@ import {
   CiForkAndKnife,
 } from "react-icons/ci";
 import LogoutModal from "../authentication/LogoutModal";
+import { MdOutlineManageAccounts } from "react-icons/md";
 
 export const NavbarLogged = () => {
   const [nav, setNav] = useState(false);
@@ -140,41 +142,53 @@ export const NavbarLogged = () => {
             {nav ? <AiOutlineMenu size={25} /> : <AiOutlineMenu size={25} />}
           </div>
 
-          <div className="text-black">
+          <div className="text-black ">
             <ul className="hidden text-base lg:gap-5 md:gap-2 md:flex">
               <Link to={"/marketplace"} className="border-r border-black pr-4">
-                <li className="p-2 lg:p-3 hover:text-primary">Marketplace</li>
+                <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
+                  Marketplace
+                </li>
               </Link>
               <Link to={"/home"}>
-                <li className="p-2 lg:p-3 hover:text-primary">Home</li>
+                <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
+                  Home
+                </li>
               </Link>
               <Link to={"/about"}>
-                <li className="p-2 lg:p-3 hover:text-primary">About</li>
+                <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
+                  About
+                </li>
               </Link>
               <Link to={"/recipe"}>
-                <li className="p-2 lg:p-3 hover:text-primary">Recipe</li>
+                <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
+                  Recipe
+                </li>
               </Link>
               <Link to={"/chat"}>
-                <li className="p-2 lg:p-3 hover:text-primary">Chats</li>
+                <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
+                  Chats
+                </li>
               </Link>
               <Link to={"/faqs"}>
-                <li className="p-2 lg:p-3 hover:text-primary">FAQs</li>
+                <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
+                  FAQs
+                </li>
               </Link>
             </ul>
           </div>
 
           <div className="md:flex gap-5 items-center hidden"></div>
-          <div className="md:dropdown hidden  dropdown-bottom dropdown-end dropdown-hover">
+          <div className="md:dropdown md:flex btn btn-primary items-center hidden  dropdown-bottom dropdown-end dropdown-hover">
             <div tabIndex={0} role="button">
               {profilePicture ? (
                 <img
                   src={profilePicture}
                   alt="Profile"
-                  className="w-12 h-12 object-cover rounded-full"
+                  className="w-10 h-10 object-cover border border-primary rounded-full"
                 />
               ) : (
                 <FaUserCircle
-                  className="md:block hidden text-primary"
+                  className="md:block hidden border border-white text-primary"
                   size={40}
                 />
               )}
@@ -195,6 +209,9 @@ export const NavbarLogged = () => {
               >
                 Log-out
               </button>
+            </div>
+            <div>
+              <MdOutlineManageAccounts className="text-white" size={30} />
             </div>
           </div>
         </div>
