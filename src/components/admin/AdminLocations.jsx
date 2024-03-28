@@ -47,6 +47,7 @@ const AdminLocations = () => {
             longitude: product.location.longitude,
             firstName: product.firstName,
             lastName: product.lastName,
+            address: product.address,
           });
         }
       });
