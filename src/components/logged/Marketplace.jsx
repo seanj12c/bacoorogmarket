@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore"; // Import orderBy here
 import { firestore } from "../../firebase";
-import ProductModal from "./ProductModal";
+
 import uploadload from "../../assets/loading.gif";
 import banner from "../../assets/banner.jpg";
 import { FaSearch } from "react-icons/fa";
@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [freshnessFilter, setFreshnessFilter] = useState("None");
@@ -61,18 +61,6 @@ const Marketplace = () => {
 
     return () => unsubscribe();
   }, [searchQuery, freshnessFilter, productFilter]);
-
-  const openProductModal = (product) => {
-    setSelectedProduct(product);
-    // Disable scrolling when modal is open
-    document.body.classList.add("modal-open");
-  };
-
-  const closeProductModal = () => {
-    setSelectedProduct(null);
-    // Enable scrolling when modal is closed
-    document.body.classList.remove("modal-open");
-  };
 
   const capText = (text) => {
     return text.length > 35 ? text.substring(0, 35) + "..." : text;
@@ -193,85 +181,80 @@ const Marketplace = () => {
           ) : (
             <div className=" grid grid-cols-1 px-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {products.map((product) => (
-                <div
-                  key={product.id}
+                <Link
                   className=" glass rounded-lg shadow p-4 cursor-pointer"
-                  onClick={() => openProductModal(product)}
+                  key={product.id}
+                  to={`/product/info/${product.id}`}
                 >
-                  <div className="flex gap-2 py-2 items-center justify-between">
-                    <div className="flex gap-2 items-center">
-                      <img
-                        src={product.profilePhotoUrl}
-                        alt="ProfilePhoto"
-                        className="w-12 h-12 rounded-full object-cover inline-block"
-                      />
-                      <div>
-                        <p className="text-primary text-sm font-semibold">
-                          {product.firstName} {product.lastName}
-                        </p>
-                        <p className="text-gray-600 text-xs">
-                          {product.timestamp}
-                        </p>
+                  <div key={product.id}>
+                    <div className="flex gap-2 py-2 items-center justify-between">
+                      <div className="flex gap-2 items-center">
+                        <img
+                          src={product.profilePhotoUrl}
+                          alt="ProfilePhoto"
+                          className="w-12 h-12 rounded-full object-cover inline-block"
+                        />
+                        <div>
+                          <p className="text-primary text-sm font-semibold">
+                            {product.firstName} {product.lastName}
+                          </p>
+                          <p className="text-gray-600 text-xs">
+                            {product.timestamp}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="mb-4">
-                    <h1 className="text-2xl font-semibold mb-2">
-                      {product.caption}
-                    </h1>
-                    <p className="text-gray-700 mb-2">
-                      {" "}
-                      {capText(product.description)}
-                    </p>
-                    <p className="text-primary font-bold">
-                      ₱ {product.price.toLocaleString()}.00
-                    </p>
-                  </div>
+                    <div className="mb-4">
+                      <h1 className="text-2xl font-semibold mb-2">
+                        {product.caption}
+                      </h1>
+                      <p className="text-gray-700 mb-2">
+                        {" "}
+                        {capText(product.description)}
+                      </p>
+                      <p className="text-primary font-bold">
+                        ₱ {product.price.toLocaleString()}.00
+                      </p>
+                    </div>
 
-                  <div
-                    className={`grid ${
-                      product.photos.length > 1 ? "grid-cols-2" : "grid-cols-1"
-                    } gap-2`}
-                  >
-                    {product.photos.slice(0, 3).map((photo, index) => (
-                      <img
-                        key={index}
-                        className="w-full h-36 object-cover rounded-lg mb-2"
-                        src={photo}
-                        alt={`PostPic ${index} by ${product.firstName} ${product.lastName}`}
-                      />
-                    ))}
-
-                    {product.photos.length > 3 && (
-                      <div
-                        className="w-full shadow-primary shadow-sm h-36 object-cover rounded-lg mb-2 flex items-center justify-center cursor-pointer relative"
-                        onClick={() => openProductModal(product)}
-                      >
-                        {/* Blurred background */}
+                    <div
+                      className={`grid ${
+                        product.photos.length > 1
+                          ? "grid-cols-2"
+                          : "grid-cols-1"
+                      } gap-2`}
+                    >
+                      {product.photos.slice(0, 3).map((photo, index) => (
                         <img
-                          className="absolute inset-0 w-full h-full object-cover rounded-lg"
-                          src={product.photos[3]}
-                          alt="Blurry background"
-                          style={{ filter: "blur(5px)" }}
+                          key={index}
+                          className="w-full h-36 object-cover rounded-lg mb-2"
+                          src={photo}
+                          alt={`PostPic ${index} by ${product.firstName} ${product.lastName}`}
                         />
-                        {/* Click to see more text */}
-                        <p className="text-white text-center font-semibold z-10">
-                          Click to see more
-                        </p>
-                      </div>
-                    )}
+                      ))}
+
+                      {product.photos.length > 3 && (
+                        <div className="w-full shadow-primary shadow-sm h-36 object-cover rounded-lg mb-2 flex items-center justify-center cursor-pointer relative">
+                          {/* Blurred background */}
+                          <img
+                            className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                            src={product.photos[3]}
+                            alt="Blurry background"
+                            style={{ filter: "blur(5px)" }}
+                          />
+                          {/* Click to see more text */}
+                          <p className="text-white text-center font-semibold z-10">
+                            Click to see more
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
         </div>
-      )}
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          closeModal={closeProductModal}
-        />
       )}
     </div>
   );
