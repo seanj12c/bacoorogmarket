@@ -146,7 +146,7 @@ const Sellers = () => {
                             {selectedLocation.lastName}
                           </td>
                           <td className="p-1">{selectedLocation.address}</td>
-                          <td className="flex gap-2">
+                          <td className="md:flex justify-center gap-2">
                             <Link
                               to={`/profile/${selectedLocation.userId}`}
                               className="font-normal btn-xs md:btn-md btn btn-primary text-white"
