@@ -377,6 +377,9 @@ const PostAProduct = () => {
         )}
         <div className="mb-5">
           <h3 className="text-lg text-primary">Photo Upload</h3>
+          <h6 className="text-xs italic text-red-600">
+            Upload 1 photo at a time
+          </h6>
           <div className="flex flex-wrap gap-2 mb-3">
             {photoPreviews.map((preview, index) => (
               <div

@@ -302,10 +302,11 @@ const PostARecipe = () => {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-      <h2 className="text-2xl font-bold text-primary pt-24 mb-4">
+      <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-4">
         Post a Recipe
       </h2>
       <form onSubmit={handleSubmit}>
+        <h3 className="text-lg text-primary">Recipe Caption</h3>
         <input
           type="text"
           className="w-full border rounded p-2 mb-4"
@@ -318,7 +319,10 @@ const PostARecipe = () => {
         )}
 
         <div className="mb-4">
-          <h3 className="text-lg text-primary">Photo Upload</h3>
+          <h3 className="text-lg text-primary">Photo Upload </h3>
+          <h6 className="text-xs italic text-red-600">
+            Upload 1 photo at a time
+          </h6>
           <div className="flex flex-wrap gap-2">
             {photoPreviews.map((preview, index) => (
               <div
