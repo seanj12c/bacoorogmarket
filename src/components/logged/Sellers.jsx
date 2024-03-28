@@ -30,7 +30,8 @@ const Sellers = () => {
           product.location.longitude &&
           product.firstName &&
           product.lastName &&
-          product.address
+          product.address &&
+          product.userUid
         ) {
           locationsData.push({
             id: doc.id,
@@ -39,6 +40,7 @@ const Sellers = () => {
             firstName: product.firstName,
             lastName: product.lastName,
             address: product.address,
+            userId: product.userUid,
           });
         }
       });
@@ -113,7 +115,7 @@ const Sellers = () => {
                           setSelectedLocation(null);
                         }}
                       >
-                        <div>
+                        <div className="text-xs items-center">
                           <h2>{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
                         </div>
                       </InfoWindow>
@@ -144,21 +146,21 @@ const Sellers = () => {
                             {selectedLocation.lastName}
                           </td>
                           <td className="p-1">{selectedLocation.address}</td>
-                          <td className="p-1">
+                          <td className="flex gap-2">
                             <Link
                               to={`/profile/${selectedLocation.userId}`}
-                              className="font-normal btn-sm w-full btn btn-primary text-white"
+                              className="font-normal btn-xs md:btn-md btn btn-primary text-white"
                             >
                               Go to Profile
                             </Link>
                             <Link
-                              to={`/product/info/${selectedLocation.productId}`}
-                              className="font-normal btn-sm w-full btn btn-primary text-white"
+                              to={`/product/info/${selectedLocation.id}`}
+                              className="font-normal btn-xs md:btn-md btn btn-primary text-white"
                             >
                               Go to Product
                             </Link>
                             <button
-                              className="font-normal btn-sm w-full btn btn-primary text-white"
+                              className="font-normal btn-xs md:btn-md btn btn-primary text-white"
                               onClick={() =>
                                 window.open(
                                   `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`,
