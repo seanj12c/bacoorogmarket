@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { useNavigate, useParams } from "react-router-dom";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
 import markerIcon from "../../assets/marker.png";
@@ -19,6 +19,7 @@ const ProductInfo = () => {
   const [product, setProduct] = useState(null);
   const [slideshowIndex, setSlideshowIndex] = useState(0);
   const auth = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -76,6 +77,23 @@ const ProductInfo = () => {
     }
   };
 
+  const handleDeleteProduct = async () => {
+    try {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this product?"
+      );
+      if (confirmDelete) {
+        const productRef = doc(firestore, "products", productId);
+        await deleteDoc(productRef);
+        console.log("Product deleted successfully");
+        // Redirect to the marketplace after deletion
+        navigate("/marketplace");
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
   if (!product) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -107,12 +125,22 @@ const ProductInfo = () => {
               {product.timestamp}
             </p>
             {isSeller ? (
-              <Link
-                to={`/edit_product/${product.id}`}
-                className="btn btn-xs text-xs btn-primary"
-              >
-                Edit Product
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to={`/edit_product/${product.id}`}
+                  className="btn  btn-xs text-xs btn-primary"
+                >
+                  Edit Product
+                </Link>
+                <div>
+                  <button
+                    onClick={handleDeleteProduct}
+                    className="btn text-white  btn-xs text-xs btn-error"
+                  >
+                    Delete Product
+                  </button>
+                </div>
+              </div>
             ) : (
               <Link
                 to={`/profile/${product.userUid}`}
