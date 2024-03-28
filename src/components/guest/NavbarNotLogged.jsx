@@ -7,11 +7,11 @@ import lock from "../../assets/lock.gif";
 import {
   CiShop,
   CiHome,
-  CiCircleInfo,
   CiChat1,
   CiCircleQuestion,
   CiForkAndKnife,
 } from "react-icons/ci";
+import { LiaSearchLocationSolid } from "react-icons/lia";
 
 export const NavbarNotLogged = () => {
   const [nav, setNav] = useState(false);
@@ -118,11 +118,11 @@ export const NavbarNotLogged = () => {
                     Home
                   </li>
                 </a>
-                <a href="/#about">
+                <button onClick={toggleOverlay}>
                   <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
-                    About
+                    Sellers
                   </li>
-                </a>
+                </button>
                 <button onClick={toggleOverlay}>
                   <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
                     Recipe
@@ -207,12 +207,13 @@ export const NavbarNotLogged = () => {
                   Home
                 </li>
               </a>
-              <a href="/#about" onClick={handleNav}>
-                <li className=" hover:text-primary flex gap-2 items-center">
-                  <CiCircleInfo size={30} className="text-primary" />
-                  About
-                </li>
-              </a>
+              <li
+                onClick={handleButtonToggle}
+                className=" hover:text-primary flex gap-2 items-center"
+              >
+                <LiaSearchLocationSolid size={30} className="text-primary" />
+                Sellers
+              </li>
 
               <li
                 onClick={handleButtonToggle}

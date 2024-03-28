@@ -10,13 +10,13 @@ import { getAuth, signOut } from "firebase/auth";
 import {
   CiShop,
   CiHome,
-  CiCircleInfo,
   CiChat1,
   CiCircleQuestion,
   CiForkAndKnife,
 } from "react-icons/ci";
 import LogoutModal from "../authentication/LogoutModal";
 import { MdOutlineManageAccounts } from "react-icons/md";
+import { LiaSearchLocationSolid } from "react-icons/lia";
 
 export const NavbarLogged = () => {
   const [nav, setNav] = useState(false);
@@ -154,9 +154,9 @@ export const NavbarLogged = () => {
                   Home
                 </li>
               </Link>
-              <Link to={"/about"}>
+              <Link to={"/sellers"}>
                 <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
-                  About
+                  Sellers
                 </li>
               </Link>
               <Link to={"/recipe"}>
@@ -188,7 +188,7 @@ export const NavbarLogged = () => {
                 />
               ) : (
                 <FaUserCircle
-                  className="md:block hidden border border-white text-primary"
+                  className="md:block hidden text-white"
                   size={40}
                 />
               )}
@@ -244,10 +244,13 @@ export const NavbarLogged = () => {
                     Home
                   </li>
                 </Link>
-                <Link to={"/about"} onClick={handleNav}>
+                <Link to={"/sellers"} onClick={handleNav}>
                   <li className=" hover:text-primary flex gap-2 items-center">
-                    <CiCircleInfo size={30} className="text-primary" />
-                    About
+                    <LiaSearchLocationSolid
+                      size={30}
+                      className="text-primary"
+                    />
+                    Sellers
                   </li>
                 </Link>
                 <Link to={"/recipe"} onClick={handleNav}>
@@ -292,17 +295,17 @@ export const NavbarLogged = () => {
           </Link>
         </div>
         <div className="flex gap-5 items-center md:hidden">
-          <div>
+          <div className=" ">
             <Link to={"/myaccount"}>
               {profilePicture ? (
                 <img
                   src={profilePicture}
                   alt="Profile"
-                  className="w-8 h-8 object-cover rounded-full"
+                  className="w-8 h-8 border-2 border-primary object-cover rounded-full"
                 />
               ) : (
                 <FaUserCircle
-                  className="block md:hidden text-primary"
+                  className="block md:hidden text-white"
                   size={30}
                 />
               )}

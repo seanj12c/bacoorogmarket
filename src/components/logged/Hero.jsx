@@ -3,6 +3,7 @@ import bacoor from "../../assets/oystermussel.jpg";
 
 import { AiFillCheckCircle } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import About from "./About";
 const Hero = () => {
   return (
     <div>
@@ -59,6 +60,9 @@ const Hero = () => {
             </Link>
           </div>
         </div>
+      </div>
+      <div>
+        <About />
       </div>
     </div>
   );
