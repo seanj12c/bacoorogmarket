@@ -8,7 +8,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import NavbarLogged from "./components/logged/NavbarLogged";
-import About from "./components/logged/About";
+
 import Landing from "./components/guest/Landing";
 import Hero from "./components/logged/Hero";
 import Login from "./components/authentication/Login";
@@ -33,6 +33,8 @@ import EditProduct from "./components/logged/EditProduct";
 import EditRecipe from "./components/logged/EditRecipe";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Sellers from "./components/logged/Sellers";
+import ProductInfo from "./components/logged/ProductInfo";
 
 function AppRoutes() {
   const location = useLocation();
@@ -97,9 +99,10 @@ function AppRoutes() {
 
   return (
     <div className="App">
-      {!isNavbarHidden && !location.pathname.startsWith("/admin") && user && (
-        <NavbarLogged />
-      )}
+      {!isNavbarHidden &&
+        !location.pathname.startsWith("/admin") &&
+        !location.pathname.startsWith("/product/info") &&
+        user && <NavbarLogged />}
 
       <Routes>
         <Route
@@ -139,20 +142,6 @@ function AppRoutes() {
                 <Navigate to="/admin/users" />
               ) : (
                 <Hero />
-              )
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            user ? (
-              admin ? (
-                <Navigate to="/admin/users" />
-              ) : (
-                <About />
               )
             ) : (
               <Navigate to="/login" />
@@ -226,6 +215,7 @@ function AppRoutes() {
         <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/edit_product/:productId" element={<EditProduct />} />
         <Route path="/edit_recipe/:recipeId" element={<EditRecipe />} />
+        <Route path="/product/info/:productId" element={<ProductInfo />} />
         <Route
           path="/post_product"
           element={
@@ -248,6 +238,20 @@ function AppRoutes() {
                 <Navigate to="/admin/users" />
               ) : (
                 <Marketplace />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/sellers"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Sellers />
               )
             ) : (
               <Navigate to="/login" />
