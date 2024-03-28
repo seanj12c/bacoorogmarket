@@ -178,17 +178,17 @@ export const NavbarLogged = () => {
           </div>
 
           <div className="md:flex gap-5 items-center hidden"></div>
-          <div className="md:dropdown md:flex btn btn-primary items-center hidden  dropdown-bottom dropdown-end dropdown-hover">
+          <div className="md:dropdown md:flex px-3 py-1 rounded-lg shadow-primary shadow-sm  items-center hidden  dropdown-bottom dropdown-end dropdown-hover">
             <div tabIndex={0} role="button">
               {profilePicture ? (
                 <img
                   src={profilePicture}
                   alt="Profile"
-                  className="w-10 h-10 object-cover border border-primary rounded-full"
+                  className="w-14 h-14 object-cover border border-primary rounded-full"
                 />
               ) : (
                 <FaUserCircle
-                  className="md:block hidden text-white"
+                  className="md:block hidden text-primary"
                   size={40}
                 />
               )}
@@ -211,7 +211,7 @@ export const NavbarLogged = () => {
               </button>
             </div>
             <div>
-              <MdOutlineManageAccounts className="text-white" size={30} />
+              <MdOutlineManageAccounts className="text-primary" size={30} />
             </div>
           </div>
         </div>
@@ -313,12 +313,34 @@ export const NavbarLogged = () => {
           </div>
         </div>
       </div>
+      <ul className="menu z-40 flex gap-2 items-center justify-center w-full md:hidden  fixed left-0 right-0 bottom-0 menu-horizontal bg-base-300 opacity-95 rounded-box">
+        <li>
+          <Link className="btn btn-circle  text-primary" to="/marketplace">
+            <CiShop size={20} />
+          </Link>
+        </li>
+        <li>
+          <Link className="btn btn-circle  text-primary" to="/recipe">
+            <CiForkAndKnife size={20} />
+          </Link>
+        </li>
+        <li>
+          <Link className="btn btn-circle  text-primary" to="/sellers">
+            <LiaSearchLocationSolid size={20} />
+          </Link>
+        </li>
+        <li>
+          <Link className="btn btn-circle  text-primary" to="/chat">
+            <CiChat1 size={20} />
+          </Link>
+        </li>
+      </ul>
       <div>
         <button
           className={`${
             fix
-              ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10"
-              : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10 hidden"
+              ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-20 md:bottom-10 right-8"
+              : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-20 md:bottom-10 right-8 hidden"
           } `}
           onClick={handleGoToTop}
         >
