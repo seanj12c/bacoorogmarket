@@ -80,7 +80,7 @@ const RecipeModal = ({ recipe, closeModal }) => {
                 <IoMdCloseCircle size={30} className="text-red-500" />
               </button>
               <button
-                className="text-primary hidden md:block text-xs sm:text-sm font-semibold py-2 px-6 rounded-full"
+                className="hidden md:block btn btn-primary text-white"
                 onClick={closeModal}
               >
                 Close
@@ -121,13 +121,23 @@ const RecipeModal = ({ recipe, closeModal }) => {
                     <div className="flex justify-center gap-20 pb-5 w-full">
                       <button
                         onClick={() => handleSlideshowChange("prev")}
-                        className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+                        className={`text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle ${
+                          recipe.photos && recipe.photos.length > 1
+                            ? "btn-primary"
+                            : "btn-disabled cursor-not-allowed"
+                        }`}
+                        disabled={recipe.photos && recipe.photos.length <= 1}
                       >
                         <BiSolidSkipPreviousCircle size={30} />
                       </button>
                       <button
                         onClick={() => handleSlideshowChange("next")}
-                        className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+                        className={`text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle ${
+                          recipe.photos && recipe.photos.length > 1
+                            ? "btn-primary"
+                            : "btn-disabled cursor-not-allowed"
+                        }`}
+                        disabled={recipe.photos && recipe.photos.length <= 1}
                       >
                         <BiSolidSkipNextCircle size={30} />
                       </button>

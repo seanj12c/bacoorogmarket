@@ -67,8 +67,8 @@ const ProductModal = ({ product, closeModal }) => {
       <div className=" w-full  mx-auto ">
         <div className=" h-screen border-2 overflow-y-auto relative flex flex-col w-full bg-white outline-none focus:outline-none">
           {/* Header */}
-          <div className="flex justify-between items-center  border-b border-solid">
-            <div className="flex md:items-start items-center justify-between p-5 rounded-t md:w-1/2">
+          <div className="flex justify-between items-center px-5 border-b border-solid">
+            <div className="flex md:items-start items-center justify-between py-5 rounded-t md:w-1/2">
               <div className="flex items-center">
                 <img
                   src={product.profilePhotoUrl}
@@ -82,23 +82,30 @@ const ProductModal = ({ product, closeModal }) => {
                   <p className="text-gray-500 text-xs sm:text-sm">
                     {product.timestamp}
                   </p>
-                  {isSeller ? (
-                    <Link
-                      onClick={closeModal}
-                      to={`/edit_product/${product.id}`}
-                      className="btn  btn-xs text-xs btn-primary"
-                    >
-                      Edit Product
-                    </Link>
-                  ) : (
-                    <Link
-                      onClick={closeModal}
-                      to={`/profile/${product.userUid}`}
-                      className="btn btn-xs text-xs btn-primary"
-                    >
-                      View Profile
-                    </Link>
-                  )}
+                  <div>
+                    {isSeller ? (
+                      <Link
+                        onClick={closeModal}
+                        to={`/edit_product/${product.id}`}
+                        className="btn  btn-xs text-xs btn-primary"
+                      >
+                        Edit Product
+                      </Link>
+                    ) : (
+                      <Link
+                        onClick={closeModal}
+                        to={`/profile/${product.userUid}`}
+                        className="btn btn-xs text-xs btn-primary"
+                      >
+                        View Profile
+                      </Link>
+                    )}
+                    <div>
+                      <button className="btn  btn-xs text-xs btn-primary">
+                        Delete Product
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -111,7 +118,7 @@ const ProductModal = ({ product, closeModal }) => {
                 <IoMdCloseCircle size={30} className="text-red-500" />
               </button>
               <button
-                className="text-primary hidden md:block text-xs sm:text-sm font-semibold py-2 px-6 rounded-full"
+                className="hidden md:block btn btn-primary text-white"
                 onClick={closeModal}
               >
                 Close
