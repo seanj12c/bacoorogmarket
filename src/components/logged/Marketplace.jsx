@@ -219,7 +219,7 @@ const Marketplace = () => {
 
                     <div
                       className={`grid ${
-                        product.photos.length > 1
+                        product.photos.length > 2
                           ? "grid-cols-2"
                           : "grid-cols-1"
                       } gap-2`}
