@@ -70,7 +70,7 @@ const Sellers = () => {
           />
         </div>
       ) : (
-        <div className="h-screen pt-24 w-full">
+        <div className="h-screen pt-24 md:pb-0 pb-20 w-full">
           <div className="md:flex md:flex-row">
             <div className="container  mx-auto px-4">
               <h1 className="text-2xl font-bold my-4 text-center">
