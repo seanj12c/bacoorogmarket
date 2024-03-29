@@ -23,8 +23,6 @@ import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import LogoutModal from "../authentication/LogoutModal";
 import { getAuth, signOut } from "firebase/auth";
-import ProductModal from "./ProductModal";
-import RecipeModal from "./RecipeModal";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -35,13 +33,11 @@ const MyAccount = () => {
   const [userPosts, setUserPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isEditing] = useState(false);
-  const [setEditedCaption] = useState("");
+
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -199,8 +195,6 @@ const MyAccount = () => {
 
   const showOptionsForPost = (post) => {
     setSelectedPost(post);
-
-    setEditedCaption(post.caption || post.name);
   };
 
   const deletePost = async (postId) => {
@@ -299,16 +293,11 @@ const MyAccount = () => {
   };
 
   const handleProductClick = (product) => {
-    setSelectedProduct(product);
+    navigate(`/product/info/${product.id}`);
   };
 
   const handleRecipeClick = (recipe) => {
-    setSelectedRecipe(recipe);
-  };
-
-  const closeModal = () => {
-    setSelectedProduct(null);
-    setSelectedRecipe(null);
+    navigate(`/recipe/info/${recipe.id}`);
   };
 
   return (
@@ -322,7 +311,7 @@ const MyAccount = () => {
           />
         </div>
       ) : userData ? (
-        <div className="h-full pt-24 w-full ">
+        <div className="h-full md:pb-0 pb-20 pt-24 w-full ">
           <div className="md:flex ">
             <div className="md:fixed md:w-1/3 md:px-5">
               <div className="bg-bgray mt-2 w-full py-4 px-2 rounded-lg">
@@ -365,6 +354,7 @@ const MyAccount = () => {
                             value={formData.firstName}
                             onChange={handleChange}
                             className="input"
+                            required
                           />
                         </div>
                         <div className="flex flex-col">
@@ -381,6 +371,7 @@ const MyAccount = () => {
                             value={formData.lastName}
                             onChange={handleChange}
                             className="input"
+                            required
                           />
                         </div>
                         <div className="flex flex-col">
@@ -397,6 +388,7 @@ const MyAccount = () => {
                             value={formData.address}
                             onChange={handleChange}
                             className="input"
+                            required
                           />
                         </div>
                         <div className="flex flex-col">
@@ -413,8 +405,12 @@ const MyAccount = () => {
                             value={formData.contact}
                             onChange={handleChange}
                             className="input"
+                            pattern="[0-9]{11}"
+                            title="Enter 11 digits contact number starts at 09"
+                            required
                           />
                         </div>
+
                         <button
                           type="submit"
                           className="btn w-full btn-primary"
@@ -573,221 +569,256 @@ const MyAccount = () => {
               {displayProducts ? (
                 // Render products
                 <div className="md:pt-24">
-                  {userPosts
-                    .filter((post) => post.type === "product")
-                    .sort((a, b) => b.productId - a.productId)
-                    .map((product, index) => (
-                      // Render product item
-                      <div
-                        key={index}
-                        className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
-                      >
-                        <div className="flex gap-2 py-2 items-center w-full justify-between">
-                          <div className="flex gap-2 items-center w-full justify-between px-2">
-                            <div className="flex gap-4 items-center">
-                              {userData.profilePhotoUrl && !isUploading ? (
-                                <img
-                                  src={userData.profilePhotoUrl}
-                                  alt="Profile"
-                                  className="w-12 h-12 rounded-full object-cover inline-block"
+                  {userPosts.filter((post) => post.type === "product").length >
+                  0 ? (
+                    userPosts
+                      .filter((post) => post.type === "product")
+                      .sort((a, b) => b.productId - a.productId)
+                      .map((product, index) => (
+                        // Render product item
+                        <div
+                          key={index}
+                          className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                        >
+                          <div className="flex gap-2 py-2 items-center w-full justify-between">
+                            <div className="flex gap-2 items-center w-full justify-between px-2">
+                              <div className="flex gap-4 items-center">
+                                {userData.profilePhotoUrl && !isUploading ? (
+                                  <img
+                                    src={userData.profilePhotoUrl}
+                                    alt="Profile"
+                                    className="w-12 h-12 rounded-full object-cover inline-block"
+                                  />
+                                ) : (
+                                  <img
+                                    src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                                    alt="Default Profile"
+                                    className="w-12 h-12 rounded-full object-cover inline-block"
+                                  />
+                                )}
+                                <div>
+                                  <p className="text-primary text-sm font-semibold">
+                                    {userData.firstName} {userData.lastName}
+                                  </p>
+                                  <p className="text-gray-500 text-xs">
+                                    {product.timestamp}
+                                  </p>
+                                </div>
+                              </div>
+                              <div style={{ position: "relative" }}>
+                                <HiDotsHorizontal
+                                  className="text-primary"
+                                  size={20}
+                                  onClick={() => showOptionsForPost(product)}
                                 />
-                              ) : (
-                                <img
-                                  src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
-                                  alt="Default Profile"
-                                  className="w-12 h-12 rounded-full object-cover inline-block"
-                                />
-                              )}
-                              <div>
-                                <p className="text-primary text-sm font-semibold">
-                                  {userData.firstName} {userData.lastName}
-                                </p>
-                                <p className="text-gray-500 text-xs">
-                                  {product.timestamp}
-                                </p>
+                                {selectedPost && selectedPost === product && (
+                                  <div
+                                    className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
+                                    style={{ top: "-40px", right: "-20px" }}
+                                  >
+                                    <Link
+                                      to={`/edit_product/${product.id}`}
+                                      className="cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
+                                    >
+                                      Edit
+                                    </Link>
+
+                                    <div className="flex flex-col gap-1 justify-center">
+                                      {!isEditing ? (
+                                        <button
+                                          onClick={() =>
+                                            handleDeletePost(product)
+                                          }
+                                          className="bg-red-400 text-white py-1 px-2 rounded-md"
+                                        >
+                                          Delete
+                                        </button>
+                                      ) : null}
+                                      {!isEditing ? (
+                                        <button
+                                          onClick={() =>
+                                            showOptionsForPost(false)
+                                          }
+                                          className="bg-black text-white py-1 px-2 rounded-md"
+                                        >
+                                          Close
+                                        </button>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
-                            <div style={{ position: "relative" }}>
-                              <HiDotsHorizontal
-                                className="text-primary"
-                                size={20}
-                                onClick={() => showOptionsForPost(product)}
-                              />
-                              {selectedPost && selectedPost === product && (
-                                <div
-                                  className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
-                                  style={{ top: "-40px", right: "-20px" }}
-                                >
-                                  <Link
-                                    to={`/edit_product/${product.id}`}
-                                    className="cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
-                                  >
-                                    Edit
-                                  </Link>
-
-                                  <div className="flex flex-col gap-1 justify-center">
-                                    {!isEditing ? (
-                                      <button
-                                        onClick={() =>
-                                          handleDeletePost(product)
-                                        }
-                                        className="bg-red-400 text-white py-1 px-2 rounded-md"
-                                      >
-                                        Delete
-                                      </button>
-                                    ) : null}
-                                    {!isEditing ? (
-                                      <button
-                                        onClick={() =>
-                                          showOptionsForPost(false)
-                                        }
-                                        className="bg-black text-white py-1 px-2 rounded-md"
-                                      >
-                                        Close
-                                      </button>
-                                    ) : null}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
+                          </div>
+                          <div className="mb-4">
+                            <h1 className="text-lg font-semibold mb-2">
+                              {product.caption}
+                            </h1>
+                          </div>
+                          <div
+                            onClick={() => handleProductClick(product)}
+                            className={
+                              product.photos && product.photos.length > 1
+                                ? "grid gap-2 grid-cols-2"
+                                : ""
+                            }
+                          >
+                            {product.photos &&
+                              product.photos
+                                .slice(0, 4)
+                                .map((photo, photoIndex) => (
+                                  <img
+                                    key={photoIndex}
+                                    className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
+                                    src={photo}
+                                    alt=""
+                                  />
+                                ))}
                           </div>
                         </div>
-                        <div className="mb-4">
-                          <h1 className="text-lg font-semibold mb-2">
-                            {product.caption}
-                          </h1>
-                        </div>
-                        <div
-                          onClick={() => handleProductClick(product)}
-                          className={
-                            product.photos && product.photos.length > 1
-                              ? "grid gap-2 grid-cols-2"
-                              : ""
-                          }
-                        >
-                          {product.photos &&
-                            product.photos
-                              .slice(0, 4)
-                              .map((photo, photoIndex) => (
-                                <img
-                                  key={photoIndex}
-                                  className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
-                                  src={photo}
-                                  alt=""
-                                />
-                              ))}
-                        </div>
+                      ))
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10">
+                      <div className="flex flex-col items-center justify-center gap-4 w-full">
+                        <div className="skeleton h-32 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
                       </div>
-                    ))}
+                      <p className="text-center text-xs md:text-lg text-primary italic">
+                        Oh no! You haven't post a product/s yet. Post now and it
+                        will show here!
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 // Render recipes
                 <div className="md:pt-24">
-                  {userPosts
-                    .filter((post) => post.type === "recipe")
-                    .sort((a, b) => b.recipeId - a.recipeId)
-                    .map((recipe, index) => (
-                      // Render recipe item
-                      <div
-                        key={index}
-                        className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
-                      >
-                        <div className="flex gap-2 py-2 items-center w-full justify-between">
-                          <div className="flex gap-2 items-center w-full justify-between px-2">
-                            <div className="flex gap-4 items-center">
-                              {userData.profilePhotoUrl && !isUploading ? (
-                                <img
-                                  src={userData.profilePhotoUrl}
-                                  alt="Profile"
-                                  className="w-12 h-12 rounded-full object-cover inline-block"
+                  {userPosts.filter((post) => post.type === "recipe").length >
+                  0 ? (
+                    userPosts
+                      .filter((post) => post.type === "recipe")
+                      .sort((a, b) => b.recipeId - a.recipeId)
+                      .map((recipe, index) => (
+                        // Render recipe item
+                        <div
+                          key={index}
+                          className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                        >
+                          {/* Recipe content */}
+                          <div className="flex gap-2 py-2 items-center w-full justify-between">
+                            <div className="flex gap-2 items-center w-full justify-between px-2">
+                              <div className="flex gap-4 items-center">
+                                {userData.profilePhotoUrl && !isUploading ? (
+                                  <img
+                                    src={userData.profilePhotoUrl}
+                                    alt="Profile"
+                                    className="w-12 h-12 rounded-full object-cover inline-block"
+                                  />
+                                ) : (
+                                  <img
+                                    src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
+                                    alt="Default Profile"
+                                    className="w-12 h-12 rounded-full object-cover inline-block"
+                                  />
+                                )}
+                                <div>
+                                  <p className="text-primary text-sm font-semibold">
+                                    {userData.firstName} {userData.lastName}
+                                  </p>
+                                  <p className="text-gray-500 text-xs">
+                                    {recipe.timestamp}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div style={{ position: "relative" }}>
+                                <HiDotsHorizontal
+                                  className="text-primary"
+                                  size={20}
+                                  onClick={() => showOptionsForPost(recipe)}
                                 />
-                              ) : (
-                                <img
-                                  src="https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b&_gl=1*1pfbpxr*_ga*NjkxNTc3MTE5LjE2OTI1MT4w5Njcy5NTIuMC4w"
-                                  alt="Default Profile"
-                                  className="w-12 h-12 rounded-full object-cover inline-block"
-                                />
-                              )}
-                              <div>
-                                <p className="text-primary text-sm font-semibold">
-                                  {userData.firstName} {userData.lastName}
-                                </p>
-                                <p className="text-gray-500 text-xs">
-                                  {recipe.timestamp}
-                                </p>
+                                {selectedPost && selectedPost === recipe && (
+                                  <div
+                                    className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
+                                    style={{ top: "-40px", right: "-20px" }}
+                                  >
+                                    <Link
+                                      to={`/edit_recipe/${recipe.id}`}
+                                      className="cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
+                                    >
+                                      Edit
+                                    </Link>
+
+                                    <div className="flex flex-col gap-1 justify-center">
+                                      {!isEditing ? (
+                                        <button
+                                          onClick={() =>
+                                            handleDeletePost(recipe)
+                                          }
+                                          className="bg-red-400 text-white py-1 px-2 rounded-md"
+                                        >
+                                          Delete
+                                        </button>
+                                      ) : null}
+                                      {!isEditing ? (
+                                        <button
+                                          onClick={() =>
+                                            showOptionsForPost(false)
+                                          }
+                                          className="bg-black text-white py-1 px-2 rounded-md"
+                                        >
+                                          Close
+                                        </button>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
-
-                            <div style={{ position: "relative" }}>
-                              <HiDotsHorizontal
-                                className="text-primary"
-                                size={20}
-                                onClick={() => showOptionsForPost(recipe)}
-                              />
-                              {selectedPost && selectedPost === recipe && (
-                                <div
-                                  className="absolute text-xs bg-white p-2 flex flex-col gap-1 justify-center rounded-lg"
-                                  style={{ top: "-40px", right: "-20px" }}
-                                >
-                                  <Link
-                                    to={`/edit_recipe/${recipe.id}`}
-                                    className="cursor-pointer bg-green-400 text-white py-1 px-2 rounded-md"
-                                  >
-                                    Edit
-                                  </Link>
-
-                                  <div className="flex flex-col gap-1 justify-center">
-                                    {!isEditing ? (
-                                      <button
-                                        onClick={() => handleDeletePost(recipe)}
-                                        className="bg-red-400 text-white py-1 px-2 rounded-md"
-                                      >
-                                        Delete
-                                      </button>
-                                    ) : null}
-                                    {!isEditing ? (
-                                      <button
-                                        onClick={() =>
-                                          showOptionsForPost(false)
-                                        }
-                                        className="bg-black text-white py-1 px-2 rounded-md"
-                                      >
-                                        Close
-                                      </button>
-                                    ) : null}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
+                          </div>
+                          <div className="mb-4">
+                            <h1 className="text-lg font-semibold mb-2">
+                              {recipe.caption}
+                            </h1>
+                          </div>
+                          <div
+                            onClick={() => handleRecipeClick(recipe)}
+                            className={
+                              recipe.photos && recipe.photos.length > 1
+                                ? "grid gap-2 grid-cols-2"
+                                : ""
+                            }
+                          >
+                            {recipe.photos &&
+                              recipe.photos
+                                .slice(0, 4)
+                                .map((photo, photoIndex) => (
+                                  <img
+                                    key={photoIndex}
+                                    className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
+                                    src={photo}
+                                    alt=""
+                                  />
+                                ))}
                           </div>
                         </div>
-                        <div className="mb-4">
-                          <h1 className="text-lg font-semibold mb-2">
-                            {recipe.caption}
-                          </h1>
-                        </div>
-                        <div
-                          onClick={() => handleRecipeClick(recipe)}
-                          className={
-                            recipe.photos && recipe.photos.length > 1
-                              ? "grid gap-2 grid-cols-2"
-                              : ""
-                          }
-                        >
-                          {recipe.photos &&
-                            recipe.photos
-                              .slice(0, 4)
-                              .map((photo, photoIndex) => (
-                                <img
-                                  key={photoIndex}
-                                  className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
-                                  src={photo}
-                                  alt=""
-                                />
-                              ))}
-                        </div>
+                      ))
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10">
+                      <div className="flex flex-col items-center justify-center gap-4 w-full">
+                        <div className="skeleton h-32 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
                       </div>
-                    ))}
+                      <p className="text-center  text-xs md:text-lg  text-primary italic">
+                        You have no recipe/s posted yet. Post now and your
+                        secret recipe will be revealed!
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -826,14 +857,6 @@ const MyAccount = () => {
           handleLogout={handleLogout}
           closeModal={toggleLogoutModal}
         />
-      )}
-      {selectedProduct && (
-        <ProductModal product={selectedProduct} closeModal={closeModal} />
-      )}
-
-      {/* Render Recipe Modal */}
-      {selectedRecipe && (
-        <RecipeModal recipe={selectedRecipe} closeModal={closeModal} />
       )}
     </div>
   );
