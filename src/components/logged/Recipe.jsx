@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firestore } from "../../firebase";
-import RecipeModal from "./RecipeModal";
+
 import uploadload from "../../assets/loading.gif";
 import { FaSearch } from "react-icons/fa";
 import { MdOutlinePostAdd } from "react-icons/md";
@@ -10,7 +10,7 @@ import bannerre from "../../assets/bannerre.jpg";
 
 const Recipe = () => {
   const [recipes, setRecipes] = useState([]);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -44,16 +44,6 @@ const Recipe = () => {
       unsubscribe();
     };
   }, []);
-
-  const openRecipeModal = (recipe) => {
-    setSelectedRecipe(recipe);
-    document.body.classList.add("modal-open");
-  };
-
-  const closeRecipeModal = () => {
-    setSelectedRecipe(null);
-    document.body.classList.remove("modal-open");
-  };
 
   const handleSearch = (event) => {
     const { value } = event.target;
@@ -118,48 +108,46 @@ const Recipe = () => {
           ) : (
             <div className="grid grid-cols-1 px-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {filteredRecipes.map((recipe) => (
-                <div
-                  key={recipe.id}
-                  className="glass rounded-lg shadow p-4 cursor-pointer"
-                  onClick={() => openRecipeModal(recipe)}
-                >
-                  <div className="flex gap-2 py-2 items-center justify-between">
-                    <div className="flex gap-2 items-center">
-                      <img
-                        src={recipe.profilePhotoUrl}
-                        alt="ProfilePhoto"
-                        className="w-12 h-12 rounded-full object-cover inline-block"
-                      />
-                      <div>
-                        <p className="text-primary text-sm font-semibold">
-                          {recipe.firstName} {recipe.lastName}
-                        </p>
-                        <p className="text-gray-600 text-xs">
-                          {recipe.timestamp}
-                        </p>
+                <Link key={recipe.id} to={`/recipe/info/${recipe.id}`}>
+                  <div
+                    key={recipe.id}
+                    className="glass rounded-lg shadow p-4 cursor-pointer"
+                  >
+                    <div className="flex gap-2 py-2 items-center justify-between">
+                      <div className="flex gap-2 items-center">
+                        <img
+                          src={recipe.profilePhotoUrl}
+                          alt="ProfilePhoto"
+                          className="w-12 h-12 rounded-full object-cover inline-block"
+                        />
+                        <div>
+                          <p className="text-primary text-sm font-semibold">
+                            {recipe.firstName} {recipe.lastName}
+                          </p>
+                          <p className="text-gray-600 text-xs">
+                            {recipe.timestamp}
+                          </p>
+                        </div>
                       </div>
                     </div>
+                    <div className="mb-4">
+                      <h1 className="text-2xl font-semibold mb-2">
+                        {recipe.caption}
+                      </h1>
+                    </div>
+                    <div>
+                      <img
+                        className="w-full h-36 object-cover rounded-lg mb-2"
+                        src={recipe.photos}
+                        alt=""
+                      />
+                    </div>
                   </div>
-                  <div className="mb-4">
-                    <h1 className="text-2xl font-semibold mb-2">
-                      {recipe.caption}
-                    </h1>
-                  </div>
-                  <div>
-                    <img
-                      className="w-full h-36 object-cover rounded-lg mb-2"
-                      src={recipe.photos}
-                      alt=""
-                    />
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
         </div>
-      )}
-      {selectedRecipe && (
-        <RecipeModal recipe={selectedRecipe} closeModal={closeRecipeModal} />
       )}
     </div>
   );
