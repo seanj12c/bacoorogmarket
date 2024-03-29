@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; // Import useParams to access URL params
 import {
   updateDoc,
   collection,
@@ -13,9 +14,12 @@ import { firestore } from "../../firebase"; // Import your Firebase instance
 import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 const Chat = () => {
+  const navigate = useNavigate();
   const { currentUser } = useAuth(); // Get the current authenticated user
+  const { chatId } = useParams(); // Get chatId from URL params
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -50,15 +54,22 @@ const Chat = () => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (selectedUser) {
+      if (chatId) {
         try {
-          const chatId = [currentUser.uid, selectedUser.id].sort().join("");
           const chatDocRef = doc(firestore, "chats", chatId);
           const chatDocSnap = await getDoc(chatDocRef);
           if (chatDocSnap.exists()) {
             const chatData = chatDocSnap.data();
+            const otherUserId = chatData.users.find(
+              (id) => id !== currentUser.uid
+            );
+            const selectedUserData = users.find(
+              (user) => user.id === otherUserId
+            );
+            setSelectedUser(selectedUserData);
             setMessages(chatData.messages || []);
           } else {
+            setSelectedUser(null);
             setMessages([]);
           }
 
@@ -82,7 +93,7 @@ const Chat = () => {
         unsubscribe();
       }
     };
-  }, [selectedUser, currentUser, unsubscribe]);
+  }, [chatId, currentUser, users, unsubscribe]);
 
   useEffect(() => {
     const unsubscribeSnapshot = users.map((user) => {
@@ -111,8 +122,27 @@ const Chat = () => {
     };
   }, [users, currentUser]);
 
-  const handleUserSelect = (user) => {
-    setSelectedUser(user);
+  const handleUserSelect = async (user) => {
+    try {
+      setSelectedUser(user);
+      const chatId = [currentUser.uid, user.id].sort().join("");
+      const chatDocRef = doc(firestore, "chats", chatId);
+
+      // Check if the chat document exists
+      const chatDocSnap = await getDoc(chatDocRef);
+
+      if (!chatDocSnap.exists()) {
+        // If the document doesn't exist, create it
+        await setDoc(chatDocRef, {
+          users: [currentUser.uid, user.id],
+          messages: [], // Initialize with an empty array of messages
+        });
+      }
+
+      navigate(`/chat/${chatId}`);
+    } catch (error) {
+      console.error("Error selecting user:", error);
+    }
   };
 
   const handleSearch = (e) => {
@@ -233,7 +263,7 @@ const Chat = () => {
           />
         </div>
       ) : (
-        <div className="px-4 pt-5 sm:px-6 md:px-8 lg:px-10">
+        <div className="px-4 md:pb-0 pb-20 pt-5 sm:px-6 md:px-8 lg:px-10">
           <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-1">
             Chat
           </h2>
@@ -395,9 +425,13 @@ const Chat = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-500 text-center">
-                      There are no messages here. Why not start a conversation?
-                    </p>
+                    <div>
+                      <div className="skeleton h-10 w-full"></div>
+                      <p className="text-gray-500 text-center">
+                        There are no messages here. Why not start a
+                        conversation?
+                      </p>
+                    </div>
                   )}
                 </div>
                 <form onSubmit={handleFormSubmit} className="flex items-center">
