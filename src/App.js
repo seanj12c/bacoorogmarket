@@ -35,6 +35,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sellers from "./components/logged/Sellers";
 import ProductInfo from "./components/logged/ProductInfo";
+import RecipeInfo from "./components/logged/RecipeInfo";
 
 function AppRoutes() {
   const location = useLocation();
@@ -216,6 +217,8 @@ function AppRoutes() {
         <Route path="/edit_product/:productId" element={<EditProduct />} />
         <Route path="/edit_recipe/:recipeId" element={<EditRecipe />} />
         <Route path="/product/info/:productId" element={<ProductInfo />} />
+        <Route path="/recipe/info/:recipeId" element={<RecipeInfo />} />
+        <Route path="/chat/:chatId" element={<Chat />} />
         <Route
           path="/post_product"
           element={
