@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
 import markerIcon from "../../assets/marker.png";
@@ -11,6 +11,7 @@ import {
 import { Link } from "react-router-dom";
 import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
+import { IoMdCloseCircle } from "react-icons/io";
 
 const libraries = ["places"];
 
@@ -27,7 +28,10 @@ const ProductInfo = () => {
         const productRef = doc(firestore, "products", productId);
         const productSnapshot = await getDoc(productRef);
         if (productSnapshot.exists()) {
-          setProduct(productSnapshot.data());
+          const fetchedProduct = productSnapshot.data();
+          // Extract the document ID and set it in the product data
+          fetchedProduct.id = productSnapshot.id;
+          setProduct(fetchedProduct);
         } else {
           console.log("Product not found");
         }
@@ -38,6 +42,10 @@ const ProductInfo = () => {
 
     fetchProduct();
   }, [productId]);
+
+  const goBack = () => {
+    navigate(-1); // This will navigate back in the history stack
+  };
 
   const handleSlideshowChange = (direction) => {
     const lastIndex = product.photos.length - 1;
@@ -63,6 +71,28 @@ const ProductInfo = () => {
         `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
         "_blank"
       );
+    }
+  };
+
+  const handleMessageSelect = async () => {
+    try {
+      const chatId = [auth.currentUser.uid, product.userUid].sort().join("");
+      const chatDocRef = doc(firestore, "chats", chatId);
+
+      // Check if the chat document exists
+      const chatDocSnap = await getDoc(chatDocRef);
+
+      if (!chatDocSnap.exists()) {
+        // If the document doesn't exist, create it
+        await setDoc(chatDocRef, {
+          users: [auth.currentUser.uid, product.userUid],
+          messages: [], // Initialize with an empty array of messages
+        });
+      }
+
+      navigate(`/chat/${chatId}`);
+    } catch (error) {
+      console.error("Error selecting user:", error);
     }
   };
 
@@ -126,18 +156,21 @@ const ProductInfo = () => {
             </p>
             {isSeller ? (
               <div className="flex items-center gap-2">
-                <Link
-                  to={`/edit_product/${product.id}`}
-                  className="btn  btn-xs text-xs btn-primary"
-                >
-                  Edit Product
-                </Link>
+                <div>
+                  <Link
+                    className="btn  btn-xs text-xs btn-primary"
+                    to={`/edit_product/${product.id}`}
+                  >
+                    Edit
+                  </Link>
+                </div>
+
                 <div>
                   <button
                     onClick={handleDeleteProduct}
                     className="btn text-white  btn-xs text-xs btn-error"
                   >
-                    Delete Product
+                    Delete
                   </button>
                 </div>
               </div>
@@ -152,16 +185,18 @@ const ProductInfo = () => {
           </div>
         </div>
         <div>
-          <Link to="/marketplace">
-            <button className="btn btn-primary btn-xs w-full text-white">
-              Marketplace
-            </button>
-          </Link>{" "}
-          <Link to="/sellers">
-            <button className="btn btn-primary btn-xs w-full text-white">
-              Sellers
-            </button>
-          </Link>
+          <button
+            className=" text-black md:hidden text-2xl font-semibold focus:outline-none"
+            onClick={goBack}
+          >
+            <IoMdCloseCircle size={30} className="text-red-500" />
+          </button>
+          <button
+            className="hidden md:block btn btn-primary text-white"
+            onClick={goBack}
+          >
+            Close
+          </button>
         </div>
       </div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -269,7 +304,7 @@ const ProductInfo = () => {
 
         <div className="md:block hidden h-full border"></div>
 
-        <div className="md:w-1/2">
+        <div className="md:w-1/2 w-full">
           <div className="md:block hidden">
             <p className="text-primary text-xs sm:text-lg font-bold">
               Description:{" "}
@@ -358,8 +393,11 @@ const ProductInfo = () => {
               </h1>
 
               <div className="flex justify-center">
-                <button className="btn-sm md:btn-xs lg:btn-sm btn btn-primary">
-                  <Link to="/chat">Go to Chats</Link>
+                <button
+                  onClick={handleMessageSelect}
+                  className="btn-sm md:btn-xs lg:btn-sm btn btn-primary"
+                >
+                  Message {product.firstName} now!
                 </button>
               </div>
             </div>
