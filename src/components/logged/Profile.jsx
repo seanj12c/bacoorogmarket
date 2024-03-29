@@ -7,35 +7,19 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
-import ProductModal from "./ProductModal";
-import RecipeModal from "./RecipeModal";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaPhone } from "react-icons/fa";
-
 import { CiLocationArrow1 } from "react-icons/ci";
+
 const Profile = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userPosts, setUserPosts] = useState([]);
   const [displayProducts, setDisplayProducts] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
-
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
-  };
-
-  const handleRecipeClick = (recipe) => {
-    setSelectedRecipe(recipe);
-  };
-
-  const closeModal = () => {
-    setSelectedProduct(null);
-    setSelectedRecipe(null);
-  };
 
   useEffect(() => {
     const registeredCollection = collection(firestore, "registered");
@@ -108,6 +92,14 @@ const Profile = () => {
 
   const toggleDisplay = (isProducts) => {
     setDisplayProducts(isProducts);
+  };
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/info/${productId}`);
+  };
+
+  const handleRecipeClick = (recipeId) => {
+    navigate(`/recipe/info/${recipeId}`);
   };
 
   return (
@@ -213,7 +205,7 @@ const Profile = () => {
                       .sort((a, b) => b.productId - a.productId)
                       .map((product, index) => (
                         <div
-                          onClick={() => handleProductClick(product)}
+                          onClick={() => handleProductClick(product.id)}
                           key={index}
                           className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
                         >
@@ -267,7 +259,7 @@ const Profile = () => {
                       .sort((a, b) => b.recipeId - a.recipeId)
                       .map((recipe, index) => (
                         <div
-                          onClick={() => handleRecipeClick(recipe)}
+                          onClick={() => handleRecipeClick(recipe.id)}
                           key={index}
                           className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
                         >
@@ -322,14 +314,6 @@ const Profile = () => {
         </div>
       ) : (
         <p>No user data available.</p>
-      )}
-      {selectedProduct && (
-        <ProductModal product={selectedProduct} closeModal={closeModal} />
-      )}
-
-      {/* Render Recipe Modal */}
-      {selectedRecipe && (
-        <RecipeModal recipe={selectedRecipe} closeModal={closeModal} />
       )}
     </div>
   );
