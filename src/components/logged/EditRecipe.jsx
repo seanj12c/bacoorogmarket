@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { getDoc, doc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
 import check from "../../assets/check.gif";
 import {
   BiSolidSkipNextCircle,
   BiSolidSkipPreviousCircle,
 } from "react-icons/bi";
+import { IoReturnDownBackOutline } from "react-icons/io5";
 
 const EditRecipe = () => {
   const { recipeId } = useParams();
@@ -107,6 +108,11 @@ const EditRecipe = () => {
     );
   };
 
+  const navigate = useNavigate();
+  const goBack = () => {
+    navigate(-1); // This will navigate back in the history stack
+  };
+
   const Modal = ({ show }) => {
     if (!show) {
       return null;
@@ -149,10 +155,20 @@ const EditRecipe = () => {
           />
         </div>
       ) : (
-        <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-          <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-4">
-            Edit Recipe
-          </h2>
+        <div className="p-4 md:pb-0 pb-20 sm:p-6 md:p-8 lg:p-10">
+          <div className="pt-24 ">
+            <button
+              className="btn btn-xs md:btn-sm btn-error text-white btn-primary"
+              onClick={goBack}
+            >
+              Go Back{" "}
+              <IoReturnDownBackOutline className="md:hidden" size={15} />
+              <IoReturnDownBackOutline className="hidden md:block" size={20} />
+            </button>{" "}
+            <h2 className="text-2xl text-center font-bold text-primary ">
+              Edit Recipe
+            </h2>
+          </div>
 
           {recipeData.photos && recipeData.photos.length > 0 && (
             <div className="flex flex-col items-center justify-center mb-2">

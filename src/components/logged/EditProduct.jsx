@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   GoogleMap,
   LoadScript,
@@ -14,6 +14,7 @@ import {
   BiSolidSkipNextCircle,
   BiSolidSkipPreviousCircle,
 } from "react-icons/bi";
+import { IoReturnDownBackOutline } from "react-icons/io5";
 
 const Modal = ({ show }) => {
   if (!show) {
@@ -166,6 +167,10 @@ const EditProduct = () => {
         : 0
     );
   };
+  const navigate = useNavigate();
+  const goBack = () => {
+    navigate(-1); // This will navigate back in the history stack
+  };
 
   return (
     <div>
@@ -178,10 +183,20 @@ const EditProduct = () => {
           />
         </div>
       ) : (
-        <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-          <h2 className="text-2xl text-center font-bold text-primary pt-24 ">
-            Edit Product
-          </h2>
+        <div className="p-4 md:pb-0 pb-20 sm:p-6 md:p-8 lg:p-10">
+          <div className="pt-24 ">
+            <button
+              className="btn btn-xs md:btn-sm btn-error text-white btn-primary"
+              onClick={goBack}
+            >
+              Go Back{" "}
+              <IoReturnDownBackOutline className="md:hidden" size={15} />
+              <IoReturnDownBackOutline className="hidden md:block" size={20} />
+            </button>{" "}
+            <h2 className="text-2xl text-center font-bold text-primary ">
+              Edit Product
+            </h2>
+          </div>
 
           <div className="flex flex-col items-center justify-center">
             <div className="flex items-center justify-center mb-2">
