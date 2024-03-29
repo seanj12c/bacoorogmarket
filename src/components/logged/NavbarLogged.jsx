@@ -341,7 +341,7 @@ export const NavbarLogged = () => {
             fix
               ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-20 md:bottom-10 right-8"
               : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-20 md:bottom-10 right-8 hidden"
-          } `}
+          } border border-white`}
           onClick={handleGoToTop}
         >
           <FaArrowAltCircleUp size={30} />
