@@ -234,15 +234,23 @@ const Fillup = () => {
                   Contact Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="contact"
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                   value={contact}
-                  onChange={(e) => setContact(e.target.value)}
+                  onChange={(e) => {
+                    const regex = /^[0-9]*$/; // Regular expression to match only numbers
+                    if (regex.test(e.target.value) || e.target.value === "") {
+                      setContact(e.target.value);
+                    }
+                  }}
                   placeholder="0912345689"
+                  maxLength="11"
+                  minLength="11"
                   required
                 />
               </div>
+
               <div className="mb-2">
                 <label htmlFor="address" className="block mb-1">
                   Full Address
