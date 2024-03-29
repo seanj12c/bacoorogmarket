@@ -301,7 +301,7 @@ const PostARecipe = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 lg:p-10">
+    <div className="p-4 sm:p-6 md:pb-0 pb-20 md:p-8 lg:p-10">
       <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-4">
         Post a Recipe
       </h2>
