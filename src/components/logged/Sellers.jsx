@@ -60,7 +60,7 @@ const Sellers = () => {
   };
 
   return (
-    <div>
+    <div className="md:pb-0 pb-20">
       {loading ? (
         <div className="flex items-center justify-center h-screen">
           <img
@@ -70,7 +70,7 @@ const Sellers = () => {
           />
         </div>
       ) : (
-        <div className="h-screen pt-24 md:pb-0 pb-20 w-full">
+        <div className="h-screen pt-24  w-full">
           <div className="md:flex md:flex-row">
             <div className="container  mx-auto px-4">
               <h1 className="text-2xl font-bold my-4 text-center">
@@ -146,7 +146,7 @@ const Sellers = () => {
                             {selectedLocation.lastName}
                           </td>
                           <td className="p-1">{selectedLocation.address}</td>
-                          <td className="md:flex justify-center gap-2">
+                          <td className="flex justify-center flex-col md:flex-row w-full gap-2">
                             <Link
                               to={`/profile/${selectedLocation.userId}`}
                               className="font-normal btn-xs md:btn-md btn btn-primary text-white"
