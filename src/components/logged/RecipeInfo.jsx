@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { IoMdCloseCircle } from "react-icons/io";
 import {
@@ -51,6 +51,20 @@ const RecipeInfo = () => {
     }
   };
 
+  const handleDeleteRecipe = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this recipe?"
+    );
+    if (confirmDelete) {
+      try {
+        await deleteDoc(doc(firestore, "recipes", recipe.id));
+        navigate("/recipe"); // Navigate back to previous page after deletion
+      } catch (error) {
+        console.error("Error deleting recipe:", error);
+      }
+    }
+  };
+
   const handleOpenInNewTab = () => {
     const confirmOpen = window.confirm(
       "Do you want to view this photo in a new tab?"
@@ -91,12 +105,25 @@ const RecipeInfo = () => {
                   {recipe.timestamp}
                 </p>
                 {isSeller ? (
-                  <Link
-                    to={`/edit_recipe/${recipe.id}`}
-                    className="btn  btn-xs text-xs btn-primary"
-                  >
-                    Edit Recipe
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <div>
+                      <Link
+                        to={`/edit_recipe/${recipe.id}`}
+                        className="btn  btn-xs text-xs btn-primary"
+                      >
+                        Edit Recipe
+                      </Link>
+                    </div>
+
+                    <div>
+                      <button
+                        onClick={handleDeleteRecipe}
+                        className="btn text-white  btn-xs text-xs btn-error"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <Link
                     to={`/profile/${recipe.userUid}`}
