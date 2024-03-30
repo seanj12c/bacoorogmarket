@@ -292,7 +292,7 @@ const Chat = () => {
                     }`}
                     onClick={() => handleUserSelect(user)}
                   >
-                    <div className="flex w-28 md:w-full lg:flex-row flex-col gap-2 items-center">
+                    <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
                       <img
                         src={user.profilePhotoUrl}
                         alt={`${user.firstName} ${user.lastName}`}
