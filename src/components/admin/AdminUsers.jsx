@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
+import Swal from "sweetalert2"; // Import SweetAlert
 
 import { FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
@@ -62,45 +63,64 @@ const AdminUsers = () => {
   }, []);
 
   const enableAccount = async (user) => {
-    if (
-      window.confirm(
-        `Are you sure you want to ENABLE ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
-      )
-    ) {
+    const result = await Swal.fire({
+      title: `Are you sure you want to ENABLE ${user.firstName} ${user.lastName}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Enable",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#67BA6A",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (result.isConfirmed) {
       const userRef = doc(firestore, "registered", user.id);
       await updateDoc(userRef, {
         disabled: false,
       });
-      window.alert(`User ${user.firstName}  enabled!`);
+      Swal.fire("Enabled!", `User ${user.firstName} enabled.`, "success");
     }
   };
 
   const disableAccount = async (user) => {
-    if (
-      window.confirm(
-        `Are you sure you want to DISABLE ${user.firstName} ${user.lastName} with an email of ${user.email} in the database?`
-      )
-    ) {
+    const result = await Swal.fire({
+      title: `Are you sure you want to DISABLE ${user.firstName} ${user.lastName}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Disable",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (result.isConfirmed) {
       const userRef = doc(firestore, "registered", user.id);
       await updateDoc(userRef, {
         disabled: true,
       });
-      window.alert(`User ${user.firstName}  disabled!`);
+      Swal.fire("Disabled!", `User ${user.firstName} disabled.`, "success");
     }
   };
 
   const deleteAccount = async (user) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${user.firstName} ${user.lastName} with an email of ${user.email} from the database?`
-      )
-    ) {
+    const result = await Swal.fire({
+      title: `Are you sure you want to delete ${user.firstName} ${user.lastName} from the database?`,
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (result.isConfirmed) {
       try {
         const userRef = doc(firestore, "registered", user.id);
         await deleteDoc(userRef);
-        window.alert(`User deleted!`);
+        Swal.fire("Deleted!", "User has been deleted.", "success");
       } catch (error) {
-        window.alert(`Error deleting user!`);
+        Swal.fire("Error!", "Error deleting user.", "error");
       }
     }
   };

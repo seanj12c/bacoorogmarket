@@ -24,6 +24,7 @@ import {
 import LogoutModal from "../authentication/LogoutModal";
 import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
+import Swal from "sweetalert2";
 
 const AdminLocations = () => {
   const [loading, setLoading] = useState(true);
@@ -75,15 +76,30 @@ const AdminLocations = () => {
   };
 
   const handleDelete = async (productId) => {
-    const productRef = doc(firestore, "products", productId);
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You will not be able to recover this product!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-    try {
-      await deleteDoc(productRef);
-      console.log("Document successfully deleted!");
-      // Optionally, you may want to update the state or perform other actions after deletion
-    } catch (error) {
-      console.error("Error deleting document: ", error);
-      // Handle any errors that occur during deletion
+    if (result.isConfirmed) {
+      const productRef = doc(firestore, "products", productId);
+      try {
+        await deleteDoc(productRef);
+        console.log("Document successfully deleted!");
+        Swal.fire("Deleted!", "Your product has been deleted.", "success");
+      } catch (error) {
+        console.error("Error deleting document: ", error);
+        Swal.fire(
+          "Error!",
+          "An error occurred while deleting the product.",
+          "error"
+        );
+      }
     }
   };
 

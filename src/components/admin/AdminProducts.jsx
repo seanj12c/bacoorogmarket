@@ -19,6 +19,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineLogout } from "react-icons/ai";
 import { getAuth, signOut } from "firebase/auth";
 import LogoutModal from "../authentication/LogoutModal";
+import Swal from "sweetalert2";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -58,20 +59,30 @@ const AdminProducts = () => {
   }, []);
 
   const deleteProduct = async (docId, productCaption) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete "${productCaption}" in product database?`
-      )
-    ) {
-      try {
-        const db = firestore;
-        const productDocRef = doc(db, "products", docId);
-        await deleteDoc(productDocRef);
-        window.alert(`Product has been deleted successfully.`);
-      } catch (error) {
-        console.error("Error deleting product:", error);
+    Swal.fire({
+      title: `Are you sure you want to delete "${productCaption}" from the product database?`,
+      icon: "warning",
+      showCancelButton: true,
+      cancelButtonColor: "#3085d6",
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const db = firestore;
+          const productDocRef = doc(db, "products", docId);
+          await deleteDoc(productDocRef);
+          Swal.fire("Deleted!", "Your product has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting product:", error);
+          Swal.fire(
+            "Error!",
+            "An error occurred while deleting the product.",
+            "error"
+          );
+        }
       }
-    }
+    });
   };
 
   // Filter products based on search query

@@ -20,6 +20,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import LogoutModal from "../authentication/LogoutModal";
 import { AiOutlineLogout } from "react-icons/ai";
+import Swal from "sweetalert2";
 
 const AdminRecipes = () => {
   const [recipes, setRecipes] = useState([]);
@@ -56,20 +57,30 @@ const AdminRecipes = () => {
   }, []);
 
   const deleteRecipe = async (recipeId, recipeCaption) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete "${recipeCaption}" in recipe database?`
-      )
-    ) {
-      try {
-        const db = firestore;
-        const recipeDocRef = doc(db, "recipes", recipeId);
-        await deleteDoc(recipeDocRef);
-        window.alert(`Recipe has been deleted successfully.`);
-      } catch (error) {
-        console.error("Error deleting recipe:", error);
+    Swal.fire({
+      title: `Are you sure you want to delete "${recipeCaption}" from the recipe database?`,
+      icon: "warning",
+      showCancelButton: true,
+      cancelButtonColor: "#3085d6",
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const db = firestore;
+          const recipeDocRef = doc(db, "recipes", recipeId);
+          await deleteDoc(recipeDocRef);
+          Swal.fire("Deleted!", "Your recipe has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting recipe:", error);
+          Swal.fire(
+            "Error!",
+            "An error occurred while deleting the recipe.",
+            "error"
+          );
+        }
       }
-    }
+    });
   };
 
   // Filter recipes based on search query
