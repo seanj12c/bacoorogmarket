@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteDoc, doc, getDoc } from "firebase/firestore";
+import {
+  deleteDoc,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  onSnapshot,
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { IoMdCloseCircle } from "react-icons/io";
 import {
@@ -9,11 +16,15 @@ import {
 } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../authContext";
+import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
+import Swal from "sweetalert2";
 
 const RecipeInfo = () => {
   const { recipeId } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [slideshowIndex, setSlideshowIndex] = useState(0);
+  const [isLiked, setIsLiked] = useState(false); // State to track whether the current user has liked the recipe
+  const [likeCount, setLikeCount] = useState(0); // State to hold the like count
   const auth = useAuth();
 
   const hasIngredients =
@@ -25,19 +36,30 @@ const RecipeInfo = () => {
     const fetchRecipe = async () => {
       try {
         const recipeDocRef = doc(firestore, "recipes", recipeId);
-        const recipeDocSnap = await getDoc(recipeDocRef);
-        if (recipeDocSnap.exists()) {
-          setRecipe({ id: recipeDocSnap.id, ...recipeDocSnap.data() });
-        } else {
-          console.log("Recipe not found");
-        }
+        const unsubscribe = onSnapshot(recipeDocRef, (doc) => {
+          if (doc.exists()) {
+            const recipeData = doc.data();
+            setRecipe({ id: doc.id, ...recipeData });
+            // Update like count
+            setLikeCount(recipeData.likers ? recipeData.likers.length : 0);
+            // Check if the current user has already liked the recipe
+            setIsLiked(
+              recipeData.likers &&
+                recipeData.likers.includes(auth.currentUser.uid)
+            );
+          } else {
+            console.log("Recipe not found");
+          }
+        });
+
+        return () => unsubscribe();
       } catch (error) {
         console.error("Error fetching recipe:", error);
       }
     };
 
     fetchRecipe();
-  }, [recipeId]);
+  }, [recipeId, auth.currentUser]);
 
   const handleSlideshowChange = (direction) => {
     if (direction === "prev") {
@@ -51,18 +73,57 @@ const RecipeInfo = () => {
     }
   };
 
-  const handleDeleteRecipe = async () => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this recipe?"
-    );
-    if (confirmDelete) {
+  const handleLikeRecipe = async () => {
+    const recipeDocRef = doc(firestore, "recipes", recipe.id);
+    if (!isLiked) {
+      // Add the current user's ID to the likers array
       try {
-        await deleteDoc(doc(firestore, "recipes", recipe.id));
-        navigate("/recipe"); // Navigate back to previous page after deletion
+        await updateDoc(recipeDocRef, {
+          likers: arrayUnion(auth.currentUser.uid),
+        });
+        setIsLiked(true); // Set the like state to true
       } catch (error) {
-        console.error("Error deleting recipe:", error);
+        console.error("Error liking recipe:", error);
+      }
+    } else {
+      // Remove the current user's ID from the likers array
+      try {
+        await updateDoc(recipeDocRef, {
+          likers: arrayRemove(auth.currentUser.uid),
+        });
+        setIsLiked(false); // Set the like state to false
+      } catch (error) {
+        console.error("Error unliking recipe:", error);
       }
     }
+  };
+
+  const handleDeleteRecipe = async () => {
+    // Using SweetAlert for confirmation
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will not be able to recover this recipe!",
+      icon: "warning",
+      showCancelButton: true,
+      cancelButtonColor: "#3085d6",
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteDoc(doc(firestore, "recipes", recipe.id));
+          Swal.fire("Deleted!", "Your recipe has been deleted.", "success");
+          navigate("/recipe"); // Navigate back to previous page after deletion
+        } catch (error) {
+          console.error("Error deleting recipe:", error);
+          Swal.fire(
+            "Error!",
+            "An error occurred while deleting the recipe.",
+            "error"
+          );
+        }
+      }
+    });
   };
 
   const handleOpenInNewTab = () => {
@@ -151,7 +212,33 @@ const RecipeInfo = () => {
           </div>
           {/* Body */}
           <div className="px-6 md:flex">
-            <div className="mb-4">
+            <div className="py-4 px-2">
+              <div className="flex justify-between px-2 items-center">
+                <div className="stats justify-center shadow">
+                  <div className="stat">
+                    <div className="stat-title text-xs">Total Likes</div>
+                    <div className="stat-value text-end text-sm text-primary">
+                      {likeCount} ♡
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <button className="btn " onClick={handleLikeRecipe}>
+                    {isLiked ? (
+                      <h1 className="flex items-center gap-2">
+                        Liked
+                        <IoHeartSharp size={20} className=" text-red-500" />
+                      </h1>
+                    ) : (
+                      <h1 className="flex items-center gap-2">
+                        Like
+                        <IoHeartOutline size={20} className=" text-red-500" />
+                      </h1>
+                    )}
+                  </button>
+                </div>
+              </div>
               <h1 className="text-xl sm:text-xl text-center font-semibold text-primary">
                 {recipe.caption}
               </h1>

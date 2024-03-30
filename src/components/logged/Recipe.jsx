@@ -10,7 +10,6 @@ import bannerre from "../../assets/bannerre.jpg";
 
 const Recipe = () => {
   const [recipes, setRecipes] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -32,10 +31,13 @@ const Recipe = () => {
           ingredients: data.ingredients,
           instructions: data.instructions,
           photos: data.photos,
-          recipeId: data.recipeId, // Assuming you have a field called recipeId
-          userUid: data.userUid, // Assuming you have a field called recipeId
+          recipeId: data.recipeId,
+          userUid: data.userUid,
+          likers: data.likers ? data.likers.length : 0, // Assuming likers is an array
         });
       });
+      // Sort recipes based on number of likers in descending order
+      recipesData.sort((a, b) => b.likers - a.likers);
       setRecipes(recipesData);
       setLoading(false);
     });
@@ -106,7 +108,7 @@ const Recipe = () => {
               search.
             </p>
           ) : (
-            <div className="grid grid-cols-1 px-2 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 px-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredRecipes.map((recipe) => (
                 <Link key={recipe.id} to={`/recipe/info/${recipe.id}`}>
                   <div
@@ -127,6 +129,14 @@ const Recipe = () => {
                           <p className="text-gray-600 text-xs">
                             {recipe.timestamp}
                           </p>
+                        </div>
+                      </div>
+                      <div className="stats justify-center shadow">
+                        <div className="stat">
+                          <div className="stat-title text-xs">Total Likes</div>
+                          <div className="stat-value text-end text-sm text-primary">
+                            {recipe.likers} ♡
+                          </div>
                         </div>
                       </div>
                     </div>
