@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
-import { collection, query, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  onSnapshot,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
 import { FaUsers } from "react-icons/fa";
@@ -66,6 +72,19 @@ const AdminLocations = () => {
   const defaultCenter = {
     lat: 14.4576,
     lng: 120.9429,
+  };
+
+  const handleDelete = async (productId) => {
+    const productRef = doc(firestore, "products", productId);
+
+    try {
+      await deleteDoc(productRef);
+      console.log("Document successfully deleted!");
+      // Optionally, you may want to update the state or perform other actions after deletion
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+      // Handle any errors that occur during deletion
+    }
   };
 
   const navigate = useNavigate();
@@ -212,7 +231,7 @@ const AdminLocations = () => {
                         <th className="p-1">Name</th>
                         <th className="p-1">Address</th>
 
-                        <th className="p-1">Direction</th>
+                        <th className="p-1">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -224,9 +243,9 @@ const AdminLocations = () => {
                           </td>
                           <td className="p-1">{selectedLocation.address}</td>
 
-                          <td className="p-1">
+                          <td className="p-1 flex gap-2 w-full">
                             <button
-                              className="font-normal btn-sm w-full btn btn-primary text-white"
+                              className="font-normal md:btn-sm btn-xs w-full btn btn-primary text-white"
                               onClick={() =>
                                 window.open(
                                   `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`,
@@ -235,6 +254,12 @@ const AdminLocations = () => {
                               }
                             >
                               Get Direction
+                            </button>
+                            <button
+                              className="font-normal md:btn-sm btn-xs w-full btn btn-danger text-white"
+                              onClick={() => handleDelete(selectedLocation.id)} // Assuming handleDelete function is implemented to handle product deletion
+                            >
+                              Delete Product
                             </button>
                           </td>
                         </tr>
