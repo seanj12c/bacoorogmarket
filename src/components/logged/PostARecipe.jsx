@@ -9,43 +9,12 @@ import {
 } from "firebase/storage";
 import { useAuth } from "../../authContext";
 import { firestore } from "../../firebase";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RiAddLine, RiCloseLine } from "react-icons/ri";
 import uploadload from "../../assets/loading.gif";
-import check from "../../assets/check.gif";
+
 import { IoReturnDownBackOutline } from "react-icons/io5";
-
-const Modal = ({ show }) => {
-  if (!show) {
-    return null;
-  }
-
-  return (
-    <div className="h-screen bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
-        <h2 className="md:text-2xl text-xl font-semibold my-2">
-          Thank you for submitting your recipe, it will now display on Recipe
-          pages!
-        </h2>
-        <img className="mx-auto h-20 object-contain" src={check} alt="" />
-        <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-6 mt-4">
-          <Link
-            to="/recipe"
-            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
-          >
-            Go to Recipe Page
-          </Link>
-          <Link
-            to="/myaccount"
-            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
-          >
-            Go to My Account
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
+import Swal from "sweetalert2";
 
 const PostARecipe = () => {
   const auth = useAuth();
@@ -89,7 +58,7 @@ const PostARecipe = () => {
   const [photos, setPhotos] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [isPhotoRequired, setIsPhotoRequired] = useState(false);
   const [errors, setErrors] = useState({
     recipeName: "",
@@ -281,24 +250,33 @@ const PostARecipe = () => {
     try {
       setIsSubmitting(true);
       await addDoc(recipesRef, recipeData); // Use addDoc to add a new recipe document
-      setIsModalOpen(true);
+      setIsSubmitting(false);
+      // Show SweetAlert for success
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Thank you for submitting your recipe, it will now display on Recipe pages!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      navigate("/recipe");
     } catch (error) {
+      setIsSubmitting(false);
       console.error("Error adding recipe: ", error);
+      // Show SweetAlert for error
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Something went wrong! Please try again later.",
+      });
     }
   };
 
   const generateRecipeId = () => {
-    const previousRecipeId = localStorage.getItem("recipeId") || "0000000000";
-    const newRecipeId = String(parseInt(previousRecipeId) + 1).padStart(
-      10,
-      "0"
-    );
-    localStorage.setItem("recipeId", newRecipeId);
-    return newRecipeId;
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
+    const timestamp = new Date().getTime(); // Get current timestamp
+    const randomString = Math.random().toString(36).substring(7); // Generate random string
+    return `${timestamp}_${randomString}`; // Combine timestamp and random string
   };
 
   const navigate = useNavigate();
@@ -465,7 +443,6 @@ const PostARecipe = () => {
           </button>
         </div>
       </form>
-      <Modal show={isModalOpen} onClose={closeModal} />
     </div>
   );
 };

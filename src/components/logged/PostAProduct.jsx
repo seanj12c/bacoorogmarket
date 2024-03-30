@@ -9,10 +9,10 @@ import {
 } from "firebase/storage";
 import { useAuth } from "../../authContext";
 import { firestore } from "../../firebase";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { RiAddLine, RiCloseLine } from "react-icons/ri";
 import uploadload from "../../assets/loading.gif";
-import check from "../../assets/check.gif";
+
 import {
   GoogleMap,
   LoadScript,
@@ -20,40 +20,9 @@ import {
   StandaloneSearchBox,
 } from "@react-google-maps/api";
 import { IoReturnDownBackOutline } from "react-icons/io5";
+import Swal from "sweetalert2";
 
 const libraries = ["places"];
-
-const Modal = ({ show }) => {
-  if (!show) {
-    return null;
-  }
-
-  return (
-    <div className="h-screen bg-black px-4 md:px-0 bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
-        <h2 className="md:text-2xl text-xl font-semibold my-2">
-          Thank you for submitting your product, it will now display on
-          Marketplace pages!
-        </h2>
-        <img className="mx-auto h-20 object-contain" src={check} alt="" />
-        <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-6 mt-4">
-          <Link
-            to="/marketplace"
-            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
-          >
-            Go to Marketplace
-          </Link>
-          <Link
-            to="/myaccount"
-            className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
-          >
-            Go to My Account
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const PostAProduct = () => {
   const auth = useAuth();
@@ -104,7 +73,7 @@ const PostAProduct = () => {
   const [photos, setPhotos] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [isPhotoRequired, setIsPhotoRequired] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -312,14 +281,25 @@ const PostAProduct = () => {
     try {
       setIsSubmitting(true);
       await addDoc(productsRef, productData); // Firebase will generate the document ID
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error("Error adding product: ", error);
-    }
-  };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+      Swal.fire({
+        icon: "success",
+        title: "Product Submitted!",
+        text: "Thank you for submitting your product. It will now display on Marketplace pages!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      navigate("/marketplace");
+    } catch (error) {
+      setIsSubmitting(false);
+      console.error("Error adding recipe: ", error);
+      // Show SweetAlert for error
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Something went wrong! Please try again later.",
+      });
+    }
   };
 
   const mapOptions = {
@@ -559,7 +539,6 @@ const PostAProduct = () => {
           </button>
         </div>
       </form>
-      <Modal show={isModalOpen} onClose={closeModal} />
     </div>
   );
 };
