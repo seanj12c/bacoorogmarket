@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, onSnapshot } from "firebase/firestore";
-import { firestore } from "../../firebase";
+import { firestore, auth } from "../../firebase"; // Import auth from firebase
 import uploadload from "../../assets/loading.gif";
-import { Link } from "react-router-dom"; // Import Link from React Router
+import { Link } from "react-router-dom";
 
 import {
   LoadScript,
@@ -15,8 +15,17 @@ const Sellers = () => {
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [currentUserID, setCurrentUserID] = useState(null); // State to hold current user's ID
 
   useEffect(() => {
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUserID(user.uid); // Set current user's ID if user is logged in
+      } else {
+        setCurrentUserID(null); // Set to null if no user is logged in
+      }
+    });
+
     const productsCollection = collection(firestore, "products");
     const productsQuery = query(productsCollection);
 
@@ -51,6 +60,7 @@ const Sellers = () => {
 
     return () => {
       unsubscribe();
+      unsubscribeAuth();
     };
   }, []);
 
@@ -89,7 +99,6 @@ const Sellers = () => {
                     options={{
                       mapTypeControl: false,
                       streetViewControl: false,
-
                       borderRadius: "8px",
                     }}
                   >
@@ -147,12 +156,14 @@ const Sellers = () => {
                           </td>
                           <td className="p-1">{selectedLocation.address}</td>
                           <td className="flex justify-center flex-col md:flex-row w-full gap-2">
-                            <Link
-                              to={`/profile/${selectedLocation.userId}`}
-                              className="font-normal btn-xs md:btn-md btn btn-primary text-white"
-                            >
-                              Go to Profile
-                            </Link>
+                            {currentUserID !== selectedLocation.userId && (
+                              <Link
+                                to={`/profile/${selectedLocation.userId}`}
+                                className="font-normal btn-xs md:btn-md btn btn-primary text-white"
+                              >
+                                Go to Profile
+                              </Link>
+                            )}
                             <Link
                               to={`/product/info/${selectedLocation.id}`}
                               className="font-normal btn-xs md:btn-md btn btn-primary text-white"
