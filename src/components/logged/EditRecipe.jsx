@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { getDoc, doc, updateDoc } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
-import check from "../../assets/check.gif";
+
 import {
   BiSolidSkipNextCircle,
   BiSolidSkipPreviousCircle,
 } from "react-icons/bi";
 import { IoReturnDownBackOutline } from "react-icons/io5";
+import Swal from "sweetalert2";
 
 const EditRecipe = () => {
   const { recipeId } = useParams();
 
   const [recipeData, setRecipeData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [loading, setLoading] = useState(true); // Add loading state
   const [slideshowIndex, setSlideshowIndex] = useState(0);
 
@@ -37,21 +38,28 @@ const EditRecipe = () => {
     fetchRecipeData();
   }, [recipeId]);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
       await updateDoc(doc(firestore, "recipes", recipeId), recipeData);
-      setIsModalOpen(true);
+      Swal.fire({
+        icon: "success",
+        title: "Recipe Updated!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      navigate(`/recipe`);
     } catch (error) {
-      console.error("Error updating recipe: ", error);
-    } finally {
       setIsSubmitting(false);
+      console.error("Error adding recipe: ", error);
+      // Show SweetAlert for error
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Something went wrong! Please try again later.",
+      });
     }
   };
 
@@ -111,37 +119,6 @@ const EditRecipe = () => {
   const navigate = useNavigate();
   const goBack = () => {
     navigate(-1); // This will navigate back in the history stack
-  };
-
-  const Modal = ({ show }) => {
-    if (!show) {
-      return null;
-    }
-
-    return (
-      <div className="h-screen bg-black px-4 md:px-0 bg-opacity-50 fixed inset-0 flex items-center justify-center z-50">
-        <div className="bg-white w-full max-w-md p-8 rounded-lg shadow-lg">
-          <h2 className="md:text-2xl text-center text-xl font-semibold my-2">
-            Recipe Updated!
-          </h2>
-          <img className="mx-auto h-20 object-contain" src={check} alt="" />
-          <div className="flex flex-col md:flex-row justify-center gap-2 md:gap-6 mt-4">
-            <Link
-              to="/recipe"
-              className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
-            >
-              Go to Recipe Page
-            </Link>
-            <Link
-              to="/myaccount"
-              className="bg-primary text-xs md:text-base text-center text-white px-4 py-2 rounded-lg hover-bg-primary-dark focus:outline-none"
-            >
-              Go to My Account
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -300,7 +277,6 @@ const EditRecipe = () => {
               </button>
             </div>
           </form>
-          <Modal show={isModalOpen} onClose={closeModal} />
         </div>
       )}
     </div>
