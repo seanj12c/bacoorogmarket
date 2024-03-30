@@ -72,7 +72,7 @@ const RecipeInfo = () => {
   const isSeller = auth.currentUser && auth.currentUser.uid === recipe.userUid;
 
   return (
-    <div className="fixed h-screen bg-white inset-0 z-50 flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
+    <div className="fixed h-screen pb-10 md:pb-5 bg-white inset-0 z-50 flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
       <div className="relative w-full mx-auto overflow-y-auto">
         <div className="h-screen border-0 rounded-lg overflow-y-auto shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
           {/* Header */}

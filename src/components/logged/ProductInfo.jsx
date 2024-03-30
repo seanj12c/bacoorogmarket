@@ -139,7 +139,7 @@ const ProductInfo = () => {
   const isSeller = auth.currentUser && auth.currentUser.uid === product.userUid;
 
   return (
-    <div className="w-full mx-auto p-5">
+    <div className="w-full mx-auto pb-10 md:pb-5 p-5">
       <div className="flex justify-between items-center border-b border-solid pb-5 mb-5">
         <div className="flex items-center">
           <img
