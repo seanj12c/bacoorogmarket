@@ -36,6 +36,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Sellers from "./components/logged/Sellers";
 import ProductInfo from "./components/logged/ProductInfo";
 import RecipeInfo from "./components/logged/RecipeInfo";
+import Swal from "sweetalert2";
 
 function AppRoutes() {
   const location = useLocation();
@@ -61,10 +62,12 @@ function AppRoutes() {
           const docSnap = await getDoc(userRef);
           const userData = docSnap.data();
           if (userData.disabled) {
-            auth.signOut();
-            window.alert(
-              "Sorry, your account has been disabled. Please contact support for assistance."
-            );
+            await auth.signOut();
+            Swal.fire({
+              icon: "error",
+              title: "Account Disabled",
+              text: "Sorry, your account has been disabled. Please contact support for assistance.",
+            });
           } else {
             setLoading(false);
           }
