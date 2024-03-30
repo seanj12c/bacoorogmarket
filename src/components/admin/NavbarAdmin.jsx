@@ -124,7 +124,10 @@ export const NavbarAdmin = ({ users, locations, products, recipes }) => {
         </div>
 
         <div className="flex gap-5 items-center">
-          <button onClick={toggleLogoutModal}>
+          <button
+            className="btn btn-sm btn-square text-white btn-error"
+            onClick={toggleLogoutModal}
+          >
             <AiOutlineLogout size={25} />
           </button>
         </div>
