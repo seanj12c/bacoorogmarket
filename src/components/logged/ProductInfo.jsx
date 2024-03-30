@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
 import { IoMdCloseCircle } from "react-icons/io";
+import Swal from "sweetalert2";
 
 const libraries = ["places"];
 
@@ -109,18 +110,33 @@ const ProductInfo = () => {
 
   const handleDeleteProduct = async () => {
     try {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to delete this product?"
-      );
-      if (confirmDelete) {
+      // Using SweetAlert for confirmation
+      const { isConfirmed } = await Swal.fire({
+        title: "Are you sure?",
+        text: "You will not be able to recover this product!",
+        icon: "warning",
+        showCancelButton: true,
+        cancelButtonColor: "#3085d6",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (isConfirmed) {
         const productRef = doc(firestore, "products", productId);
         await deleteDoc(productRef);
-        console.log("Product deleted successfully");
+        // Show success message using SweetAlert
+        Swal.fire("Deleted!", "Your product has been deleted.", "success");
         // Redirect to the marketplace after deletion
         navigate("/marketplace");
       }
     } catch (error) {
       console.error("Error deleting product:", error);
+      // Show error message using SweetAlert
+      Swal.fire(
+        "Error!",
+        "An error occurred while deleting the product.",
+        "error"
+      );
     }
   };
 
