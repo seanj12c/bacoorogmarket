@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { AiOutlineMenu } from "react-icons/ai";
 import { FaArrowAltCircleUp, FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,7 +19,6 @@ import { MdOutlineManageAccounts } from "react-icons/md";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 
 export const NavbarLogged = () => {
-  const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
   const navigate = useNavigate();
@@ -111,10 +110,6 @@ export const NavbarLogged = () => {
     return ""; // Provide a default URL or handle error cases
   };
 
-  const handleNav = () => {
-    setNav(!nav);
-  };
-
   const toggleLogoutModal = () => {
     setShowLogoutModal(!showLogoutModal);
   };
@@ -138,8 +133,38 @@ export const NavbarLogged = () => {
               />
             </Link>
           </div>
-          <div onClick={handleNav} className="block md:hidden">
-            {nav ? <AiOutlineMenu size={25} /> : <AiOutlineMenu size={25} />}
+          <div className="block md:hidden">
+            <div className="dropdown dropdown-bottom ">
+              <div tabIndex={0} role="button">
+                <AiOutlineMenu size={25} />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40"
+              >
+                {" "}
+                <li className="py-1">
+                  <Link to={"/home"}>
+                    <CiHome className="text-primary" size={15} />
+                    <span className="hover:text-primary ">Home</span>
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link to={"/faqs"}>
+                    <CiCircleQuestion className="text-primary" size={15} />
+                    <span className="hover:text-primary ">FAQs</span>
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <button
+                    onClick={toggleLogoutModal}
+                    className="btn btn-error mx-auto btn-sm text-white w-28 "
+                  >
+                    Log-out
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div className="text-black ">
@@ -216,75 +241,6 @@ export const NavbarLogged = () => {
           </div>
         </div>
 
-        <div
-          className={
-            nav
-              ? "fixed left-0 top-0 w-[80%] h-full shadow shadow-primary bg-[#ffffff] ease-in-out duration-500"
-              : "fixed left-[-100%]"
-          }
-        >
-          <div
-            onClick={handleNav}
-            className="flex pl-6 pt-9 justify-start md:hidden"
-          >
-            {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
-          </div>
-          <div className="flex flex-col gap-28">
-            <div>
-              <ul className="text-left text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
-                <Link to={"/marketplace"} onClick={handleNav}>
-                  <li className=" hover:text-primary flex gap-2 items-center">
-                    <CiShop size={30} className="text-primary" />
-                    Marketplace
-                  </li>
-                </Link>
-                <Link to={"/home"} onClick={handleNav}>
-                  <li className=" hover:text-primary flex gap-2 items-center">
-                    <CiHome size={30} className="text-primary" />
-                    Home
-                  </li>
-                </Link>
-                <Link to={"/sellers"} onClick={handleNav}>
-                  <li className=" hover:text-primary flex gap-2 items-center">
-                    <LiaSearchLocationSolid
-                      size={30}
-                      className="text-primary"
-                    />
-                    Sellers
-                  </li>
-                </Link>
-                <Link to={"/recipe"} onClick={handleNav}>
-                  <li className=" hover:text-primary flex gap-2 items-center">
-                    <CiForkAndKnife size={30} className="text-primary" />
-                    Recipe
-                  </li>
-                </Link>
-                <Link to={"/chat"} onClick={handleNav}>
-                  <li className=" hover:text-primary flex gap-2 items-center">
-                    <CiChat1 size={30} className="text-primary" />
-                    Chats
-                  </li>
-                </Link>
-                <Link to={"/faqs"} onClick={handleNav}>
-                  <li className=" hover:text-primary flex gap-2 items-center">
-                    <CiCircleQuestion size={30} className="text-primary" />
-                    FAQs
-                  </li>
-                </Link>
-              </ul>
-            </div>
-            <div className="text-left  text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
-              <div className="border-t-gray-500 border-t"></div>
-              <button
-                onClick={toggleLogoutModal}
-                className="btn btn-error w-full text-white "
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-
         <div className="block md:hidden">
           <Link to={"/home"}>
             <img
@@ -314,23 +270,23 @@ export const NavbarLogged = () => {
         </div>
       </div>
 
-      <div className="btm-nav text-xs border-t border-gray-300 text-black z-40">
-        <button className="">
-          <CiHome size={15} />
+      <div className="btm-nav md:hidden text-xs border-t border-gray-300 text-black z-40">
+        <Link to="/marketplace" className="">
+          <CiShop size={15} />
           <span className="btm-nav-label">Marketplace</span>
-        </button>{" "}
-        <button className="">
+        </Link>
+        <Link to="/sellers" className="">
           <LiaSearchLocationSolid size={15} />
           <span className="btm-nav-label">Sellers</span>
-        </button>{" "}
-        <button className="">
+        </Link>
+        <Link to="/recipe" className="">
           <CiForkAndKnife size={15} />
           <span className="btm-nav-label">Recipes</span>
-        </button>{" "}
-        <button className="">
+        </Link>
+        <Link to="/chat" className="">
           <CiChat1 size={15} />
           <span className="btm-nav-label">Chats</span>
-        </button>
+        </Link>
       </div>
       <div>
         <button

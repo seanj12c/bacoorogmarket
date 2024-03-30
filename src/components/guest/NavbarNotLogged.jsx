@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import { AiOutlineMenu } from "react-icons/ai";
 import { FaArrowAltCircleUp, FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
@@ -14,7 +14,6 @@ import {
 import { LiaSearchLocationSolid } from "react-icons/lia";
 
 export const NavbarNotLogged = () => {
-  const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -61,21 +60,6 @@ export const NavbarNotLogged = () => {
     };
   }, []);
 
-  const handleNav = () => {
-    if (nav) {
-      setNav(false);
-    } else {
-      setTimeout(() => {
-        setNav(true);
-      }, 10);
-    }
-  };
-
-  const handleButtonToggle = () => {
-    toggleOverlay();
-    handleNav();
-  };
-
   return (
     <div className="h-full">
       <div
@@ -99,8 +83,44 @@ export const NavbarNotLogged = () => {
                 </h1>
               </div>
             </a>
-            <div onClick={handleNav} className="block lg:hidden">
-              {nav ? <AiOutlineMenu size={25} /> : <AiOutlineMenu size={25} />}
+
+            <div className="dropdown md:hidden dropdown-bottom ">
+              <div tabIndex={0} role="button">
+                <AiOutlineMenu size={25} />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40"
+              >
+                <li className="py-1">
+                  <a href="/#home">
+                    <CiHome className="text-primary" size={15} />
+                    <span className="hover:text-primary ">Home</span>
+                  </a>
+                </li>
+                <li className="py-1">
+                  <a href="/#faqs">
+                    <CiCircleQuestion className="text-primary" size={15} />
+                    <span className="hover:text-primary ">FAQs</span>
+                  </a>
+                </li>
+                <li className="py-1">
+                  <Link
+                    to={"/login"}
+                    className="btn btn-xs bg-white text-primary"
+                  >
+                    Login
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link
+                    to={"/register"}
+                    className="btn btn-xs btn-primary text-white"
+                  >
+                    Join Now!
+                  </Link>
+                </li>
+              </ul>
             </div>
 
             <div className="text-black">
@@ -178,81 +198,7 @@ export const NavbarNotLogged = () => {
             </Link>
           </div>
         </div>
-        <div
-          className={
-            nav
-              ? "fixed left-0 top-0 w-[80%] h-full shadow shadow-primary bg-[#ffffff] ease-in-out duration-500"
-              : "fixed left-[-100%]"
-          }
-        >
-          <div
-            onClick={handleNav}
-            className="flex pl-6 pt-9 justify-start lg:hidden"
-          >
-            {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
-          </div>
-          <div>
-            <ul className="text-left text-black pl-6 pr-14 flex flex-col gap-4 h-full mt-6">
-              <li
-                onClick={handleButtonToggle}
-                className=" hover:text-primary flex gap-2 items-center"
-              >
-                <CiShop size={30} className="text-primary" />
-                Marketplace
-              </li>
 
-              <a href="/#home" onClick={handleNav}>
-                <li className=" hover:text-primary flex gap-2 items-center">
-                  <CiHome size={30} className="text-primary" />
-                  Home
-                </li>
-              </a>
-              <li
-                onClick={handleButtonToggle}
-                className=" hover:text-primary flex gap-2 items-center"
-              >
-                <LiaSearchLocationSolid size={30} className="text-primary" />
-                Sellers
-              </li>
-
-              <li
-                onClick={handleButtonToggle}
-                className=" hover:text-primary flex gap-2 items-center"
-              >
-                <CiForkAndKnife size={30} className="text-primary" />
-                Recipe
-              </li>
-
-              <li
-                onClick={handleButtonToggle}
-                className=" hover:text-primary flex gap-2 items-center"
-              >
-                <CiChat1 size={30} className="text-primary" />
-                Chats
-              </li>
-
-              <a href="/#FAQs" onClick={handleNav}>
-                <li className=" hover:text-primary flex gap-2 items-center">
-                  <CiCircleQuestion size={30} className="text-primary" />
-                  FAQs
-                </li>
-              </a>
-              <div className="border-t-gray-500 border-t"></div>
-              <div className="flex flex-col gap-2 w-full">
-                <Link to="/login">
-                  <button className="btn btn-primary text-white w-full">
-                    Login
-                  </button>
-                </Link>
-                <Link to="/register">
-                  <button className="btn btn-primary text-white w-full">
-                    Register
-                  </button>
-                </Link>
-              </div>
-            </ul>
-          </div>
-        </div>
         <div className="block lg:hidden">
           <img
             className="object-contain lg:w-20 w-16 select-none pointer-events-none"
@@ -268,13 +214,31 @@ export const NavbarNotLogged = () => {
           </div>
         </div>
       </div>
+      <div className="btm-nav md:hidden text-xs border-t border-gray-300 text-black z-40">
+        <li onClick={toggleOverlay} to="/marketplace" className="">
+          <CiShop size={15} />
+          <span className="btm-nav-label">Marketplace</span>
+        </li>
+        <li onClick={toggleOverlay} to="/sellers" className="">
+          <LiaSearchLocationSolid size={15} />
+          <span className="btm-nav-label">Sellers</span>
+        </li>
+        <li onClick={toggleOverlay} to="/recipe" className="">
+          <CiForkAndKnife size={15} />
+          <span className="btm-nav-label">Recipes</span>
+        </li>
+        <li onClick={toggleOverlay} to="/chat" className="">
+          <CiChat1 size={15} />
+          <span className="btm-nav-label">Chats</span>
+        </li>
+      </div>
       <div>
         <button
           className={`${
             fix
-              ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10"
-              : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-10 right-10 hidden"
-          } `}
+              ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-20 md:bottom-10 right-8"
+              : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-20 md:bottom-10 right-8 hidden"
+          } border border-white`}
           onClick={handleGoToTop}
         >
           <FaArrowAltCircleUp size={30} />

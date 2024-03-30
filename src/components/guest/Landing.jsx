@@ -69,17 +69,8 @@ const Landing = () => {
       <div id="about">
         <GAbout />
       </div>
-      <div id="faqs">
+      <div className="pb-10" id="faqs">
         <GFaq />
-      </div>
-
-      <div className="text-center py-4">
-        <p className="text-xs">
-          You are at the bottom of the page. Log in to explore the features.
-        </p>
-        <Link to="/login">
-          <button className="btn btn-primary btn-xs">Log-in now!</button>
-        </Link>
       </div>
     </div>
   );
