@@ -313,28 +313,25 @@ export const NavbarLogged = () => {
           </div>
         </div>
       </div>
-      <ul className="menu z-40 flex gap-2 items-center justify-center w-full md:hidden  fixed left-0 right-0 bottom-0 menu-horizontal bg-base-300 opacity-95 rounded-box">
-        <li>
-          <Link className="btn btn-circle  text-primary" to="/marketplace">
-            <CiShop size={20} />
-          </Link>
-        </li>
-        <li>
-          <Link className="btn btn-circle  text-primary" to="/recipe">
-            <CiForkAndKnife size={20} />
-          </Link>
-        </li>
-        <li>
-          <Link className="btn btn-circle  text-primary" to="/sellers">
-            <LiaSearchLocationSolid size={20} />
-          </Link>
-        </li>
-        <li>
-          <Link className="btn btn-circle  text-primary" to="/chat">
-            <CiChat1 size={20} />
-          </Link>
-        </li>
-      </ul>
+
+      <div className="btm-nav text-xs border-t border-gray-300 text-black z-40">
+        <button className="">
+          <CiHome size={15} />
+          <span className="btm-nav-label">Marketplace</span>
+        </button>{" "}
+        <button className="">
+          <LiaSearchLocationSolid size={15} />
+          <span className="btm-nav-label">Sellers</span>
+        </button>{" "}
+        <button className="">
+          <CiForkAndKnife size={15} />
+          <span className="btm-nav-label">Recipes</span>
+        </button>{" "}
+        <button className="">
+          <CiChat1 size={15} />
+          <span className="btm-nav-label">Chats</span>
+        </button>
+      </div>
       <div>
         <button
           className={`${
