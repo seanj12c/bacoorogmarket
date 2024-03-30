@@ -214,7 +214,7 @@ const AdminUsers = () => {
                 </h1>
               </div>
 
-              <div className="overflow-auto">
+              <div className="overflow-y-auto max-h-[450px]">
                 {filteredUsers.length === 0 ? (
                   <p className="text-center text-gray-500">
                     No users found for "{searchQuery}". Please try a different

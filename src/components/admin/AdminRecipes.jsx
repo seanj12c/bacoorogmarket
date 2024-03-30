@@ -183,7 +183,7 @@ const AdminRecipes = () => {
                 </h1>
               </div>
 
-              <div className="overflow-auto">
+              <div className="overflow-y-auto max-h-[450px]">
                 {filteredRecipes.length === 0 ? (
                   <p className="text-center text-gray-500">
                     No recipes found for "{searchQuery}". Please try a different
