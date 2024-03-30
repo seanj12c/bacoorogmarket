@@ -6,9 +6,9 @@ const GFaq = () => {
   return (
     <div
       id="FAQs"
-      className=" min-h-screen flex items-center justify-center p-4 md:p-8 py-24 rounded-lg shadow-lg"
+      className="h-full flex items-center  justify-center md:p-0 p-4  py-24 "
     >
-      <div className="md:flex gap-6">
+      <div className="md:flex h-screen items-center gap-6">
         <div className="md:w-1/2">
           <img
             src={faq}
@@ -16,12 +16,12 @@ const GFaq = () => {
             className="h-96 mx-auto object-contain"
           />
         </div>
-        <div className="md:w-1/2 mt-4 md:mt-0">
+        <div className="md:w-1/2 mt-4 md:pb-0 pb-20 md:mt-0">
           <h2 className="text-2xl lg:text-3xl font-semibold mb-4 text-center lg:text-left">
             Frequently Asked Questions
           </h2>
           <ul className="flex flex-col">
-            <div className="dropdown w-full">
+            <div className="dropdown md:dropdown-bottom dropdown-top w-full">
               <div tabIndex={0} role="button" className="btn m-1 w-full">
                 Based on how the mussel looks, what to eat and what to avoid?
               </div>
@@ -39,7 +39,7 @@ const GFaq = () => {
                 </div>
               </div>
             </div>
-            <div className="dropdown w-full">
+            <div className="dropdown md:dropdown-bottom dropdown-top w-full">
               <div tabIndex={0} role="button" className="btn m-1 w-full">
                 When do the mussels and oysters expire?
               </div>
@@ -56,7 +56,7 @@ const GFaq = () => {
                 </div>
               </div>
             </div>
-            <div className="dropdown w-full">
+            <div className="dropdown md:dropdown-bottom dropdown-top w-full">
               <div tabIndex={0} role="button" className="btn m-1 w-full">
                 How to know if the mussels and oysters are fresh?
               </div>
@@ -74,7 +74,7 @@ const GFaq = () => {
                 </div>
               </div>
             </div>
-            <div className="dropdown w-full">
+            <div className="dropdown md:dropdown-bottom dropdown-top w-full">
               <div tabIndex={0} role="button" className="btn m-1 w-full">
                 Does eating oysters and mussles have any health benefits?
               </div>
