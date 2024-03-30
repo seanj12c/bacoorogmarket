@@ -159,19 +159,21 @@ const Sellers = () => {
                             {currentUserID !== selectedLocation.userId && (
                               <Link
                                 to={`/profile/${selectedLocation.userId}`}
-                                className="font-normal btn-xs md:btn-md btn btn-primary text-white"
+                                className="font-normal btn-xs md:btn-sm btn btn-primary text-white"
                               >
                                 Go to Profile
                               </Link>
                             )}
                             <Link
                               to={`/product/info/${selectedLocation.id}`}
-                              className="font-normal btn-xs md:btn-md btn btn-primary text-white"
+                              className="font-normal btn-xs md:btn-sm btn btn-primary text-white"
                             >
-                              Go to Product
+                              {currentUserID === selectedLocation.userId
+                                ? "Go to My Product"
+                                : "Go to Product"}
                             </Link>
                             <button
-                              className="font-normal btn-xs md:btn-md btn btn-primary text-white"
+                              className="font-normal btn-xs md:btn-sm btn btn-primary text-white"
                               onClick={() =>
                                 window.open(
                                   `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`,
@@ -179,7 +181,9 @@ const Sellers = () => {
                                 )
                               }
                             >
-                              Get Direction
+                              {currentUserID === selectedLocation.userId
+                                ? "Go to My Direction"
+                                : "Get Direction"}
                             </button>
                           </td>
                         </tr>
