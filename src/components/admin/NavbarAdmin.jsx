@@ -72,7 +72,11 @@ export const NavbarAdmin = ({ users, locations, products, recipes }) => {
         } flex justify-between ease-linear duration-500 items-center h-24 shadow-md mx-auto px-6  text-primary fixed top-0 w-full  z-50`}
       >
         <div onClick={handleNav} className="block ">
-          {nav ? <AiOutlineClose size={25} /> : <AiOutlineMenu size={25} />}
+          {nav ? (
+            <AiOutlineClose className="btn btn-sm btn-square btn-error text-xs text-white" />
+          ) : (
+            <AiOutlineMenu className="btn btn-sm btn-square btn-primary text-xs text-white" />
+          )}
         </div>
         <div
           className={
