@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, collection, doc, getDoc } from "firebase/firestore"; // Import Firestore
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+} from "firebase/firestore"; // Import Firestore
 import loginbg from "../../assets/loginbg.png";
 
 import PrivacyPolicy from "./PrivacyPolicy";
@@ -14,56 +20,42 @@ const Register = () => {
   const [error, setError] = useState(null); // State variable for holding error
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // User is signed in.
-        const db = getFirestore();
-        const userRef = doc(collection(db, "registered"), user.uid);
-
-        getDoc(userRef)
-          .then((docSnap) => {
-            if (docSnap.exists()) {
-              // Document exists, check if account is disabled
-            } else {
-              // Document doesn't exist, redirect to fillup
-              navigate("/fillup");
-            }
-          })
-          .catch((error) => {
-            console.error("Error getting document:", error);
-          });
-      } else {
-        // No user is signed in.
-      }
-    });
-
-    return () => unsubscribe();
-  }, [navigate]);
-
-  const handleGoogleSignUp = () => {
+  const handleGoogleSignUp = async () => {
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // Redirect to /fillup after successful sign-up
-        navigate("/fillup");
-      })
-      .catch((error) => {
-        let errorMessage = error.message;
 
-        // Map Firebase error messages to custom messages
-        if (errorMessage.includes("auth/popup-closed-by-user")) {
-          errorMessage = "Pop-up was closed by the user";
-        } else if (errorMessage.includes("auth/user-disabled")) {
-          errorMessage = "Admin disabled your account";
-        } else if (errorMessage.includes("auth/cancelled-popup-request")) {
-          errorMessage = "Pop-up was closed by the user";
-        }
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-        setError(errorMessage);
-      });
+      // Store user's email, userId, and doneFillup status in Firestore
+      const db = getFirestore();
+      const userRef = doc(collection(db, "registered"), user.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          email: user.email,
+          userId: user.uid,
+          doneFillup: false,
+        });
+      }
+
+      navigate("/home");
+    } catch (error) {
+      let errorMessage = error.message;
+
+      // Map Firebase error messages to custom messages
+      if (errorMessage.includes("auth/popup-closed-by-user")) {
+        errorMessage = "Pop-up was closed by the user";
+      } else if (errorMessage.includes("auth/user-disabled")) {
+        errorMessage = "Admin disabled your account";
+      } else if (errorMessage.includes("auth/cancelled-popup-request")) {
+        errorMessage = "Pop-up was closed by the user";
+      }
+
+      setError(errorMessage);
+    }
   };
 
   return (
