@@ -7,6 +7,8 @@ import { useNavigate } from "react-router";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import uploadload from "../../assets/loading.gif";
 import loginbg from "../../assets/loginbg.png";
+import ReCAPTCHA from "react-google-recaptcha";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const Fillup = () => {
   const [firstName, setFirstName] = useState("");
@@ -20,13 +22,12 @@ const Fillup = () => {
   const auth = useAuth();
   const [photoURL, setPhotoURL] = useState(null);
   const [profilePictureUploaded, setProfilePictureUploaded] = useState(false);
+  const [recaptchaCompleted, setRecaptchaCompleted] = useState(false);
 
   useEffect(() => {
     const getCurrentUser = async () => {
       if (auth.currentUser) {
         const userId = auth.currentUser.uid;
-        console.log("User ID:", userId);
-
         const db = getFirestore();
         const userDocRef = doc(db, "registered", userId);
 
@@ -34,16 +35,10 @@ const Fillup = () => {
           const docSnap = await getDoc(userDocRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
-            console.log("Fetched data:", data);
-
-            // Check if all necessary fields are filled, and redirect to "/home" if they are
-            if (
-              data.firstName &&
-              data.lastName &&
-              data.contact &&
-              data.address
-            ) {
+            if (data.doneFillup) {
               navigate("/home");
+            } else {
+              setLoading(false);
             }
           } else {
             console.log("No such document for this user!");
@@ -66,14 +61,26 @@ const Fillup = () => {
     e.preventDefault();
 
     if (!profilePictureUploaded) {
-      alert("Please upload your profile picture.");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please upload your profile picture.",
+      });
+      return;
+    }
+
+    if (!recaptchaCompleted) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please complete the reCAPTCHA.",
+      });
       return;
     }
 
     try {
       const userId = auth.currentUser.uid;
 
-      // Set user data to Firestore with user's userID as document ID
       await setDoc(doc(firestore, "registered", userId), {
         firstName,
         lastName,
@@ -82,14 +89,21 @@ const Fillup = () => {
         userId: userId,
         email: auth.currentUser.email,
         profilePhotoUrl: photoURL,
+        doneFillup: true,
       });
 
-      // Check if all necessary fields are filled, and redirect to "/home" if they are
       if (firstName && lastName && contact && address) {
         navigate("/home");
       }
     } catch (error) {
       console.error("Error adding/updating document: ", error);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      uploadProfilePicture(file);
     }
   };
 
@@ -110,8 +124,6 @@ const Fillup = () => {
 
         const photoURL = await getDownloadURL(imageRef);
 
-        console.log("Profile photo uploaded:", photoURL);
-
         setNewProfilePicture(photoURL);
         setPhotoURL(photoURL);
         setIsUploading(false);
@@ -123,35 +135,24 @@ const Fillup = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      uploadProfilePicture(file);
-    }
+  const onRecaptchaChange = (value) => {
+    setRecaptchaCompleted(true);
   };
 
   return (
     <div>
-      {loading ? (
-        <div className="h-screen pt-0 w-full grid items-center">
-          <img
-            className="lg:h-32 h-20 md:h-28 object-contain mx-auto flex justify-center items-center"
-            src={uploadload}
-            alt=""
-          />
-        </div>
-      ) : (
-        <div className="h-screen flex justify-center px-3 md:px-0 items-center bg-transparent">
+      {!loading && (
+        <div className="h-screen flex justify-center  items-center bg-transparent">
           <img
             className="z-[-1] absolute h-screen w-screen mx-auto object-cover pointer-events-none select-none"
             src={loginbg}
             alt=""
           />
-          <div className="w-full text-xs md:text-base max-w-lg bg-white mx-auto m-5 p-5 border rounded-lg shadow-lg">
+          <div className="w-full text-xs md:text-base md:max-w-lg bg-white mx-auto md:pt-5 pt-16 md:m-5 p-5 border rounded-lg shadow-lg">
             <h1 className="text-xl text-center font-bold mb-5">
               Fill this up to Continue
             </h1>
-            <form onSubmit={handleSubmit}>
+            <form className="text-xs" onSubmit={handleSubmit}>
               <div className="mb-2 w-full">
                 <img
                   src={
@@ -168,15 +169,7 @@ const Fillup = () => {
                   }}
                 />
                 <label htmlFor="profile-picture" className="cursor-pointer">
-                  {isUploading ? (
-                    <div className="w-full h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
-                      <img
-                        className="w-8 object-contain"
-                        src={uploadload}
-                        alt="loading-"
-                      />
-                    </div>
-                  ) : (
+                  {!isUploading ? (
                     <div className="w-full btn h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
                       <img
                         className="w-6 object-contain"
@@ -184,6 +177,14 @@ const Fillup = () => {
                         alt="upload-"
                       />
                       Please upload your profile
+                    </div>
+                  ) : (
+                    <div className="w-full h-full border rounded-lg flex gap-1 justify-center mt-2 items-center">
+                      <img
+                        className="w-8 object-contain"
+                        src={uploadload}
+                        alt="loading-"
+                      />
                     </div>
                   )}
                   <input
@@ -202,67 +203,88 @@ const Fillup = () => {
               </div>
 
               <div className="mb-2">
-                <label htmlFor="firstName" className="block mb-1">
-                  First Name
+                <label
+                  htmlFor="firstName"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <h1 className="w-20 text-xs">First Name</h1>
+                  <input
+                    type="text"
+                    id="firstName"
+                    className="w-full grow px-3 py-2 border rounded-lg focus:outline-none"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Juan"
+                    required
+                  />
                 </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Juan"
-                  required
-                />
-              </div>
-              <div className="mb-2">
-                <label htmlFor="lastName" className="block mb-1">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Dela Cruz"
-                  required
-                />
-              </div>
-              <div className="mb-2">
-                <label htmlFor="contact" className="block mb-1">
-                  Contact Number
-                </label>
-                <input
-                  type="text"
-                  id="contact"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none"
-                  value={contact}
-                  onChange={(e) => {
-                    const regex = /^[0-9]*$/; // Regular expression to match only numbers
-                    if (regex.test(e.target.value) || e.target.value === "") {
-                      setContact(e.target.value);
-                    }
-                  }}
-                  placeholder="0912345689"
-                  maxLength="11"
-                  minLength="11"
-                  required
-                />
               </div>
 
               <div className="mb-2">
-                <label htmlFor="address" className="block mb-1">
-                  Full Address
+                <label
+                  htmlFor="lastName"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <h1 className="w-20 text-xs"> Last Name</h1>
+                  <input
+                    type="text"
+                    id="lastName"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Dela Cruz"
+                    required
+                  />
                 </label>
-                <input
-                  type="text"
-                  id="address"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="123 Main St, Bacoor City"
-                  required
+              </div>
+
+              <div className="mb-2">
+                <label
+                  htmlFor="contact"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <h1 className="w-20 text-xs"> Contact Number</h1>
+                  <input
+                    type="text"
+                    id="contact"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                    value={contact}
+                    onChange={(e) => {
+                      const regex = /^[0-9]*$/; // Regular expression to match only numbers
+                      if (regex.test(e.target.value) || e.target.value === "") {
+                        setContact(e.target.value);
+                      }
+                    }}
+                    placeholder="0912345689"
+                    maxLength="11"
+                    minLength="11"
+                    required
+                  />
+                </label>
+              </div>
+
+              <div className="mb-2">
+                <label
+                  htmlFor="address"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <h1 className="w-20 text-xs"> Full Address</h1>
+                  <input
+                    type="text"
+                    id="address"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="123 Main St, Bacoor City"
+                    required
+                  />
+                </label>
+              </div>
+
+              <div className="mb-2 flex justify-center">
+                <ReCAPTCHA
+                  sitekey="6LfMC7MpAAAAALEC3epHtCPGpNsPiB4r3pSwrvL-"
+                  onChange={onRecaptchaChange}
                 />
               </div>
 
