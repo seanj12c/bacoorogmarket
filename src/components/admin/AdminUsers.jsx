@@ -12,7 +12,7 @@ import {
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
 import Swal from "sweetalert2"; // Import SweetAlert
-
+import { setDoc } from "firebase/firestore";
 import { FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
@@ -75,30 +75,65 @@ const AdminUsers = () => {
 
     if (result.isConfirmed) {
       const userRef = doc(firestore, "registered", user.id);
+
+      // Remove the reason document from the disabledReason collection
+      const reasonRef = doc(firestore, "disabledReason", user.userId);
+      await deleteDoc(reasonRef);
+
+      // Update the user's disabled status
       await updateDoc(userRef, {
         disabled: false,
       });
+
       Swal.fire("Enabled!", `User ${user.firstName} enabled.`, "success");
     }
   };
 
   const disableAccount = async (user) => {
-    const result = await Swal.fire({
-      title: `Are you sure you want to DISABLE ${user.firstName} ${user.lastName}?`,
-      icon: "warning",
+    // Prompt the user to enter a reason
+    const { value: reason } = await Swal.fire({
+      title: `Enter reason for disabling ${user.firstName} ${user.lastName}`,
+      input: "text",
+      inputPlaceholder: "Reason...",
       showCancelButton: true,
       confirmButtonText: "Disable",
       cancelButtonText: "Cancel",
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to enter a reason!";
+        }
+      },
     });
 
-    if (result.isConfirmed) {
-      const userRef = doc(firestore, "registered", user.id);
-      await updateDoc(userRef, {
-        disabled: true,
+    // Proceed only if the user provided a reason
+    if (reason) {
+      const result = await Swal.fire({
+        title: `Are you sure you want to DISABLE ${user.firstName} ${user.lastName}?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Disable",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
       });
-      Swal.fire("Disabled!", `User ${user.firstName} disabled.`, "success");
+
+      if (result.isConfirmed) {
+        // Update the database with the reason
+        const userRef = doc(firestore, "registered", user.id);
+        await updateDoc(userRef, {
+          disabled: true,
+        });
+
+        // Store the reason in the database collection
+        const reasonRef = doc(firestore, "disabledReason", user.userId);
+        await setDoc(reasonRef, {
+          reason: reason,
+        });
+
+        Swal.fire("Disabled!", `User ${user.firstName} disabled.`, "success");
+      }
     }
   };
 
