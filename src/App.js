@@ -74,21 +74,28 @@ function AppRoutes() {
             setDisableReason(
               reasonData ? reasonData.reason : "No reason provided"
             );
-            await auth.signOut();
+            navigate("/user/appeal");
+            setLoading(false);
             Swal.fire({
               icon: "error",
               title: "Account Disabled",
               html: `Sorry, your account has been disabled.<br>Reason: ${disableReason}.<br><br>If you think this is a mistake, you can appeal by clicking the button below`,
               showCancelButton: true,
-              confirmButtonText: "Appeal",
-              cancelButtonText: "Close",
+              confirmButtonText: "Logout",
+              cancelButtonText: "Appeal",
             }).then((result) => {
               if (result.isConfirmed) {
-                navigate("/user/appeal");
+                auth.signOut();
+                navigate("/login");
               }
             });
           } else {
-            setLoading(false);
+            if (!userData.doneFillup) {
+              navigate("/fillup");
+              setLoading(false);
+            } else {
+              setLoading(false);
+            }
           }
         } catch (error) {
           console.error("Error getting document:", error);
@@ -103,6 +110,7 @@ function AppRoutes() {
 
     return () => unsubscribe();
   }, [navigate, disableReason]);
+
   if (loading) {
     return (
       <div className="h-screen pt-0 w-full grid items-center">
@@ -115,7 +123,13 @@ function AppRoutes() {
     );
   }
 
-  const navbarHiddenRoutes = ["/", "/login", "/register,", "/fillup"];
+  const navbarHiddenRoutes = [
+    "/",
+    "/login",
+    "/register,",
+    "/fillup",
+    "/user/appeal",
+  ];
 
   const isNavbarHidden = navbarHiddenRoutes.includes(location.pathname);
 
@@ -155,7 +169,20 @@ function AppRoutes() {
             )
           }
         />
-        <Route path="/fillup" element={<Fillup />} />
+        <Route
+          path="/fillup"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Fillup />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
         <Route
           path="/home"
           element={
@@ -208,7 +235,17 @@ function AppRoutes() {
         />
         <Route
           path="/user/appeal"
-          element={!user ? <Appeal /> : <Navigate to="/home" />}
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Appeal />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/myaccount"
