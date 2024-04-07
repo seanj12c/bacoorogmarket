@@ -17,12 +17,10 @@ import cam from "../../assets/cam.png";
 import uploadload from "../../assets/loading.gif";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaPhone } from "react-icons/fa";
-
-import { CiEdit, CiLocationArrow1 } from "react-icons/ci";
+import Swal from "sweetalert2";
+import { CiEdit, CiLocationArrow1, CiWarning } from "react-icons/ci";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
-import LogoutModal from "../authentication/LogoutModal";
-import { getAuth, signOut } from "firebase/auth";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -33,10 +31,8 @@ const MyAccount = () => {
   const [userPosts, setUserPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isEditing] = useState(false);
-
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(true);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -276,21 +272,7 @@ const MyAccount = () => {
     }
   };
 
-  const toggleLogoutModal = () => {
-    setShowLogoutModal(!showLogoutModal);
-  };
-
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    const authInstance = getAuth();
-    try {
-      await signOut(authInstance);
-      navigate("/");
-    } catch (error) {
-      console.log("Error logging out:", error);
-    }
-  };
 
   const handleProductClick = (product) => {
     navigate(`/product/info/${product.id}`);
@@ -298,6 +280,85 @@ const MyAccount = () => {
 
   const handleRecipeClick = (recipe) => {
     navigate(`/recipe/info/${recipe.id}`);
+  };
+
+  // Function for account deletion confirmation
+  // Function for account deletion confirmation
+  const deleteAccount = () => {
+    Swal.fire({
+      title: "Are you sure you want to delete your account?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      focusCancel: true,
+      html: `
+        <p>Please select reasons for deleting your account:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="btn btn-primary text-xs" for="reason1">  <input type="checkbox" class="checkbox checkbox-xs" id="reason1" name="reason1" value="No longer need the account"> No longer need the account</label>
+          <label class="btn btn-primary text-xs" for="reason2">  <input type="checkbox" class="checkbox checkbox-xs" id="reason2" name="reason2" value="Found better alternatives"> Found better alternatives</label>
+          <label class="btn btn-primary text-xs" for="reason3">  <input type="checkbox" class="checkbox checkbox-xs" id="reason3" name="reason3" value="Privacy concerns"> Privacy concerns</label>
+          <label class="btn btn-primary text-xs" for="reason4"><input type="checkbox" class="checkbox checkbox-xs" id="reason4" name="reason4" value="Account security issues"> Account security issues</label>
+          <label class="btn btn-primary text-xs" for="reason5"><input type="checkbox" class="checkbox checkbox-xs" id="reason5" name="reason5" value="There are many bogus seller/buyer"> Other</label>
+          <label class="btn btn-primary text-xs" for="reason6"><input type="checkbox" class="checkbox checkbox-xs" id="reason6" name="reason6" value="Just want to delete"> Just want to delete</label>
+        </div>
+      `,
+      preConfirm: () => {
+        const reasons = [];
+        const checkboxes = document.querySelectorAll(
+          'input[type="checkbox"]:checked'
+        );
+        checkboxes.forEach((checkbox) => {
+          reasons.push(checkbox.value);
+        });
+        return {
+          reasons: reasons,
+        };
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const selectedReasons = result.value.reasons;
+        // Perform account deletion logic here
+        Swal.fire(
+          "Deleted!",
+          `Your account has been deleted. Selected Reasons: ${selectedReasons.join(
+            ", "
+          )}`,
+          "success"
+        );
+      }
+    });
+  };
+
+  // Function for account deactivation confirmation
+  const deactivateAccount = () => {
+    Swal.fire({
+      title: "Deactivate Account",
+      input: "text",
+      inputPlaceholder: "Please specify your reason...",
+      showCancelButton: true,
+      confirmButtonText: "Deactivate",
+      cancelButtonText: "Cancel",
+      focusCancel: true,
+      preConfirm: (value) => {
+        if (!value) {
+          Swal.showValidationMessage("Please specify your reason");
+        }
+        return value;
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const reason = result.value;
+        // Perform account deactivation logic here
+        Swal.fire({
+          title: "Account Deactivated",
+          text: `Your account has been deactivated. Reason: ${reason}`,
+          icon: "success",
+        });
+      }
+    });
   };
 
   return (
@@ -503,13 +564,25 @@ const MyAccount = () => {
                 >
                   <FaPhone size={15} /> {userData.contact}
                 </a>
-                <div className="flex justify-center pt-2">
-                  <button
-                    onClick={toggleLogoutModal}
-                    className="btn-error btn btn-sm   text-white "
-                  >
-                    Logout
-                  </button>
+                <div className="md:flex justify-center gap-2">
+                  <div className="flex justify-center pt-2">
+                    <button
+                      className="btn-error btn btn-sm   text-white "
+                      onClick={deleteAccount}
+                    >
+                      <CiWarning className="text-xl font-bold" />
+                      Acount Deletion
+                    </button>
+                  </div>
+                  <div className="flex justify-center pt-2">
+                    <button
+                      className="btn-error btn btn-sm   text-white "
+                      onClick={deactivateAccount}
+                    >
+                      <CiWarning className="text-xl font-bold" />
+                      Deactivate Account
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -851,12 +924,6 @@ const MyAccount = () => {
         </div>
       ) : (
         <p>No user data available.</p>
-      )}
-      {showLogoutModal && (
-        <LogoutModal
-          handleLogout={handleLogout}
-          closeModal={toggleLogoutModal}
-        />
       )}
     </div>
   );
