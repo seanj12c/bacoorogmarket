@@ -37,12 +37,14 @@ import Sellers from "./components/logged/Sellers";
 import ProductInfo from "./components/logged/ProductInfo";
 import RecipeInfo from "./components/logged/RecipeInfo";
 import Swal from "sweetalert2";
+import Appeal from "./components/authentication/Appeal";
 
 function AppRoutes() {
   const location = useLocation();
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [disableReason, setDisableReason] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,11 +64,28 @@ function AppRoutes() {
           const docSnap = await getDoc(userRef);
           const userData = docSnap.data();
           if (userData.disabled) {
+            // Fetch reason from "disabledReason" collection based on user's UID
+            const reasonRef = doc(
+              collection(db, "disabledReason"),
+              authUser.uid
+            );
+            const reasonDoc = await getDoc(reasonRef);
+            const reasonData = reasonDoc.data();
+            setDisableReason(
+              reasonData ? reasonData.reason : "No reason provided"
+            );
             await auth.signOut();
             Swal.fire({
               icon: "error",
               title: "Account Disabled",
-              text: "Sorry, your account has been disabled. Please contact support for assistance.",
+              html: `Sorry, your account has been disabled.<br>Reason: ${disableReason}.<br><br>If you think this is a mistake, you can appeal by clicking the button below`,
+              showCancelButton: true,
+              confirmButtonText: "Appeal",
+              cancelButtonText: "Close",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                navigate("/user/appeal");
+              }
             });
           } else {
             setLoading(false);
@@ -83,8 +102,7 @@ function AppRoutes() {
     });
 
     return () => unsubscribe();
-  }, [navigate]);
-
+  }, [navigate, disableReason]);
   if (loading) {
     return (
       <div className="h-screen pt-0 w-full grid items-center">
@@ -187,6 +205,10 @@ function AppRoutes() {
         <Route
           path="/register"
           element={!user ? <Register /> : <Navigate to="/home" />}
+        />
+        <Route
+          path="/user/appeal"
+          element={!user ? <Appeal /> : <Navigate to="/home" />}
         />
         <Route
           path="/myaccount"
