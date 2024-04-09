@@ -13,6 +13,7 @@ import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
 import { IoMdCloseCircle } from "react-icons/io";
 import Swal from "sweetalert2";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const libraries = ["places"];
 
@@ -140,6 +141,74 @@ const ProductInfo = () => {
     }
   };
 
+  const handleReportPost = async () => {
+    try {
+      const { value: reason, value: explanation } = await Swal.fire({
+        title: `Why do you want to report ${product.firstName}'s post?`,
+        input: "select",
+        inputOptions: {
+          "Inappropriate Content": "Inappropriate Content",
+          "Spam or Scams": "Spam or Scams",
+          "Copyright Infringement": "Copyright Infringement",
+          "False Information": "False Information",
+          "Violations of Website Policies": "Violations of Website Policies",
+          "Privacy Concerns": "Privacy Concerns",
+          Others: "Others",
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to select a reason";
+          }
+        },
+        inputPlaceholder: "Select a reason",
+        inputAttributes: {
+          autocapitalize: "off",
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+        },
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#008080",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        html: '<textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>',
+        preConfirm: () => {
+          const explanationValue =
+            Swal.getPopup().querySelector("#swal-input2").value;
+          if (!explanationValue) {
+            Swal.showValidationMessage("You need to provide an explanation");
+          } else {
+            const reasonValue =
+              Swal.getPopup().querySelector(".swal2-select").value;
+            // Add your logic to submit the report here
+            const reportData = {
+              reason: reasonValue,
+              explanation: explanationValue,
+              productId: productId,
+              userId: product.userUid, // Store the ID of the user who posted the product
+              timestamp: serverTimestamp(),
+            };
+            addDoc(collection(firestore, "productReports"), reportData);
+            Swal.fire({
+              title: "Report Submitted!",
+              text: "Thank you for your report. Our team will review it.",
+              icon: "success",
+            });
+          }
+        },
+      });
+
+      if (reason && explanation) {
+      }
+    } catch (error) {
+      console.error("Error reporting post:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while reporting the post.",
+        "error"
+      );
+    }
+  };
+
   if (!product) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -191,12 +260,20 @@ const ProductInfo = () => {
                 </div>
               </div>
             ) : (
-              <Link
-                to={`/profile/${product.userUid}`}
-                className="btn btn-xs text-xs btn-primary"
-              >
-                View Profile
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to={`/profile/${product.userUid}`}
+                  className="btn btn-xs text-xs btn-primary"
+                >
+                  View Profile
+                </Link>
+                <button
+                  onClick={handleReportPost}
+                  className="btn btn-xs text-xs btn-error text-white"
+                >
+                  Report Post
+                </button>
+              </div>
             )}
           </div>
         </div>
