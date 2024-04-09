@@ -5,12 +5,16 @@ import {
   where,
   onSnapshot,
   getDocs,
+  doc,
+  getDoc,
+  setDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase"; // Import your Firebase instance
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaPhone } from "react-icons/fa";
+import { auth } from "../../firebase";
 import { CiLocationArrow1 } from "react-icons/ci";
 
 const Profile = () => {
@@ -102,6 +106,28 @@ const Profile = () => {
     navigate(`/recipe/info/${recipeId}`);
   };
 
+  const handleMessageSelect = async () => {
+    try {
+      const chatId = [auth.currentUser.uid, user.userId].sort().join("");
+      const chatDocRef = doc(firestore, "chats", chatId);
+
+      // Check if the chat document exists
+      const chatDocSnap = await getDoc(chatDocRef);
+
+      if (!chatDocSnap.exists()) {
+        // If the document doesn't exist, create it
+        await setDoc(chatDocRef, {
+          users: [auth.currentUser.uid, user.userId],
+          messages: [], // Initialize with an empty array of messages
+        });
+      }
+
+      navigate(`/chat/${chatId}`);
+    } catch (error) {
+      console.error("Error selecting user:", error);
+    }
+  };
+
   return (
     <div className="md:max-w-full max-w-xl mx-auto md:p-0 p-4">
       {loading ? (
@@ -162,8 +188,11 @@ const Profile = () => {
                 </h1>
 
                 <div className="flex justify-center">
-                  <button className="btn-sm md:btn-xs lg:btn-sm btn btn-primary">
-                    <Link to="/chat">Go to Chats</Link>
+                  <button
+                    onClick={handleMessageSelect}
+                    className="btn-sm md:btn-xs lg:btn-sm btn btn-primary"
+                  >
+                    Message {user.firstName} now!
                   </button>
                 </div>
               </div>
@@ -199,8 +228,10 @@ const Profile = () => {
                 </div>
               </div>
               <div className="md:pt-24">
-                {displayProducts
-                  ? userPosts
+                {displayProducts ? (
+                  userPosts.filter((post) => post.type === "product").length >
+                  0 ? (
+                    userPosts
                       .filter((post) => post.type === "product")
                       .sort((a, b) => b.productId - a.productId)
                       .map((product, index) => (
@@ -254,60 +285,90 @@ const Profile = () => {
                           </div>
                         </div>
                       ))
-                  : userPosts
-                      .filter((post) => post.type === "recipe")
-                      .sort((a, b) => b.recipeId - a.recipeId)
-                      .map((recipe, index) => (
-                        <div
-                          onClick={() => handleRecipeClick(recipe.id)}
-                          key={index}
-                          className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
-                        >
-                          <div className="flex gap-2 py-2 items-center w-full justify-between">
-                            <div className="flex gap-2 items-center w-full justify-between px-2">
-                              <div className="flex gap-4 items-center">
-                                <img
-                                  src={user.profilePhotoUrl}
-                                  alt="Profile"
-                                  className="w-12 h-12 rounded-full object-cover inline-block"
-                                />
-                                <div>
-                                  <p className="text-primary text-sm font-semibold">
-                                    {user.firstName} {user.lastName}
-                                  </p>
-                                  <p className="text-gray-500 text-xs">
-                                    {recipe.timestamp}
-                                  </p>
-                                </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10">
+                      <div className="flex flex-col items-center justify-center gap-4 w-full">
+                        <div className="skeleton h-32 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
+                        <div className="skeleton h-4 w-full"></div>
+                      </div>
+                      <p className="text-center text-xs md:text-lg text-primary italic">
+                        Oh no! You haven't posted any products yet. Post now and
+                        they will show here!
+                      </p>
+                    </div>
+                  )
+                ) : userPosts.filter((post) => post.type === "recipe").length >
+                  0 ? (
+                  userPosts
+                    .filter((post) => post.type === "recipe")
+                    .sort((a, b) => b.recipeId - a.recipeId)
+                    .map((recipe, index) => (
+                      <div
+                        onClick={() => handleRecipeClick(recipe.id)}
+                        key={index}
+                        className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                      >
+                        <div className="flex gap-2 py-2 items-center w-full justify-between">
+                          <div className="flex gap-2 items-center w-full justify-between px-2">
+                            <div className="flex gap-4 items-center">
+                              <img
+                                src={user.profilePhotoUrl}
+                                alt="Profile"
+                                className="w-12 h-12 rounded-full object-cover inline-block"
+                              />
+                              <div>
+                                <p className="text-primary text-sm font-semibold">
+                                  {user.firstName} {user.lastName}
+                                </p>
+                                <p className="text-gray-500 text-xs">
+                                  {recipe.timestamp}
+                                </p>
                               </div>
                             </div>
                           </div>
-                          <div className="mb-4">
-                            <h1 className="text-lg font-semibold mb-2">
-                              {recipe.caption}
-                            </h1>
-                          </div>
-                          <div
-                            className={
-                              recipe.photos && recipe.photos.length > 1
-                                ? "grid gap-2 grid-cols-2"
-                                : ""
-                            }
-                          >
-                            {recipe.photos &&
-                              recipe.photos
-                                .slice(0, 4)
-                                .map((photo, photoIndex) => (
-                                  <img
-                                    key={photoIndex}
-                                    className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
-                                    src={photo}
-                                    alt=""
-                                  />
-                                ))}
-                          </div>
                         </div>
-                      ))}
+                        <div className="mb-4">
+                          <h1 className="text-lg font-semibold mb-2">
+                            {recipe.caption}
+                          </h1>
+                        </div>
+                        <div
+                          className={
+                            recipe.photos && recipe.photos.length > 1
+                              ? "grid gap-2 grid-cols-2"
+                              : ""
+                          }
+                        >
+                          {recipe.photos &&
+                            recipe.photos
+                              .slice(0, 4)
+                              .map((photo, photoIndex) => (
+                                <img
+                                  key={photoIndex}
+                                  className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
+                                  src={photo}
+                                  alt=""
+                                />
+                              ))}
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10">
+                    <div className="flex flex-col items-center justify-center gap-4 w-full">
+                      <div className="skeleton h-32 w-full"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                      <div className="skeleton h-4 w-full"></div>
+                    </div>
+                    <p className="text-center text-xs md:text-lg text-primary italic">
+                      You have no recipes posted yet. Post now and they will
+                      show here!
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
