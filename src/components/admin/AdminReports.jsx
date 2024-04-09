@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 import uploadload from "../../assets/loading.gif";
 import { FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
@@ -21,55 +15,62 @@ import LogoutModal from "../authentication/LogoutModal";
 const AdminReports = () => {
   const [loading, setLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [appeals, setAppeals] = useState([]);
-
+  const [reports, setReports] = useState([]);
+  const [products, setProducts] = useState({});
+  const [registeredUsers, setRegisteredUsers] = useState({});
+  const [recipes, setRecipes] = useState({});
+  const [reportType, setReportType] = useState("product"); // Default to product reports
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAppeals = async () => {
-      try {
-        const db = getFirestore();
-        const appealRef = collection(db, "userAppeal");
-        const snapshot = await getDocs(appealRef);
-        const appealData = await Promise.all(
-          snapshot.docs.map(async (doc) => {
-            if (doc.id !== "sample") {
-              const userData = await getUserData(doc.data().userId);
-              return {
-                id: doc.id,
-                email: doc.data().email,
-                reason: doc.data().reason,
-                userData: userData,
-              };
-            }
-            return null;
-          })
-        );
-        setAppeals(appealData.filter((appeal) => appeal !== null));
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching appeals:", error);
-      }
+    // Fetch reports data based on the selected report type
+    const fetchReports = async () => {
+      const db = getFirestore();
+      const reportsRef = collection(
+        db,
+        reportType === "product" ? "productReports" : "recipeReports"
+      );
+      const querySnapshot = await getDocs(reportsRef);
+      const reportsData = querySnapshot.docs.map((doc) => doc.data());
+      setReports(reportsData);
+      setLoading(false);
     };
 
-    fetchAppeals();
-  }, []);
-
-  const getUserData = async (userId) => {
-    try {
+    // Fetch products and registered users data
+    const fetchAdditionalData = async () => {
       const db = getFirestore();
-      const userDoc = await getDoc(doc(db, "registered", userId));
-      if (userDoc.exists()) {
-        return userDoc.data();
-      } else {
-        console.log("No such user document!");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-      return null;
-    }
-  };
+
+      // Fetch products data
+      const productsRef = collection(db, "products");
+      const productsSnapshot = await getDocs(productsRef);
+      const productsData = {};
+      productsSnapshot.forEach((doc) => {
+        productsData[doc.id] = doc.data();
+      });
+      setProducts(productsData);
+
+      // Fetch registered users data
+      const registeredRef = collection(db, "registered");
+      const registeredSnapshot = await getDocs(registeredRef);
+      const registeredData = {};
+      registeredSnapshot.forEach((doc) => {
+        registeredData[doc.id] = doc.data();
+      });
+      setRegisteredUsers(registeredData);
+
+      // Fetch recipes data
+      const recipesRef = collection(db, "recipes");
+      const recipesSnapshot = await getDocs(recipesRef);
+      const recipesData = {};
+      recipesSnapshot.forEach((doc) => {
+        recipesData[doc.id] = doc.data();
+      });
+      setRecipes(recipesData);
+    };
+
+    fetchReports();
+    fetchAdditionalData();
+  }, [reportType]);
 
   const handleLogout = async () => {
     const authInstance = getAuth();
@@ -83,6 +84,10 @@ const AdminReports = () => {
 
   const toggleLogoutModal = () => {
     setShowLogoutModal(!showLogoutModal);
+  };
+
+  const handleReportTypeChange = (event) => {
+    setReportType(event.target.value);
   };
 
   return (
@@ -147,12 +152,10 @@ const AdminReports = () => {
                     Appeal
                   </li>
                 </Link>
-                <Link to="/admin/reports">
-                  <li className=" bg-primary p-4 text-white text-xs flex gap-2 items-center">
-                    <MdOutlineReport size={25} />
-                    Reports
-                  </li>
-                </Link>
+                <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                  <MdOutlineReport size={25} />
+                  Reports
+                </li>
                 <li
                   onClick={toggleLogoutModal}
                   className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
@@ -162,33 +165,135 @@ const AdminReports = () => {
                 </li>
               </ul>
             </div>
-            {/* Appeals List */}
+            {/* Reports List */}
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
-              <h2 className="text-2xl font-bold mt-8">Appeals</h2>
-              <ul className="mt-4">
-                {appeals.map((appeal) => (
-                  <li key={appeal.id} className="card glass rounded-lg p-3">
-                    <div className="flex justify-between items-center">
-                      {appeal.userData && (
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={appeal.userData.profilePhotoUrl}
-                            alt="Profile"
-                            className="md:w-14 md:h-14 border border-primary w-10 h-10 rounded-full object-cover inline-block ml-2"
-                          />{" "}
-                          {appeal.userData.firstName} {appeal.userData.lastName}
-                        </div>
-                      )}
-                      <button className="btn btn-primary btn-xs md:btn-md text-white">
-                        Enable
-                      </button>
-                    </div>
-                    <div>
-                      <strong>Email:</strong> {appeal.email}
-                    </div>
-                    <div>
-                      <strong>Reason:</strong> {appeal.reason}
-                    </div>
+              <div className="flex justify-center md:justify-end items-center gap-2 pt-1 mb-4">
+                <h1 className="text-xs">Type of Reports</h1>
+                <select
+                  className="px-4 py-2 border border-gray-300 rounded-md bg-base-100 text-sm focus:outline-none focus:border-blue-500"
+                  value={reportType}
+                  onChange={handleReportTypeChange}
+                >
+                  <option value="product">Product Reports</option>
+                  <option value="recipe">Recipe Reports</option>
+                </select>
+              </div>
+              <h1 className="text-center text-2xl font-bold">
+                {reportType === "product" ? "Product" : "Recipe"} Reports
+              </h1>
+              <ul className="grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {reports.map((report, index) => (
+                  <li className="glass w-full card-body" key={index}>
+                    {registeredUsers[report.userId] && (
+                      <div className="flex items-center gap-2">
+                        <img
+                          className="md:w-14 md:h-14  w-10 h-10 border border-primary rounded-full object-cover"
+                          src={registeredUsers[report.userId].profilePhotoUrl}
+                          alt={`${registeredUsers[report.userId].firstName} ${
+                            registeredUsers[report.userId].lastName
+                          }`}
+                        />
+                        <p>
+                          {registeredUsers[report.userId].firstName}{" "}
+                          {registeredUsers[report.userId].lastName}
+                        </p>
+                      </div>
+                    )}
+                    {reportType === "product" && products[report.productId] && (
+                      <div>
+                        <p>
+                          Product Name: {products[report.productId].caption}
+                        </p>
+                      </div>
+                    )}
+                    {reportType === "recipe" && (
+                      <div>
+                        <p>Recipe ID: {report.recipeId}</p>
+                      </div>
+                    )}
+                    <p>Reason: {report.reason}</p>
+                    <p>Explanation: {report.explanation}</p>
+
+                    <button
+                      className="btn"
+                      onClick={() => {
+                        const modalId =
+                          reportType === "product"
+                            ? `productModal-${report.productId}`
+                            : `recipeModal-${report.recipeId}`;
+                        document.getElementById(modalId).showModal();
+                      }}
+                    >
+                      View Image
+                    </button>
+                    <dialog
+                      id={`productModal-${report.productId}`}
+                      className="modal"
+                    >
+                      <div className="modal-box">
+                        <h3 className="font-bold text-center text-lg">
+                          Photo Preview
+                        </h3>
+                        {reportType === "product" &&
+                          products[report.productId] && (
+                            <div className="text-center">
+                              <p className="font-bold italic">
+                                {products[report.productId].caption}
+                              </p>
+                              <div className="flex flex-col gap-2 justify-center items-center">
+                                {products[report.productId].photos.map(
+                                  (photo, index) => (
+                                    <img
+                                      key={index}
+                                      src={photo}
+                                      alt={`${
+                                        products[report.productId].name
+                                      } - Photos ${index + 1}`}
+                                    />
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                      <form method="dialog" className="modal-backdrop">
+                        <button>close</button>
+                      </form>
+                    </dialog>
+                    <dialog
+                      id={`recipeModal-${report.recipeId}`}
+                      className="modal"
+                    >
+                      <div className="modal-box">
+                        <h3 className="font-bold text-center text-lg">
+                          Recipe Photo Preview
+                        </h3>
+                        {reportType === "recipe" &&
+                          recipes[report.recipeId] && (
+                            <div className="text-center">
+                              <p className="font-bold italic">
+                                {recipes[report.recipeId].caption}
+                              </p>
+                              <div className="flex flex-col gap-2 justify-center items-center">
+                                {recipes[report.recipeId].photos.map(
+                                  (photo, index) => (
+                                    <img
+                                      key={index}
+                                      src={photo}
+                                      alt={`${
+                                        recipes[report.recipeId].name
+                                      } - Photos ${index + 1}`}
+                                    />
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                      <form method="dialog" className="modal-backdrop">
+                        <button>close</button>
+                      </form>
+                    </dialog>
                   </li>
                 ))}
               </ul>
