@@ -152,7 +152,7 @@ const AdminReports = () => {
                     Appeal
                   </li>
                 </Link>
-                <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                <li className="bg-primary cursor-pointer p-4 text-white text-xs flex gap-2 items-center">
                   <MdOutlineReport size={25} />
                   Reports
                 </li>
