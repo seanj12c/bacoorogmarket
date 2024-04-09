@@ -151,7 +151,7 @@ const RecipeInfo = () => {
       <div className="relative w-full mx-auto overflow-y-auto">
         <div className="h-screen border-0 rounded-lg overflow-y-auto shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
+          <div className="flex pt-10 items-center justify-between p-5 border-b  rounded-t">
             <div className="flex items-center">
               <img
                 src={recipe.profilePhotoUrl}
