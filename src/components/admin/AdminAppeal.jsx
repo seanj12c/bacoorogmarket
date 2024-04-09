@@ -283,7 +283,7 @@ const AdminAppeal = () => {
                             <img
                               src={appeal.userData.profilePhotoUrl}
                               alt="Profile"
-                              className="md:w-14 md:h-14 border border-primary w-10 h-10 rounded-full object-cover inline-block ml-2"
+                              className="md:w-14 md:h-14  w-10 h-10 border border-primary rounded-full object-cover inline-block ml-2"
                             />{" "}
                             {appeal.userData.firstName}{" "}
                             {appeal.userData.lastName}
