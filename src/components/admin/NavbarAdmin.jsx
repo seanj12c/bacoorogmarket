@@ -121,21 +121,21 @@ export const NavbarAdmin = ({
 
               <Link to="/admin/recipes">
                 <li className={`${recipe} p-4 flex gap-2 items-center`}>
-                  <FaFile size={30} />
+                  <MdOutlineRestaurantMenu size={30} />
                   Recipes
                 </li>
               </Link>
 
               <Link to="/admin/appeal">
                 <li className={`${appeal} p-4 flex gap-2 items-center`}>
-                  <MdOutlineReport size={30} />
+                  <FaFile size={30} />
                   Appeal
                 </li>
               </Link>
 
               <Link to="/admin/reports">
                 <li className={`${report} p-4 flex gap-2 items-center`}>
-                  <MdOutlineRestaurantMenu size={30} />
+                  <MdOutlineReport size={30} />
                   Reports
                 </li>
               </Link>
