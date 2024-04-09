@@ -194,13 +194,27 @@ const EditProduct = () => {
             <div className="flex justify-center gap-20 pb-5 w-full">
               <button
                 onClick={() => handleSlideshowChange("prev")}
-                className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+                className={`text-white btn btn-sm text-3xl md:text-4xl md:btn-md btn-circle ${
+                  formData.photoPreviews && formData.photoPreviews.length > 1
+                    ? "btn-primary"
+                    : "btn-disabled cursor-not-allowed"
+                }`}
+                disabled={
+                  formData.photoPreviews && formData.photoPreviews.length <= 1
+                }
               >
                 <BiSolidSkipPreviousCircle />
               </button>
               <button
                 onClick={() => handleSlideshowChange("next")}
-                className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+                className={`text-white btn btn-sm text-3xl md:text-4xl md:btn-md btn-circle ${
+                  formData.photoPreviews && formData.photoPreviews.length > 1
+                    ? "btn-primary"
+                    : "btn-disabled cursor-not-allowed"
+                }`}
+                disabled={
+                  formData.photoPreviews && formData.photoPreviews.length <= 1
+                }
               >
                 <BiSolidSkipNextCircle />
               </button>

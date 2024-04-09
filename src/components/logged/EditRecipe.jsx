@@ -169,19 +169,30 @@ const EditRecipe = () => {
               <div className="flex justify-center gap-20 pb-5 w-full">
                 <button
                   onClick={() => handleSlideshowChange("prev")}
-                  className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+                  className={`text-white btn btn-sm text-3xl md:text-4xl md:btn-md btn-circle ${
+                    recipeData.photos && recipeData.photos.length > 1
+                      ? "btn-primary"
+                      : "btn-disabled cursor-not-allowed"
+                  }`}
+                  disabled={recipeData.photos && recipeData.photos.length <= 1}
                 >
                   <BiSolidSkipPreviousCircle />
                 </button>
                 <button
                   onClick={() => handleSlideshowChange("next")}
-                  className="text-white btn btn-sm text-3xl md:text-4xl  md:btn-md btn-circle btn-primary "
+                  className={`text-white btn btn-sm text-3xl md:text-4xl md:btn-md btn-circle ${
+                    recipeData.photos && recipeData.photos.length > 1
+                      ? "btn-primary"
+                      : "btn-disabled cursor-not-allowed"
+                  }`}
+                  disabled={recipeData.photos && recipeData.photos.length <= 1}
                 >
                   <BiSolidSkipNextCircle />
                 </button>
               </div>
             </div>
           )}
+
           <form onSubmit={handleSubmit}>
             <h3 className="text-lg text-primary">Caption</h3>
             <input
