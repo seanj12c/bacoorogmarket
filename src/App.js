@@ -25,6 +25,8 @@ import AdminUsers from "./components/admin/AdminUsers";
 import AdminProducts from "./components/admin/AdminProducts";
 import AdminLocations from "./components/admin/AdminLocations";
 import AdminRecipes from "./components/admin/AdminRecipes";
+import AdminAppeal from "./components/admin/AdminAppeal";
+import AdminReports from "./components/admin/AdminReports";
 import Fillup from "./components/authentication/Fillup";
 import Chat from "./components/logged/Chat";
 import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
@@ -352,6 +354,14 @@ function AppRoutes() {
         <Route
           path="/admin/recipes"
           element={admin ? <AdminRecipes /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/appeal"
+          element={admin ? <AdminAppeal /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/reports"
+          element={admin ? <AdminReports /> : <Navigate to="/login" />}
         />
       </Routes>
       <ToastContainer />
