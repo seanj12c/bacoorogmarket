@@ -8,15 +8,17 @@ import {
   updateDoc,
   doc,
   deleteDoc,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
 import Swal from "sweetalert2"; // Import SweetAlert
 import { setDoc } from "firebase/firestore";
-import { FaUsers } from "react-icons/fa";
+import { FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
-import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
@@ -80,6 +82,14 @@ const AdminUsers = () => {
       const reasonRef = doc(firestore, "disabledReason", user.userId);
       await deleteDoc(reasonRef);
 
+      const appealQuery = query(
+        collection(firestore, "userAppeal"),
+        where("userId", "==", user.userId)
+      );
+      const appealSnapshot = await getDocs(appealQuery);
+      appealSnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
       // Update the user's disabled status
       await updateDoc(userRef, {
         disabled: false,
@@ -204,6 +214,8 @@ const AdminUsers = () => {
               locations="bg-white text-primary"
               products="bg-white text-primary"
               recipes="bg-white text-primary"
+              appeals="bg-white text-primary"
+              reports="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">
@@ -238,6 +250,18 @@ const AdminUsers = () => {
                   <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
                     <MdOutlineRestaurantMenu size={25} />
                     Recipes
+                  </li>
+                </Link>
+                <Link to="/admin/appeal">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <FaFile size={25} />
+                    Appeal
+                  </li>
+                </Link>
+                <Link to="/admin/reports">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <MdOutlineReport size={25} />
+                    Reports
                   </li>
                 </Link>
                 <li

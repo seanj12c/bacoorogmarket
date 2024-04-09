@@ -10,10 +10,10 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
-import { FaUsers } from "react-icons/fa";
+import { FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
-import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineLogout } from "react-icons/ai";
@@ -131,6 +131,8 @@ const AdminProducts = () => {
               locations="bg-white text-primary"
               products="bg-primary text-white"
               recipes="bg-white text-primary"
+              appeals="bg-white text-primary"
+              reports="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">
@@ -165,6 +167,18 @@ const AdminProducts = () => {
                   <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
                     <MdOutlineRestaurantMenu size={25} />
                     Recipes
+                  </li>
+                </Link>
+                <Link to="/admin/appeal">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <FaFile size={25} />
+                    Appeal
+                  </li>
+                </Link>
+                <Link to="/admin/reports">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <MdOutlineReport size={25} />
+                    Reports
                   </li>
                 </Link>
                 <li

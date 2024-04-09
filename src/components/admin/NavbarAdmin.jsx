@@ -5,18 +5,27 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { getAuth, signOut } from "firebase/auth";
 
-import { FaUsers } from "react-icons/fa";
+import { FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
-import { MdOutlineRestaurantMenu } from "react-icons/md";
+import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
 import LogoutModal from "../authentication/LogoutModal";
 
-export const NavbarAdmin = ({ users, locations, products, recipes }) => {
+export const NavbarAdmin = ({
+  users,
+  locations,
+  products,
+  recipes,
+  appeals,
+  reports,
+}) => {
   const user = `${users}`;
   const location = `${locations}`;
   const product = `${products}`;
   const recipe = `${recipes}`;
+  const appeal = `${appeals}`;
+  const report = `${reports}`;
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -91,7 +100,7 @@ export const NavbarAdmin = ({ users, locations, products, recipes }) => {
             </div>
             <ul className="text-left text-black  flex flex-col h-full mt-6">
               <Link to="/admin/users">
-                <li className={`${user}p-4 flex gap-2 items-center `}>
+                <li className={`${user} p-4 flex gap-2 items-center `}>
                   <FaUsers size={30} />
                   Users
                 </li>
@@ -112,8 +121,22 @@ export const NavbarAdmin = ({ users, locations, products, recipes }) => {
 
               <Link to="/admin/recipes">
                 <li className={`${recipe} p-4 flex gap-2 items-center`}>
-                  <MdOutlineRestaurantMenu size={30} />
+                  <FaFile size={30} />
                   Recipes
+                </li>
+              </Link>
+
+              <Link to="/admin/appeal">
+                <li className={`${appeal} p-4 flex gap-2 items-center`}>
+                  <MdOutlineReport size={30} />
+                  Appeal
+                </li>
+              </Link>
+
+              <Link to="/admin/reports">
+                <li className={`${report} p-4 flex gap-2 items-center`}>
+                  <MdOutlineRestaurantMenu size={30} />
+                  Reports
                 </li>
               </Link>
             </ul>
