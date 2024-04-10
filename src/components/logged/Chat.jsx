@@ -150,6 +150,9 @@ const Chat = () => {
   const filteredUsers = users.filter((user) => {
     return (
       user.email !== "bacoorogmarket@gmail.com" &&
+      user.firstName &&
+      user.lastName &&
+      user.email && // Check if these properties are defined
       (user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase()))
