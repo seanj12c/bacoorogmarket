@@ -323,7 +323,12 @@ const Chat = () => {
       });
 
       if (!reason) {
-        Swal.fire("Cancelled", "Your report has been cancelled", "error");
+        Swal.fire({
+          title: "Cancelled",
+          text: "Your report has been cancelled",
+          icon: "error",
+          confirmButtonColor: "#008080",
+        });
       }
     } catch (error) {
       console.error("Error reporting profile:", error);

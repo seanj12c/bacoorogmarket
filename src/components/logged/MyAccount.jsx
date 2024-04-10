@@ -290,7 +290,6 @@ const MyAccount = () => {
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
       focusCancel: true,
@@ -340,6 +339,7 @@ const MyAccount = () => {
       inputPlaceholder: "Please specify your reason...",
       showCancelButton: true,
       confirmButtonText: "Deactivate",
+      confirmButtonColor: "#d33",
       cancelButtonText: "Cancel",
       focusCancel: true,
       preConfirm: (value) => {
