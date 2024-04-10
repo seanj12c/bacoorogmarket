@@ -171,10 +171,13 @@ const AdminUsers = () => {
   // Filter users based on search query
   const filteredUsers = users.filter((user) => {
     return (
-      user.userId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      (user.userId?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+        false) ||
+      (user.firstName?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+        false) ||
+      (user.lastName?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+        false) ||
+      (user.email?.toLowerCase()?.includes(searchQuery.toLowerCase()) ?? false)
     );
   });
 
@@ -327,42 +330,46 @@ const AdminUsers = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredUsers.map((user) => (
-                        <tr key={user.id}>
-                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-xs text-center">
-                            {user.userId}
-                          </td>
-                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
-                            {user.firstName} {user.lastName}
-                          </td>
-                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
-                            {user.email}
-                          </td>
-                          <td className="border bg-gray-200  flex gap-2 px-4 py-2 text-center">
-                            {user.disabled ? (
+                      {filteredUsers
+                        .filter((user) => user.firstName && user.lastName)
+                        .map((user) => (
+                          <tr key={user.id}>
+                            <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-xs text-center">
+                              {user.userId}
+                            </td>
+                            <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
+                              {user.firstName && user.lastName
+                                ? `${user.firstName} ${user.lastName}`
+                                : ""}
+                            </td>
+                            <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
+                              {user.email}
+                            </td>
+                            <td className="border bg-gray-200  flex gap-2 px-4 py-2 text-center">
+                              {user.disabled ? (
+                                <button
+                                  className="block w-full py-2 px-1 text-center bg-green-500 text-white rounded-md text-xs hover:bg-green-700 border border-gray-200 mt-2"
+                                  onClick={() => enableAccount(user)}
+                                >
+                                  Enable
+                                </button>
+                              ) : (
+                                <button
+                                  className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-800 border border-gray-200 mt-2"
+                                  onClick={() => disableAccount(user)}
+                                >
+                                  Disable
+                                </button>
+                              )}
                               <button
-                                className="block w-full py-2 px-1 text-center bg-green-500 text-white rounded-md text-xs hover:bg-green-700 border border-gray-200 mt-2"
-                                onClick={() => enableAccount(user)}
+                                className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
+                                onClick={() => deleteAccount(user)}
                               >
-                                Enable
+                                Delete
                               </button>
-                            ) : (
-                              <button
-                                className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-800 border border-gray-200 mt-2"
-                                onClick={() => disableAccount(user)}
-                              >
-                                Disable
-                              </button>
-                            )}
-                            <button
-                              className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                              onClick={() => deleteAccount(user)}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 )}
