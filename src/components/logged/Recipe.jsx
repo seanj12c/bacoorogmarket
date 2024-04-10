@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 
 import uploadload from "../../assets/loading.gif";
@@ -17,15 +24,16 @@ const Recipe = () => {
     const recipesCollection = collection(firestore, "recipes");
     const recipesQuery = query(recipesCollection, orderBy("recipeId", "desc"));
 
-    const unsubscribe = onSnapshot(recipesQuery, (querySnapshot) => {
+    const unsubscribe = onSnapshot(recipesQuery, async (querySnapshot) => {
       const recipesData = [];
-      querySnapshot.forEach((doc) => {
+      for (const doc of querySnapshot.docs) {
         const data = doc.data();
+        const userData = await getUserData(data.userUid);
         recipesData.push({
           id: doc.id,
-          profilePhotoUrl: data.profilePhotoUrl,
-          firstName: data.firstName,
-          lastName: data.lastName,
+          profilePhotoUrl: userData.profilePhotoUrl,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
           timestamp: data.timestamp,
           caption: data.caption,
           ingredients: data.ingredients,
@@ -35,7 +43,7 @@ const Recipe = () => {
           userUid: data.userUid,
           likers: data.likers ? data.likers.length : 0, // Assuming likers is an array
         });
-      });
+      }
       // Sort recipes based on number of likers in descending order
       recipesData.sort((a, b) => b.likers - a.likers);
       setRecipes(recipesData);
@@ -46,6 +54,12 @@ const Recipe = () => {
       unsubscribe();
     };
   }, []);
+
+  async function getUserData(userUid) {
+    const userDocRef = doc(firestore, "registered", userUid);
+    const userDocSnap = await getDoc(userDocRef);
+    return userDocSnap.data();
+  }
 
   const handleSearch = (event) => {
     const { value } = event.target;

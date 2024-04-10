@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore"; // Import orderBy here
+import {
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  doc,
+  getDoc,
+} from "firebase/firestore"; // Import orderBy here
 import { firestore } from "../../firebase";
 
 import uploadload from "../../assets/loading.gif";
@@ -10,7 +17,6 @@ import { Link } from "react-router-dom";
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [freshnessFilter, setFreshnessFilter] = useState("None");
@@ -19,41 +25,51 @@ const Marketplace = () => {
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(collection(firestore, "products"), orderBy("productId", "desc")),
-      (snapshot) => {
+      async (snapshot) => {
         const productsData = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
+        for (const docSnap of snapshot.docs) {
+          const data = docSnap.data();
           const typeOfProduct = data.typeOfProduct || {}; // Ensure typeOfProduct exists
+
+          // Fetch user details from "registered" collection
+          const userDocRef = doc(firestore, "registered", data.userUid);
+          const userDocSnap = await getDoc(userDocRef);
+          const userData = userDocSnap.data();
+
           if (
             (freshnessFilter === "None" ||
               typeOfProduct.freshness === freshnessFilter) &&
             (productFilter === "None" ||
               typeOfProduct.productName === productFilter) &&
-            (data.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              data.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (userData.firstName
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+              userData.lastName
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase()) ||
               data.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
               data.description
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase()))
           ) {
             productsData.push({
-              id: doc.id,
+              id: docSnap.id,
               productId: data.productId,
               caption: data.caption,
               description: data.description,
               location: data.location,
               photos: data.photos,
-              profilePhotoUrl: data.profilePhotoUrl,
+              profilePhotoUrl: userData.profilePhotoUrl,
               price: data.price,
-              firstName: data.firstName,
-              lastName: data.lastName,
+              firstName: userData.firstName,
+              lastName: userData.lastName,
               timestamp: data.timestamp,
               address: data.address,
               otherInformation: data.otherInformation,
               userUid: data.userUid,
             });
           }
-        });
+        }
         setProducts(productsData);
         setLoading(false);
       }

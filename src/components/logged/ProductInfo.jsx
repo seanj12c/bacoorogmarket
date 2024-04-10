@@ -33,6 +33,21 @@ const ProductInfo = () => {
           const fetchedProduct = productSnapshot.data();
           // Extract the document ID and set it in the product data
           fetchedProduct.id = productSnapshot.id;
+
+          // Fetch user details from "registered" collection
+          const userDocRef = doc(
+            firestore,
+            "registered",
+            fetchedProduct.userUid
+          );
+          const userDocSnap = await getDoc(userDocRef);
+          const userData = userDocSnap.data();
+
+          // Update product data with user details
+          fetchedProduct.firstName = userData.firstName;
+          fetchedProduct.lastName = userData.lastName;
+          fetchedProduct.profilePhotoUrl = userData.profilePhotoUrl;
+
           setProduct(fetchedProduct);
         } else {
           console.log("Product not found");

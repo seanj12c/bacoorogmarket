@@ -6,10 +6,10 @@ import {
   updateDoc,
   arrayUnion,
   arrayRemove,
-  onSnapshot,
   serverTimestamp,
   addDoc,
   collection,
+  getDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { IoMdCloseCircle } from "react-icons/io";
@@ -39,10 +39,14 @@ const RecipeInfo = () => {
     const fetchRecipe = async () => {
       try {
         const recipeDocRef = doc(firestore, "recipes", recipeId);
-        const unsubscribe = onSnapshot(recipeDocRef, (doc) => {
-          if (doc.exists()) {
-            const recipeData = doc.data();
-            setRecipe({ id: doc.id, ...recipeData });
+        const recipeDoc = await getDoc(recipeDocRef);
+        if (recipeDoc.exists()) {
+          const recipeData = recipeDoc.data();
+          const userDocRef = doc(firestore, "registered", recipeData.userUid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setRecipe({ id: recipeDoc.id, ...recipeData, ...userData });
             // Update like count
             setLikeCount(recipeData.likers ? recipeData.likers.length : 0);
             // Check if the current user has already liked the recipe
@@ -51,11 +55,11 @@ const RecipeInfo = () => {
                 recipeData.likers.includes(auth.currentUser.uid)
             );
           } else {
-            console.log("Recipe not found");
+            console.log("User not found");
           }
-        });
-
-        return () => unsubscribe();
+        } else {
+          console.log("Recipe not found");
+        }
       } catch (error) {
         console.error("Error fetching recipe:", error);
       }
