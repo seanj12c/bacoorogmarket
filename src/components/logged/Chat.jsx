@@ -9,13 +9,16 @@ import {
   getDocs,
   onSnapshot,
   deleteDoc,
+  serverTimestamp,
+  addDoc,
 } from "firebase/firestore";
-import { firestore } from "../../firebase"; // Import your Firebase instance
+import { firestore, storage } from "../../firebase"; // Import your Firebase instance
 import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
-
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import Swal from "sweetalert2";
 const Chat = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth(); // Get the current authenticated user
@@ -252,6 +255,99 @@ const Chat = () => {
     handleSendMessage(); // Call the sendMessage function when the form is submitted
   };
 
+  const handleReportProfile = async () => {
+    try {
+      const { value: reason } = await Swal.fire({
+        title: `Why do you want to report ${selectedUser.firstName}?`,
+        input: "select",
+        inputOptions: {
+          Spam: "Spam",
+          "Identity Theft": "Identity Theft",
+          "Scamming/Bogus Buyer": "Scamming/Bogus Buyer",
+          "Inappropriate Display Picture": "Inappropriate Display Picture",
+          "Harassment or Bullying": "Harassment or Bullying",
+          Others: "Others",
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to select a reason";
+          }
+        },
+        inputPlaceholder: "Select a reason",
+        inputAttributes: {
+          autocapitalize: "off",
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+        },
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#008080",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        html: `
+          <label for="file" class="text-sm">Upload a photo as proof (Required)</label>
+          <input type="file" id="file" accept="image/*" class="file-input file-input-bordered file-input-primary w-full max-w-xs my-2"/>
+          <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
+        `,
+        preConfirm: async () => {
+          const file = document.getElementById("file").files[0];
+          const reason = Swal.getPopup().querySelector(".swal2-select").value;
+          const explanation =
+            Swal.getPopup().querySelector("#swal-input2").value;
+
+          if (!file || !reason || !explanation) {
+            Swal.showValidationMessage("Please fill out all fields");
+            return;
+          }
+
+          try {
+            // Generate a random file name
+            const randomFileName = Math.random().toString(36).substring(2);
+            const storageRef = ref(
+              storage,
+              `profileReports/${selectedUser.userId}/${randomFileName}`
+            );
+            await uploadBytes(storageRef, file);
+            const fileUrl = await getDownloadURL(storageRef);
+
+            const reportData = {
+              reason,
+              explanation,
+              userId: selectedUser.userId,
+              timestamp: serverTimestamp(),
+              photoUrl: fileUrl,
+            };
+
+            await addDoc(collection(firestore, "profileReports"), reportData);
+
+            Swal.fire({
+              title: "Report Submitted!",
+              text: "Thank you for your report. Our team will review it.",
+              icon: "success",
+            });
+          } catch (error) {
+            console.error("Error uploading photo:", error);
+            Swal.fire(
+              "Error!",
+              "An error occurred while uploading the photo.",
+              "error"
+            );
+          }
+        },
+      });
+
+      if (!reason) {
+        Swal.fire("Cancelled", "Your report has been cancelled", "error");
+      }
+    } catch (error) {
+      console.error("Error reporting profile:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while reporting the profile.",
+        "error"
+      );
+    }
+  };
+
   return (
     <div>
       {loading ? (
@@ -332,10 +428,18 @@ const Chat = () => {
                       {selectedUser.firstName} {selectedUser.lastName}
                     </h2>
                   </div>
-                  <div>
+                  <div className="flex flex-col md:flex-row gap-2">
+                    {messages.length > 0 && (
+                      <button
+                        onClick={handleReportProfile}
+                        className="btn md:btn-md btn-xs btn-error text-white"
+                      >
+                        Report
+                      </button>
+                    )}
                     {messages.length > 0 && ( // Conditionally render the button
                       <button
-                        className="btn btn-error text-white"
+                        className="btn  md:btn-md btn-xs btn-error text-white"
                         onClick={() =>
                           document.getElementById("deleteconvo").showModal()
                         }
