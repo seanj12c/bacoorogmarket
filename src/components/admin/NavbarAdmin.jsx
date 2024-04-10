@@ -75,9 +75,7 @@ export const NavbarAdmin = ({
     <div className="h-full">
       <div
         className={`${
-          fix
-            ? "bg-white opacity-95 transition-all ease-in-out duration-700"
-            : ""
+          fix ? "bg-white transition-all ease-in-out duration-700" : ""
         } flex justify-between ease-linear duration-500 items-center h-24 shadow-md mx-auto px-6  text-primary fixed top-0 w-full  z-50`}
       >
         <div onClick={handleNav} className="block ">
