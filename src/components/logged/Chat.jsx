@@ -159,9 +159,15 @@ const Chat = () => {
     );
   });
 
-  const usersWithLastMessages = filteredUsers.filter(
-    (user) => lastMessages[user.id]
-  );
+  const usersWithLastMessages = filteredUsers
+    .filter((user) => lastMessages[user.id])
+    .sort((a, b) => {
+      const lastMessageA = lastMessages[a.id];
+      const lastMessageB = lastMessages[b.id];
+
+      return lastMessageB.timestamp - lastMessageA.timestamp;
+    });
+
   const usersWithoutLastMessages = filteredUsers.filter(
     (user) => !lastMessages[user.id]
   );
