@@ -8,14 +8,18 @@ import {
   doc,
   getDoc,
   setDoc,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
-import { firestore } from "../../firebase"; // Import your Firebase instance
+import { firestore, storage } from "../../firebase"; // Import your Firebase instance
 import { useParams, useNavigate } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
 import { MdOutlineAttachEmail } from "react-icons/md";
 import { FaPhone } from "react-icons/fa";
 import { auth } from "../../firebase";
 import { CiLocationArrow1 } from "react-icons/ci";
+import Swal from "sweetalert2";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -128,6 +132,99 @@ const Profile = () => {
     }
   };
 
+  const handleReportProfile = async () => {
+    try {
+      const { value: reason } = await Swal.fire({
+        title: `Why do you want to report ${user.firstName}?`,
+        input: "select",
+        inputOptions: {
+          Spam: "Spam",
+          "Identity Theft": "Identity Theft",
+          "Scamming/Bogus Buyer": "Scamming/Bogus Buyer",
+          "Inappropriate Display Picture": "Inappropriate Display Picture",
+          "Harassment or Bullying": "Harassment or Bullying",
+          Others: "Others",
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to select a reason";
+          }
+        },
+        inputPlaceholder: "Select a reason",
+        inputAttributes: {
+          autocapitalize: "off",
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+        },
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#008080",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        html: `
+        <label for="file" class="text-sm">Upload a photo as proof (Required)</label>
+        <input type="file" id="file" accept="image/*" class="file-input file-input-bordered file-input-primary w-full max-w-xs my-2"/>
+          <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
+        `,
+        preConfirm: async () => {
+          const file = document.getElementById("file").files[0];
+          const reason = Swal.getPopup().querySelector(".swal2-select").value;
+          const explanation =
+            Swal.getPopup().querySelector("#swal-input2").value;
+
+          if (!file || !reason || !explanation) {
+            Swal.showValidationMessage("Please fill out all fields");
+            return;
+          }
+
+          try {
+            // Generate a random file name
+            const randomFileName = Math.random().toString(36).substring(2);
+            const storageRef = ref(
+              storage,
+              `profileReports/${user.userId}/${randomFileName}`
+            );
+            await uploadBytes(storageRef, file);
+            const fileUrl = await getDownloadURL(storageRef);
+
+            const reportData = {
+              reason,
+              explanation,
+              userId: user.userId,
+              timestamp: serverTimestamp(),
+              photoUrl: fileUrl,
+            };
+
+            await addDoc(collection(firestore, "profileReports"), reportData);
+
+            Swal.fire({
+              title: "Report Submitted!",
+              text: "Thank you for your report. Our team will review it.",
+              icon: "success",
+            });
+          } catch (error) {
+            console.error("Error uploading photo:", error);
+            Swal.fire(
+              "Error!",
+              "An error occurred while uploading the photo.",
+              "error"
+            );
+          }
+        },
+      });
+
+      if (!reason) {
+        Swal.fire("Cancelled", "Your report has been cancelled", "error");
+      }
+    } catch (error) {
+      console.error("Error reporting profile:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while reporting the profile.",
+        "error"
+      );
+    }
+  };
+
   return (
     <div className="md:max-w-full max-w-xl mx-auto md:p-0 p-4">
       {loading ? (
@@ -139,12 +236,12 @@ const Profile = () => {
           />
         </div>
       ) : user ? (
-        <div className="h-full pt-24 w-full ">
+        <div className="h-full pt-24 pb-20 w-full ">
           <div className="md:flex ">
             <div className="md:fixed md:w-1/3 md:px-5">
               <div className="bg-bgray md:px-5 mt-2 w-full py-4 px-2 rounded-lg">
                 <div className="">
-                  <h2 className="text-2xl md:text-base lg:text-xl text-center font-bold">
+                  <h2 className="text-2xl pb-2 md:text-base lg:text-xl text-center font-bold">
                     Viewing Profile
                   </h2>
                 </div>
@@ -161,7 +258,7 @@ const Profile = () => {
                     />
                   </div>
                 </div>
-                <p className="text-center text-2xl lg:text-2xl md:text-base mx-auto">
+                <p className="text-center  text-2xl lg:text-2xl md:text-base mx-auto">
                   <strong>
                     {user.firstName} {user.lastName}
                   </strong>
@@ -181,6 +278,12 @@ const Profile = () => {
                 >
                   <FaPhone size={15} /> {user.contact}
                 </a>
+                <button
+                  onClick={handleReportProfile}
+                  className="btn w-full btn-xs btn-error text-white"
+                >
+                  Report {user.firstName}
+                </button>
               </div>
               <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-2">
                 <h1 className="text-lg text-center w-full font-bold pb-2">
@@ -294,8 +397,7 @@ const Profile = () => {
                         <div className="skeleton h-4 w-full"></div>
                       </div>
                       <p className="text-center text-xs md:text-lg text-primary italic">
-                        Oh no! You haven't posted any products yet. Post now and
-                        they will show here!
+                        Oh no! {user.firstName} haven't posted any products yet.
                       </p>
                     </div>
                   )
@@ -364,8 +466,7 @@ const Profile = () => {
                       <div className="skeleton h-4 w-full"></div>
                     </div>
                     <p className="text-center text-xs md:text-lg text-primary italic">
-                      You have no recipes posted yet. Post now and they will
-                      show here!
+                      Oh no! {user.firstName} have no recipes posted yet.
                     </p>
                   </div>
                 )}
