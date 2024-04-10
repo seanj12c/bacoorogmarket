@@ -376,11 +376,10 @@ const MyAccount = () => {
           <div className="md:flex ">
             <div className="md:fixed md:w-1/3 md:px-5">
               <div className="bg-bgray mt-2 w-full py-4 px-2 rounded-lg">
-                {" "}
-                <div className="flex items-center justify-between  pb-3 px-5">
-                  <h2 className="text-2xl md:text-base lg:text-xl text-center  font-bold">
-                    My Account
-                  </h2>
+                <h2 className="text-2xl md:text-base lg:text-xl text-center  font-bold">
+                  My Account
+                </h2>
+                <div className="flex items-center justify-end  pb-3 px-5">
                   <button
                     onClick={() =>
                       document.getElementById("my_modal_3").showModal()
