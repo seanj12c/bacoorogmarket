@@ -10,11 +10,11 @@ import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
-import LogoutModal from "../authentication/LogoutModal";
+import Swal from "sweetalert2";
 
 const AdminReports = () => {
   const [loading, setLoading] = useState(true);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const [reports, setReports] = useState([]);
   const [products, setProducts] = useState({});
   const [registeredUsers, setRegisteredUsers] = useState({});
@@ -78,6 +78,21 @@ const AdminReports = () => {
     fetchAdditionalData();
   }, [reportType]);
 
+  const handleLogoutConfirmation = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+      }
+    });
+  };
+
   const handleLogout = async () => {
     const authInstance = getAuth();
     try {
@@ -86,10 +101,6 @@ const AdminReports = () => {
     } catch (error) {
       console.log("Error logging out:", error);
     }
-  };
-
-  const toggleLogoutModal = () => {
-    setShowLogoutModal(!showLogoutModal);
   };
 
   const handleReportTypeChange = (event) => {
@@ -163,7 +174,7 @@ const AdminReports = () => {
                   Reports
                 </li>
                 <li
-                  onClick={toggleLogoutModal}
+                  onClick={handleLogoutConfirmation}
                   className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
                 >
                   <AiOutlineLogout size={25} />
@@ -198,7 +209,6 @@ const AdminReports = () => {
                   <li className="glass w-full p-5" key={index}>
                     {registeredUsers[report.userId] && (
                       <div className="flex items-center gap-2">
-                        '
                         <div>
                           <img
                             className="md:w-14 md:h-14  w-10 h-10 border border-primary rounded-full object-cover"
@@ -425,12 +435,6 @@ const AdminReports = () => {
             </div>
           </div>
         </div>
-      )}
-      {showLogoutModal && (
-        <LogoutModal
-          handleLogout={handleLogout}
-          closeModal={toggleLogoutModal}
-        />
       )}
     </div>
   );

@@ -21,7 +21,7 @@ import {
   Marker,
   InfoWindow,
 } from "@react-google-maps/api";
-import LogoutModal from "../authentication/LogoutModal";
+
 import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
 import Swal from "sweetalert2";
@@ -30,7 +30,6 @@ const AdminLocations = () => {
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const productsCollection = collection(firestore, "products");
@@ -105,8 +104,19 @@ const AdminLocations = () => {
 
   const navigate = useNavigate();
 
-  const toggleLogoutModal = () => {
-    setShowLogoutModal(!showLogoutModal);
+  const handleLogoutConfirmation = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+      }
+    });
   };
 
   const handleLogout = async () => {
@@ -188,7 +198,7 @@ const AdminLocations = () => {
                   </li>
                 </Link>
                 <li
-                  onClick={toggleLogoutModal}
+                  onClick={handleLogoutConfirmation}
                   className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
                 >
                   <AiOutlineLogout size={25} />
@@ -307,12 +317,6 @@ const AdminLocations = () => {
             </div>
           </div>
         </div>
-      )}
-      {showLogoutModal && (
-        <LogoutModal
-          handleLogout={handleLogout}
-          closeModal={toggleLogoutModal}
-        />
       )}
     </div>
   );

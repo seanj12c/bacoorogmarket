@@ -4,13 +4,12 @@ import { AiOutlineMenu, AiOutlineClose, AiOutlineLogout } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 
 import { getAuth, signOut } from "firebase/auth";
-
+import Swal from "sweetalert2";
 import { FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
-import LogoutModal from "../authentication/LogoutModal";
 
 export const NavbarAdmin = ({
   users,
@@ -28,7 +27,6 @@ export const NavbarAdmin = ({
   const report = `${reports}`;
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -48,6 +46,21 @@ export const NavbarAdmin = ({
     };
   }, []);
 
+  const handleLogoutConfirmation = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+      }
+    });
+  };
+
   const handleLogout = async () => {
     const authInstance = getAuth();
     try {
@@ -56,9 +69,6 @@ export const NavbarAdmin = ({
     } catch (error) {
       console.log("Error logging out:", error);
     }
-  };
-  const toggleLogoutModal = () => {
-    setShowLogoutModal(!showLogoutModal);
   };
 
   const handleNav = () => {
@@ -147,18 +157,12 @@ export const NavbarAdmin = ({
         <div className="flex gap-5 items-center">
           <button
             className="btn btn-sm btn-square text-white btn-error"
-            onClick={toggleLogoutModal}
+            onClick={handleLogoutConfirmation}
           >
             <AiOutlineLogout size={25} />
           </button>
         </div>
       </div>
-      {showLogoutModal && (
-        <LogoutModal
-          handleLogout={handleLogout}
-          closeModal={toggleLogoutModal}
-        />
-      )}
     </div>
   );
 };

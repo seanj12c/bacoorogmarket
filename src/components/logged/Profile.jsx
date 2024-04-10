@@ -213,7 +213,12 @@ const Profile = () => {
       });
 
       if (!reason) {
-        Swal.fire("Cancelled", "Your report has been cancelled", "error");
+        Swal.fire({
+          title: "Cancelled",
+          text: "Your report has been cancelled",
+          icon: "error",
+          confirmButtonColor: "#008080",
+        });
       }
     } catch (error) {
       console.error("Error reporting profile:", error);
@@ -278,12 +283,14 @@ const Profile = () => {
                 >
                   <FaPhone size={15} /> {user.contact}
                 </a>
-                <button
-                  onClick={handleReportProfile}
-                  className="btn w-full btn-xs btn-error text-white"
-                >
-                  Report {user.firstName}
-                </button>
+                <div className="justify-center w-full flex">
+                  <button
+                    onClick={handleReportProfile}
+                    className="btn  btn-xs btn-error text-white"
+                  >
+                    Report {user.firstName}
+                  </button>
+                </div>
               </div>
               <div className="bg-bgray mt-2 w-full rounded-lg px-2 py-2">
                 <h1 className="text-lg text-center w-full font-bold pb-2">

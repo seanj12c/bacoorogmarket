@@ -23,14 +23,12 @@ import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
-import LogoutModal from "../authentication/LogoutModal";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const usersCollection = collection(firestore, "registered");
@@ -182,6 +180,21 @@ const AdminUsers = () => {
 
   const navigate = useNavigate();
 
+  const handleLogoutConfirmation = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+      }
+    });
+  };
+
   const handleLogout = async () => {
     const authInstance = getAuth();
     try {
@@ -190,10 +203,6 @@ const AdminUsers = () => {
     } catch (error) {
       console.log("Error logging out:", error);
     }
-  };
-
-  const toggleLogoutModal = () => {
-    setShowLogoutModal(!showLogoutModal);
   };
 
   return (
@@ -265,7 +274,7 @@ const AdminUsers = () => {
                   </li>
                 </Link>
                 <li
-                  onClick={toggleLogoutModal}
+                  onClick={handleLogoutConfirmation}
                   className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
                 >
                   <AiOutlineLogout size={25} />
@@ -361,12 +370,6 @@ const AdminUsers = () => {
             </div>
           </div>
         </div>
-      )}
-      {showLogoutModal && (
-        <LogoutModal
-          handleLogout={handleLogout}
-          closeModal={toggleLogoutModal}
-        />
       )}
     </div>
   );

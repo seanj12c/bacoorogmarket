@@ -18,12 +18,12 @@ import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
-import LogoutModal from "../authentication/LogoutModal";
+
 import Swal from "sweetalert2";
 
 const AdminAppeal = () => {
   const [loading, setLoading] = useState(true);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const [appeals, setAppeals] = useState([]);
 
   const navigate = useNavigate();
@@ -74,6 +74,21 @@ const AdminAppeal = () => {
     }
   };
 
+  const handleLogoutConfirmation = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+      }
+    });
+  };
+
   const handleLogout = async () => {
     const authInstance = getAuth();
     try {
@@ -82,10 +97,6 @@ const AdminAppeal = () => {
     } catch (error) {
       console.log("Error logging out:", error);
     }
-  };
-
-  const toggleLogoutModal = () => {
-    setShowLogoutModal(!showLogoutModal);
   };
 
   const enableUser = async (userId) => {
@@ -220,7 +231,7 @@ const AdminAppeal = () => {
                   </li>
                 </Link>
                 <li
-                  onClick={toggleLogoutModal}
+                  onClick={handleLogoutConfirmation}
                   className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
                 >
                   <AiOutlineLogout size={25} />
@@ -311,12 +322,6 @@ const AdminAppeal = () => {
             </div>
           </div>
         </div>
-      )}
-      {showLogoutModal && (
-        <LogoutModal
-          handleLogout={handleLogout}
-          closeModal={toggleLogoutModal}
-        />
       )}
     </div>
   );

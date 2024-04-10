@@ -14,7 +14,8 @@ import {
   CiCircleQuestion,
   CiForkAndKnife,
 } from "react-icons/ci";
-import LogoutModal from "../authentication/LogoutModal";
+import Swal from "sweetalert2";
+
 import { MdOutlineManageAccounts } from "react-icons/md";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 
@@ -22,7 +23,6 @@ export const NavbarLogged = () => {
   const [fix, setFix] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
   const navigate = useNavigate();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const auth = useAuth();
   const handleGoToTop = () => {
@@ -80,6 +80,21 @@ export const NavbarLogged = () => {
     }
   }, [auth]);
 
+  const handleLogoutConfirmation = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+      }
+    });
+  };
+
   const handleLogout = async () => {
     const authInstance = getAuth();
     try {
@@ -108,10 +123,6 @@ export const NavbarLogged = () => {
 
     // Return a default image URL or handle error cases accordingly
     return ""; // Provide a default URL or handle error cases
-  };
-
-  const toggleLogoutModal = () => {
-    setShowLogoutModal(!showLogoutModal);
   };
 
   return (
@@ -157,7 +168,7 @@ export const NavbarLogged = () => {
                 </li>
                 <li className="py-1">
                   <button
-                    onClick={toggleLogoutModal}
+                    onClick={handleLogoutConfirmation}
                     className="btn btn-error mx-auto btn-sm text-white w-28 "
                   >
                     Log-out
@@ -229,7 +240,7 @@ export const NavbarLogged = () => {
               </Link>
 
               <button
-                onClick={toggleLogoutModal}
+                onClick={handleLogoutConfirmation}
                 className="btn btn-error btn-sm text-white w-28 "
               >
                 Log-out
@@ -300,12 +311,6 @@ export const NavbarLogged = () => {
           <FaArrowAltCircleUp size={30} />
         </button>
       </div>
-      {showLogoutModal && (
-        <LogoutModal
-          handleLogout={handleLogout}
-          closeModal={toggleLogoutModal}
-        />
-      )}
     </div>
   );
 };
