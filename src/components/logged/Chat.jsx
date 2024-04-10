@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // Import useParams to access URL params
+import { useParams } from "react-router-dom";
 import {
   updateDoc,
   collection,
@@ -12,25 +12,26 @@ import {
   serverTimestamp,
   addDoc,
 } from "firebase/firestore";
-import { firestore, storage } from "../../firebase"; // Import your Firebase instance
+import { firestore, storage } from "../../firebase";
 import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import Swal from "sweetalert2";
+
 const Chat = () => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // Get the current authenticated user
-  const { chatId } = useParams(); // Get chatId from URL params
+  const { currentUser } = useAuth();
+  const { chatId } = useParams();
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [messageText, setMessageText] = useState(""); // State to hold the message text
+  const [messageText, setMessageText] = useState("");
   const [unsubscribe, setUnsubscribe] = useState(null);
-  const [lastMessages, setLastMessages] = useState({}); // State to hold last messages for each user
+  const [lastMessages, setLastMessages] = useState({});
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -42,7 +43,6 @@ const Chat = () => {
             id: doc.id,
             ...doc.data(),
           }))
-          // Filter out the authenticated user from the list of users
           .filter((user) => user.id !== currentUser.uid);
         setUsers(userData);
       } catch (error) {
@@ -53,7 +53,7 @@ const Chat = () => {
     };
 
     fetchUsers();
-  }, [currentUser]); // Fetch users whenever the currentUser changes
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -76,10 +76,9 @@ const Chat = () => {
             setMessages([]);
           }
 
-          // Subscribe to realtime updates
           const unsubscribe = onSnapshot(chatDocRef, (doc) => {
             const chatData = doc.data();
-            setMessages(chatData?.messages || []); // Use optional chaining to handle undefined
+            setMessages(chatData?.messages || []);
           });
           setUnsubscribe(() => unsubscribe);
         } catch (error) {
@@ -88,9 +87,8 @@ const Chat = () => {
       }
     };
 
-    fetchMessages(); // Call the fetchMessages function
+    fetchMessages();
 
-    // Unsubscribe from snapshot listener when component unmounts
     return () => {
       if (unsubscribe) {
         unsubscribe();
@@ -111,9 +109,8 @@ const Chat = () => {
             [user.id]: lastMessage,
           }));
           if (lastMessage.recipientId === currentUser.uid) {
-            // Check if the last message is directed to the current user
             toast.info(`${user.firstName} sent you a message`, {
-              autoClose: 5000, // Automatically close the notification after 3 seconds
+              autoClose: 5000,
             });
           }
         }
@@ -131,14 +128,12 @@ const Chat = () => {
       const chatId = [currentUser.uid, user.id].sort().join("");
       const chatDocRef = doc(firestore, "chats", chatId);
 
-      // Check if the chat document exists
       const chatDocSnap = await getDoc(chatDocRef);
 
       if (!chatDocSnap.exists()) {
-        // If the document doesn't exist, create it
         await setDoc(chatDocRef, {
           users: [currentUser.uid, user.id],
-          messages: [], // Initialize with an empty array of messages
+          messages: [],
         });
       }
 
@@ -152,28 +147,22 @@ const Chat = () => {
     setSearchQuery(e.target.value.trim());
   };
 
-  const filteredUsers = users
-    .filter((user) => {
-      return (
-        user.email !== "bacoorogmarket@gmail.com" &&
-        (user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    })
-    .sort((a, b) => {
-      const lastMessageA = lastMessages[a.id];
-      const lastMessageB = lastMessages[b.id];
+  const filteredUsers = users.filter((user) => {
+    return (
+      user.email !== "bacoorogmarket@gmail.com" &&
+      (user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  });
 
-      if (!lastMessageA && !lastMessageB) return 0; // No messages for both users
-      if (!lastMessageA) return 1; // User A has no messages
-      if (!lastMessageB) return -1; // User B has no messages
+  const usersWithLastMessages = filteredUsers.filter(
+    (user) => lastMessages[user.id]
+  );
+  const usersWithoutLastMessages = filteredUsers.filter(
+    (user) => !lastMessages[user.id]
+  );
 
-      // Sort by message timestamp in descending order
-      return lastMessageB.timestamp - lastMessageA.timestamp;
-    });
-
-  // Add a function to update the last message state
   const updateLastMessage = (userId) => {
     setLastMessages((prevMessages) => {
       const updatedMessages = { ...prevMessages };
@@ -187,10 +176,10 @@ const Chat = () => {
       if (selectedUser) {
         const chatId = [currentUser.uid, selectedUser.id].sort().join("");
         const chatDocRef = doc(firestore, "chats", chatId);
-        await deleteDoc(chatDocRef); // Delete the conversation document
+        await deleteDoc(chatDocRef);
         console.log("Conversation deleted successfully!");
-        setSelectedUser(null); // Clear the selected user after deleting conversation
-        updateLastMessage(selectedUser.id); // Update last message state
+        setSelectedUser(null);
+        updateLastMessage(selectedUser.id);
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);
@@ -213,7 +202,7 @@ const Chat = () => {
               senderId: currentUser.uid,
               recipientId: selectedUser.id,
               content: messageContent,
-              timestamp: new Date(), // Change to current date
+              timestamp: new Date(),
             },
           ],
         });
@@ -225,7 +214,7 @@ const Chat = () => {
               senderId: currentUser.uid,
               recipientId: selectedUser.id,
               content: messageContent,
-              timestamp: new Date(), // Change to current date
+              timestamp: new Date(),
             },
           ],
         });
@@ -238,21 +227,20 @@ const Chat = () => {
   };
 
   const handleMessageChange = (e) => {
-    setMessageText(e.target.value); // Update the message text as the user types
+    setMessageText(e.target.value);
   };
 
   const handleSendMessage = () => {
     if (messageText.trim() === "") {
-      // Check if the message text is empty or contains only whitespace
       return;
     }
-    sendMessage(messageText); // Call sendMessage with the message text
-    setMessageText(""); // Clear the message input after sending
+    sendMessage(messageText);
+    setMessageText("");
   };
 
   const handleFormSubmit = (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
-    handleSendMessage(); // Call the sendMessage function when the form is submitted
+    e.preventDefault();
+    handleSendMessage();
   };
 
   const handleReportProfile = async () => {
@@ -276,7 +264,7 @@ const Chat = () => {
         inputPlaceholder: "Select a reason",
         inputAttributes: {
           autocapitalize: "off",
-          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;",
         },
         showCancelButton: true,
         cancelButtonText: "Cancel",
@@ -300,7 +288,6 @@ const Chat = () => {
           }
 
           try {
-            // Generate a random file name
             const randomFileName = Math.random().toString(36).substring(2);
             const storageRef = ref(
               storage,
@@ -377,8 +364,8 @@ const Chat = () => {
               className="w-full lg:w-1/4 overflow-y-auto"
               style={{ maxHeight: "400px" }}
             >
-              <div className="flex  lg:flex-col gap-1">
-                {filteredUsers.map((user) => (
+              <div className="flex lg:flex-col gap-1">
+                {usersWithLastMessages.map((user) => (
                   <div
                     key={user.id}
                     className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
@@ -413,8 +400,77 @@ const Chat = () => {
                     </div>
                   </div>
                 ))}
+
+                {searchQuery === ""
+                  ? // Display only the first three users without last messages
+                    usersWithoutLastMessages.slice(0, 3).map((user) => (
+                      <div
+                        key={user.id}
+                        className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
+                          selectedUser && selectedUser.id === user.id
+                            ? "bg-gray-200"
+                            : ""
+                        }`}
+                        onClick={() => handleUserSelect(user)}
+                      >
+                        <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
+                          <img
+                            src={user.profilePhotoUrl}
+                            alt={`${user.firstName} ${user.lastName}`}
+                            className="w-9 h-9 object-cover rounded-full"
+                          />
+                          <div>
+                            <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
+                              {user.firstName} {user.lastName}
+                            </h3>
+                            <p className="text-sm italic text-primary">
+                              Suggested User
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  : // Display all filtered users
+                    usersWithoutLastMessages
+                      .filter(
+                        (user) =>
+                          user.firstName
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          user.lastName
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                          user.email
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase())
+                      )
+                      .map((user) => (
+                        <div
+                          key={user.id}
+                          className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
+                            selectedUser && selectedUser.id === user.id
+                              ? "bg-gray-200"
+                              : ""
+                          }`}
+                          onClick={() => handleUserSelect(user)}
+                        >
+                          <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
+                            <img
+                              src={user.profilePhotoUrl}
+                              alt={`${user.firstName} ${user.lastName}`}
+                              className="w-9 h-9 object-cover rounded-full"
+                            />
+                            <div>
+                              <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
+                                {user.firstName} {user.lastName}
+                              </h3>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
               </div>
             </div>
+
             {selectedUser ? (
               <div className="w-full border h-[400px] p-4 rounded-lg mb-4 lg:w-3/4 flex flex-col justify-between">
                 <div className="flex justify-between items-center border-b pb-2">
