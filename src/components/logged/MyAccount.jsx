@@ -10,9 +10,11 @@ import {
   where,
   getDocs,
   deleteDoc,
+  setDoc,
 } from "firebase/firestore";
 import { useAuth } from "../../authContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { firestore } from "../../firebase";
 import cam from "../../assets/cam.png";
 import uploadload from "../../assets/loading.gif";
 import { MdOutlineAttachEmail } from "react-icons/md";
@@ -282,55 +284,126 @@ const MyAccount = () => {
     navigate(`/recipe/info/${recipe.id}`);
   };
 
-  // Function for account deletion confirmation
-  // Function for account deletion confirmation
-  const deleteAccount = () => {
-    Swal.fire({
-      title: "Are you sure you want to delete your account?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-      focusCancel: true,
-      html: `
-        <p>Please select reasons for deleting your account:</p>
-        <div class="grid grid-cols-2 gap-2">
-          <label class="btn btn-primary text-xs" for="reason1">  <input type="checkbox" class="checkbox checkbox-xs" id="reason1" name="reason1" value="No longer need the account"> No longer need the account</label>
-          <label class="btn btn-primary text-xs" for="reason2">  <input type="checkbox" class="checkbox checkbox-xs" id="reason2" name="reason2" value="Found better alternatives"> Found better alternatives</label>
-          <label class="btn btn-primary text-xs" for="reason3">  <input type="checkbox" class="checkbox checkbox-xs" id="reason3" name="reason3" value="Privacy concerns"> Privacy concerns</label>
-          <label class="btn btn-primary text-xs" for="reason4"><input type="checkbox" class="checkbox checkbox-xs" id="reason4" name="reason4" value="Account security issues"> Account security issues</label>
-          <label class="btn btn-primary text-xs" for="reason5"><input type="checkbox" class="checkbox checkbox-xs" id="reason5" name="reason5" value="There are many bogus seller/buyer"> Other</label>
-          <label class="btn btn-primary text-xs" for="reason6"><input type="checkbox" class="checkbox checkbox-xs" id="reason6" name="reason6" value="Just want to delete"> Just want to delete</label>
-        </div>
-      `,
-      preConfirm: () => {
-        const reasons = [];
-        const checkboxes = document.querySelectorAll(
-          'input[type="checkbox"]:checked'
-        );
-        checkboxes.forEach((checkbox) => {
-          reasons.push(checkbox.value);
-        });
-        return {
-          reasons: reasons,
-        };
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const selectedReasons = result.value.reasons;
-        // Perform account deletion logic here
-        Swal.fire(
-          "Deleted!",
-          `Your account has been deleted. Selected Reasons: ${selectedReasons.join(
-            ", "
-          )}`,
-          "success"
-        );
-      }
-    });
-  };
+  const deleteAccount = async () => {
+    try {
+      if (auth.currentUser) {
+        const userId = auth.currentUser.uid;
 
+        const docRef = doc(firestore, "accountDeleteReasons", userId);
+        const docSnap = await getDoc(docRef);
+        const previousReason = docSnap.exists() ? docSnap.data().reason : null;
+        const previousExplanation = docSnap.exists()
+          ? docSnap.data().explanation
+          : null;
+
+        const title = previousReason
+          ? "You previously submitted an account deletion request. Do you want to edit your reason or explanation?"
+          : "Why do you want to delete your account?";
+
+        const { value: reason, value: explanation } = await Swal.fire({
+          title: title,
+          input: "select",
+          inputOptions: {
+            "No longer need the account": "No longer need the account",
+            "Found better alternatives": "Found better alternatives",
+            "Privacy concerns": "Privacy concerns",
+            "Account security issues": "Account security issues",
+            "Just want to delete": "Just want to delete",
+            Other: "Other",
+          },
+          inputValidator: (value) => {
+            if (!value) {
+              return "You need to select a reason";
+            }
+          },
+          inputPlaceholder: "Select a reason",
+          inputAttributes: {
+            autocapitalize: "off",
+            style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+          },
+          showCancelButton: true,
+          cancelButtonText: "Cancel",
+          confirmButtonColor: "#008080",
+          confirmButtonText: "Submit",
+          showLoaderOnConfirm: true,
+          html:
+            '<textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why">' +
+            (previousExplanation ? previousExplanation : "") +
+            "</textarea>",
+          preConfirm: async () => {
+            const explanationValue =
+              Swal.getPopup().querySelector("#swal-input2").value;
+            if (!explanationValue) {
+              Swal.showValidationMessage("You need to provide an explanation");
+            } else {
+              const reasonValue =
+                Swal.getPopup().querySelector(".swal2-select").value;
+              const deletionData = {
+                reason: reasonValue,
+                explanation: explanationValue,
+                userId: userId,
+              };
+
+              // Show a confirmation dialog before submitting the deletion request
+              const confirmResult = await Swal.fire({
+                title: "Are you sure?",
+                text: "This action cannot be undone.",
+                icon: "warning",
+                html: '<input id="confirmInput" class="swal2-input" placeholder="Type \'Confirm\' to proceed">',
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                confirmButtonText: "Yes, delete my account",
+                preConfirm: () => {
+                  const confirmInputValue =
+                    document.getElementById("confirmInput").value;
+                  if (confirmInputValue.trim().toLowerCase() !== "confirm") {
+                    Swal.showValidationMessage(
+                      "Please type 'Confirm' to proceed"
+                    );
+                  }
+                },
+              });
+
+              if (confirmResult.isConfirmed) {
+                // Proceed with deletion
+                try {
+                  await setDoc(docRef, deletionData);
+                  Swal.fire({
+                    title: "Account Deletion Request Sent Successfully",
+                    text: "Please wait for the confirmation.",
+                    icon: "success",
+                    confirmButtonColor: "#008080",
+                    confirmButtonText: "Done",
+                  });
+                } catch (error) {
+                  console.error("Error deleting account:", error);
+                  Swal.fire(
+                    "Error!",
+                    "An error occurred while processing the account deletion request.",
+                    "error"
+                  );
+                }
+              }
+            }
+          },
+        });
+
+        if (reason && explanation) {
+          // Any additional logic after account deletion request
+        }
+      } else {
+        console.log("User not authenticated");
+        // Handle if user is not authenticated
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while processing the account deletion request.",
+        "error"
+      );
+    }
+  };
   // Function for account deactivation confirmation
   const deactivateAccount = () => {
     Swal.fire({
@@ -563,10 +636,10 @@ const MyAccount = () => {
                 >
                   <FaPhone size={15} /> {userData.contact}
                 </a>
-                <div className="md:flex justify-center gap-2">
+                <div className="md:flex flex-col justify-center md:gap-0 gap-2">
                   <div className="flex justify-center pt-2">
                     <button
-                      className="btn-error btn btn-sm   text-white "
+                      className="btn-error btn btn-sm    text-white "
                       onClick={deleteAccount}
                     >
                       <CiWarning className="text-xl font-bold" />
