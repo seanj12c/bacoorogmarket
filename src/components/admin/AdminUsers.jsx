@@ -23,6 +23,7 @@ import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -145,29 +146,6 @@ const AdminUsers = () => {
     }
   };
 
-  const deleteAccount = async (user) => {
-    const result = await Swal.fire({
-      title: `Are you sure you want to delete ${user.firstName} ${user.lastName} from the database?`,
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "No, cancel!",
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const userRef = doc(firestore, "registered", user.id);
-        await deleteDoc(userRef);
-        Swal.fire("Deleted!", "User has been deleted.", "success");
-      } catch (error) {
-        Swal.fire("Error!", "Error deleting user.", "error");
-      }
-    }
-  };
-
   // Filter users based on search query
   const filteredUsers = users.filter((user) => {
     return (
@@ -234,10 +212,8 @@ const AdminUsers = () => {
             {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
-                <img className="h-28 mx-auto" src={logo} alt="" />
-                <h1 className="text-center font-bold text-2xl lg:text-3xl">
-                  Admin Panel
-                </h1>
+                <img className="h-20 mx-auto" src={logo} alt="" />
+                <h1 className="text-center font-bold text-xl">Admin Panel</h1>
               </div>
               <ul className="text-left text-black  flex flex-col h-full mt-6">
                 <Link to="/admin/users">
@@ -274,6 +250,12 @@ const AdminUsers = () => {
                   <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
                     <MdOutlineReport size={25} />
                     Reports
+                  </li>
+                </Link>
+                <Link to="/admin/delete/user">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <RiDeleteBin6Line size={25} />
+                    Deletion Requests
                   </li>
                 </Link>
                 <li
@@ -361,12 +343,6 @@ const AdminUsers = () => {
                                   Disable
                                 </button>
                               )}
-                              <button
-                                className="block w-full py-2 px-1 text-center bg-red-500 text-white rounded-md text-xs hover:bg-red-900 border border-gray-200 mt-2"
-                                onClick={() => deleteAccount(user)}
-                              >
-                                Delete
-                              </button>
                             </td>
                           </tr>
                         ))}
