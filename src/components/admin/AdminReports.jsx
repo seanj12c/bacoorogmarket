@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
 import Swal from "sweetalert2";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminReports = () => {
   const [loading, setLoading] = useState(true);
@@ -133,10 +134,8 @@ const AdminReports = () => {
             {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
-                <img className="h-28 mx-auto" src={logo} alt="" />
-                <h1 className="text-center font-bold text-2xl lg:text-3xl">
-                  Admin Panel
-                </h1>
+                <img className="h-20 mx-auto" src={logo} alt="" />
+                <h1 className="text-center font-bold text-xl">Admin Panel</h1>
               </div>
               <ul className="text-left text-black  flex flex-col h-full mt-6">
                 <Link to="/admin/users">
@@ -169,10 +168,18 @@ const AdminReports = () => {
                     Appeal
                   </li>
                 </Link>
-                <li className="bg-primary cursor-pointer p-4 text-white text-xs flex gap-2 items-center">
-                  <MdOutlineReport size={25} />
-                  Reports
-                </li>
+                <Link to="/admin/reports">
+                  <li className="bg-primary p-4 text-white text-xs flex gap-2 items-center">
+                    <MdOutlineReport size={25} />
+                    Reports
+                  </li>
+                </Link>
+                <Link to="/admin/delete/user">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <RiDeleteBin6Line size={25} />
+                    Deletion Requests
+                  </li>
+                </Link>
                 <li
                   onClick={handleLogoutConfirmation}
                   className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
