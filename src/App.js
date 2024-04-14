@@ -27,8 +27,10 @@ import AdminLocations from "./components/admin/AdminLocations";
 import AdminRecipes from "./components/admin/AdminRecipes";
 import AdminAppeal from "./components/admin/AdminAppeal";
 import AdminReports from "./components/admin/AdminReports";
+import AdminDelete from "./components/admin/AdminDelete";
 import Fillup from "./components/authentication/Fillup";
 import Chat from "./components/logged/Chat";
+import DeleteConfirmation from "./components/authentication/DeleteConfirmation";
 import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
 import Profile from "./components/logged/Profile";
 import EditProduct from "./components/logged/EditProduct";
@@ -65,7 +67,10 @@ function AppRoutes() {
         try {
           const docSnap = await getDoc(userRef);
           const userData = docSnap.data();
-          if (userData.disabled) {
+          if (userData.deleteAccount) {
+            setLoading(false);
+            navigate("/deletion/confirmation");
+          } else if (userData.disabled) {
             // Fetch reason from "disabledReason" collection based on user's UID
             const reasonRef = doc(
               collection(db, "disabledReason"),
@@ -113,6 +118,8 @@ function AppRoutes() {
     return () => unsubscribe();
   }, [navigate, disableReason]);
 
+  // Function to handle account deletion
+
   if (loading) {
     return (
       <div className="h-screen pt-0 w-full grid items-center">
@@ -131,6 +138,7 @@ function AppRoutes() {
     "/register,",
     "/fillup",
     "/user/appeal",
+    "/deletion/confirmation",
   ];
 
   const isNavbarHidden = navbarHiddenRoutes.includes(location.pathname);
@@ -277,6 +285,20 @@ function AppRoutes() {
             )
           }
         />{" "}
+        <Route
+          path="/deletion/confirmation"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <DeleteConfirmation />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
         <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/edit_product/:productId" element={<EditProduct />} />
         <Route path="/edit_recipe/:recipeId" element={<EditRecipe />} />
@@ -362,6 +384,10 @@ function AppRoutes() {
         <Route
           path="/admin/reports"
           element={admin ? <AdminReports /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/delete/user"
+          element={admin ? <AdminDelete /> : <Navigate to="/login" />}
         />
       </Routes>
       <ToastContainer />
