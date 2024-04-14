@@ -10,6 +10,7 @@ import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
 import logo from "../../assets/logo.png";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 export const NavbarAdmin = ({
   users,
@@ -18,6 +19,7 @@ export const NavbarAdmin = ({
   recipes,
   appeals,
   reports,
+  deletions,
 }) => {
   const user = `${users}`;
   const location = `${locations}`;
@@ -25,6 +27,7 @@ export const NavbarAdmin = ({
   const recipe = `${recipes}`;
   const appeal = `${appeals}`;
   const report = `${reports}`;
+  const deletionRequest = `${deletions}`;
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
 
@@ -145,6 +148,15 @@ export const NavbarAdmin = ({
                 <li className={`${report} p-4 flex gap-2 items-center`}>
                   <MdOutlineReport size={30} />
                   Reports
+                </li>
+              </Link>
+
+              <Link to="/admin/delete/user">
+                <li
+                  className={`${deletionRequest} p-4 flex gap-2 items-center`}
+                >
+                  <RiDeleteBin6Line size={30} />
+                  Deletion Requests
                 </li>
               </Link>
             </ul>
