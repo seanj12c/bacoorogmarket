@@ -103,7 +103,7 @@ const Chat = () => {
       return onSnapshot(chatDocRef, (doc) => {
         const chatData = doc.data();
         const lastMessage = chatData?.messages?.[chatData.messages.length - 1];
-        if (lastMessage) {
+        if (lastMessage && user.firstName && user.lastName) {
           setLastMessages((prevMessages) => ({
             ...prevMessages,
             [user.id]: lastMessage,
