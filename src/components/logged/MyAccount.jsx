@@ -723,8 +723,17 @@ const MyAccount = () => {
                         // Render product item
                         <div
                           key={index}
-                          className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                          className={`${
+                            product.isHidden ? "relative" : ""
+                          } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
                         >
+                          {product.isHidden && (
+                            <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
+                              <p className="text-white">
+                                This post is hidden due to: {product.hideReason}
+                              </p>
+                            </div>
+                          )}
                           <div className="flex gap-2 py-2 items-center w-full justify-between">
                             <div className="flex gap-2 items-center w-full justify-between px-2">
                               <div className="flex gap-4 items-center">
@@ -767,7 +776,6 @@ const MyAccount = () => {
                                     >
                                       Edit
                                     </Link>
-
                                     <div className="flex flex-col gap-1 justify-center">
                                       {!isEditing ? (
                                         <button
@@ -849,9 +857,17 @@ const MyAccount = () => {
                         // Render recipe item
                         <div
                           key={index}
-                          className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                          className={`${
+                            recipe.isHidden ? "relative" : ""
+                          } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
                         >
-                          {/* Recipe content */}
+                          {recipe.isHidden && (
+                            <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
+                              <p className="text-white">
+                                This post is hidden due to: {recipe.hideReason}
+                              </p>
+                            </div>
+                          )}
                           <div className="flex gap-2 py-2 items-center w-full justify-between">
                             <div className="flex gap-2 items-center w-full justify-between px-2">
                               <div className="flex gap-4 items-center">
@@ -877,7 +893,6 @@ const MyAccount = () => {
                                   </p>
                                 </div>
                               </div>
-
                               <div style={{ position: "relative" }}>
                                 <HiDotsHorizontal
                                   className="text-primary"
@@ -895,7 +910,6 @@ const MyAccount = () => {
                                     >
                                       Edit
                                     </Link>
-
                                     <div className="flex flex-col gap-1 justify-center">
                                       {!isEditing ? (
                                         <button
@@ -958,7 +972,7 @@ const MyAccount = () => {
                         <div className="skeleton h-4 w-full"></div>
                         <div className="skeleton h-4 w-full"></div>
                       </div>
-                      <p className="text-center  text-xs md:text-lg  text-primary italic">
+                      <p className="text-center text-xs md:text-lg text-primary italic">
                         You have no recipe/s posted yet. Post now and your
                         secret recipe will be revealed!
                       </p>

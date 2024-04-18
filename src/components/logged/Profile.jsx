@@ -309,7 +309,7 @@ const Profile = () => {
             </div>
             <div className="md:w-2/3 md:px-5 md:ml-auto">
               <div className="md:fixed md:flex justify-center bg-bgray md:bg-transparent md:w-2/3 md:px-5 mx-auto py-2 rounded-lg my-2">
-                <div className="md:glass md:w-full md:max-w-3xl md:h-20 rounded-lg p-2">
+                <div className="md:glass md:w-full  md:max-w-3xl md:h-20 rounded-lg p-2">
                   <h1 className="text-center font-bold text-black mb-2">
                     {user.firstName}'s posts here
                   </h1>
@@ -348,8 +348,17 @@ const Profile = () => {
                         <div
                           onClick={() => handleProductClick(product.id)}
                           key={index}
-                          className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                          className={`${
+                            product.isHidden ? "relative" : ""
+                          } bg-bgray rounded-lg mt-2 shadow p-4 z-[-1] cursor-pointer`}
                         >
+                          {product.isHidden && (
+                            <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
+                              <p className="text-white">
+                                This post is hidden due to: {product.hideReason}
+                              </p>
+                            </div>
+                          )}
                           <div className="flex gap-2 py-2 items-center w-full justify-between">
                             <div className="flex gap-2 items-center w-full justify-between px-2">
                               <div className="flex gap-4 items-center">
@@ -417,8 +426,17 @@ const Profile = () => {
                       <div
                         onClick={() => handleRecipeClick(recipe.id)}
                         key={index}
-                        className="bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer"
+                        className={`${
+                          recipe.isHidden ? "relative" : ""
+                        } bg-bgray rounded-lg mt-2 shadow p-4 z-[-1] cursor-pointer`}
                       >
+                        {recipe.isHidden && (
+                          <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
+                            <p className="text-white">
+                              This post is hidden due to: {recipe.hideReason}
+                            </p>
+                          </div>
+                        )}
                         <div className="flex gap-2 py-2 items-center w-full justify-between">
                           <div className="flex gap-2 items-center w-full justify-between px-2">
                             <div className="flex gap-4 items-center">
