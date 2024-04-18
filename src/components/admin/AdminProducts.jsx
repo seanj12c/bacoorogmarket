@@ -6,7 +6,7 @@ import {
   orderBy,
   onSnapshot,
   doc,
-  deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
@@ -46,6 +46,7 @@ const AdminProducts = () => {
           price: data.price, // Added price field
           firstName: data.firstName,
           lastName: data.lastName,
+          isHidden: data.isHidden || false, // Initialize isHidden property
           // Add more fields if needed
         });
       });
@@ -58,31 +59,86 @@ const AdminProducts = () => {
     };
   }, []);
 
-  const deleteProduct = async (docId, productCaption) => {
-    Swal.fire({
-      title: `Are you sure you want to delete "${productCaption}" from the product database?`,
-      icon: "warning",
-      showCancelButton: true,
-      cancelButtonColor: "#3085d6",
-      confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const db = firestore;
-          const productDocRef = doc(db, "products", docId);
-          await deleteDoc(productDocRef);
-          Swal.fire("Deleted!", "Your product has been deleted.", "success");
-        } catch (error) {
-          console.error("Error deleting product:", error);
-          Swal.fire(
-            "Error!",
-            "An error occurred while deleting the product.",
-            "error"
+  const toggleProductVisibility = async (productId, isHidden) => {
+    try {
+      if (isHidden) {
+        // Product is hidden, show confirm dialog to show it
+        const confirmationResult = await Swal.fire({
+          title: "Show Product",
+          text: "Are you sure you want to show this product?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          confirmButtonText: "Yes",
+          cancelButtonText: "Cancel",
+        });
+
+        if (confirmationResult.isConfirmed) {
+          const productDocRef = doc(firestore, "products", productId);
+          await updateDoc(productDocRef, {
+            isHidden: false,
+            hideReason: null, // Clear the hide reason when showing the product
+          });
+          // Update local state to reflect the change
+          setProducts((prevProducts) =>
+            prevProducts.map((product) =>
+              product.id === productId
+                ? { ...product, isHidden: false, hideReason: null }
+                : product
+            )
           );
+          Swal.fire("Success!", `Product has been shown.`, "success");
         }
+        return;
       }
-    });
+
+      // Product is visible, show input options to hide it
+      const { value: reason } = await Swal.fire({
+        title: "Hide Product",
+        input: "select",
+        inputLabel: "Select a reason",
+        inputOptions: {
+          "Inappropriate Content": "Inappropriate Content",
+          "Spam or Scams": "Spam or Scams",
+          "Copyright Infringement": "Copyright Infringement",
+          "False Information": "False Information",
+          "Violations of Website Policies": "Violations of Website Policies",
+          "Privacy Concerns": "Privacy Concerns",
+        },
+        inputPlaceholder: "Select a reason",
+        showCancelButton: true,
+        confirmButtonText: "Hide",
+        confirmButtonColor: "#d33",
+        cancelButtonText: "Cancel",
+        inputValidator: (value) => {
+          return !value && "You need to select a reason!";
+        },
+      });
+
+      if (reason) {
+        const productDocRef = doc(firestore, "products", productId);
+        await updateDoc(productDocRef, {
+          isHidden: true,
+          hideReason: reason, // Store the hide reason in Firestore
+        });
+        // Update local state to reflect the change
+        setProducts((prevProducts) =>
+          prevProducts.map((product) =>
+            product.id === productId
+              ? { ...product, isHidden: true, hideReason: reason }
+              : product
+          )
+        );
+        Swal.fire("Success!", `Product has been hidden.`, "success");
+      }
+    } catch (error) {
+      console.error("Error updating product visibility:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while updating product visibility.",
+        "error"
+      );
+    }
   };
 
   // Filter products based on search query
@@ -279,10 +335,13 @@ const AdminProducts = () => {
                             <button
                               className="block w-full font-normal btn-sm btn btn-error text-white mt-2"
                               onClick={() =>
-                                deleteProduct(product.id, product.caption)
+                                toggleProductVisibility(
+                                  product.id,
+                                  product.isHidden
+                                )
                               }
                             >
-                              Delete
+                              {product.isHidden ? "Show" : "Hide"}
                             </button>
                           </td>
                         </tr>

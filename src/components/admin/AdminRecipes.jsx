@@ -6,7 +6,7 @@ import {
   orderBy,
   onSnapshot,
   doc,
-  deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
@@ -26,7 +26,6 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 const AdminRecipes = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -44,6 +43,7 @@ const AdminRecipes = () => {
           photos: data.photos,
           firstName: data.firstName,
           lastName: data.lastName,
+          isHidden: data.isHidden || false, // Initialize isHidden property
           // Add more fields if needed
         });
       });
@@ -56,31 +56,83 @@ const AdminRecipes = () => {
     };
   }, []);
 
-  const deleteRecipe = async (recipeId, recipeCaption) => {
-    Swal.fire({
-      title: `Are you sure you want to delete "${recipeCaption}" from the recipe database?`,
-      icon: "warning",
-      showCancelButton: true,
-      cancelButtonColor: "#3085d6",
-      confirmButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const db = firestore;
-          const recipeDocRef = doc(db, "recipes", recipeId);
-          await deleteDoc(recipeDocRef);
-          Swal.fire("Deleted!", "Your recipe has been deleted.", "success");
-        } catch (error) {
-          console.error("Error deleting recipe:", error);
-          Swal.fire(
-            "Error!",
-            "An error occurred while deleting the recipe.",
-            "error"
+  const toggleRecipeVisibility = async (recipeId, isHidden, recipeCaption) => {
+    try {
+      if (isHidden) {
+        const confirmationResult = await Swal.fire({
+          title: "Show Recipe",
+          text: `Are you sure you want to show "${recipeCaption}"?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          confirmButtonText: "Yes",
+          cancelButtonText: "Cancel",
+        });
+
+        if (confirmationResult.isConfirmed) {
+          const recipeDocRef = doc(firestore, "recipes", recipeId);
+          await updateDoc(recipeDocRef, {
+            isHidden: false,
+            hideReason: null, // Clear the hide reason when showing the recipe
+          });
+          setRecipes((prevRecipes) =>
+            prevRecipes.map((recipe) =>
+              recipe.id === recipeId
+                ? { ...recipe, isHidden: false, hideReason: null }
+                : recipe
+            )
           );
+          Swal.fire("Success!", `Recipe has been shown.`, "success");
         }
+        return;
       }
-    });
+
+      const { value: reason } = await Swal.fire({
+        title: "Hide Recipe",
+        input: "select",
+        inputLabel: "Select a reason",
+        inputOptions: {
+          "Inappropriate Content": "Inappropriate Content",
+          "Misleading Information": "Misleading Information",
+          "Copyright Infringement": "Copyright Infringement",
+          "Safety Concerns": "Safety Concerns",
+          "Spam or Scams": "Spam or Scams",
+          "Violation of Community Guidelines":
+            "Violation of Community Guidelines",
+        },
+        inputPlaceholder: "Select a reason",
+        showCancelButton: true,
+        confirmButtonText: "Hide",
+        confirmButtonColor: "#d33",
+        cancelButtonText: "Cancel",
+        inputValidator: (value) => {
+          return !value && "You need to select a reason!";
+        },
+      });
+
+      if (reason) {
+        const recipeDocRef = doc(firestore, "recipes", recipeId);
+        await updateDoc(recipeDocRef, {
+          isHidden: true,
+          hideReason: reason, // Store the hide reason in Firestore
+        });
+        setRecipes((prevRecipes) =>
+          prevRecipes.map((recipe) =>
+            recipe.id === recipeId
+              ? { ...recipe, isHidden: true, hideReason: reason }
+              : recipe
+          )
+        );
+        Swal.fire("Success!", `Recipe has been hidden.`, "success");
+      }
+    } catch (error) {
+      console.error("Error updating recipe visibility:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while updating recipe visibility.",
+        "error"
+      );
+    }
   };
 
   // Filter recipes based on search query
@@ -271,10 +323,14 @@ const AdminRecipes = () => {
                             <button
                               className="block font-normal btn-sm w-full btn btn-error text-white mt-2"
                               onClick={() =>
-                                deleteRecipe(recipe.id, recipe.caption)
+                                toggleRecipeVisibility(
+                                  recipe.id,
+                                  recipe.isHidden,
+                                  recipe.caption
+                                )
                               }
                             >
-                              Delete
+                              {recipe.isHidden ? "Show" : "Hide"}
                             </button>
                           </td>
                         </tr>
