@@ -36,7 +36,10 @@ const Marketplace = () => {
           const userDocSnap = await getDoc(userDocRef);
           const userData = userDocSnap.data();
 
+          // Check if the product is not hidden and not deactivated
           if (
+            !data.isHidden &&
+            !userData.isDeactivated &&
             (freshnessFilter === "None" ||
               typeOfProduct.freshness === freshnessFilter) &&
             (productFilter === "None" ||
@@ -50,8 +53,7 @@ const Marketplace = () => {
               data.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
               data.description
                 .toLowerCase()
-                .includes(searchQuery.toLowerCase())) &&
-            !data.isHidden // Check if the product is not hidden
+                .includes(searchQuery.toLowerCase()))
           ) {
             productsData.push({
               id: docSnap.id,
@@ -244,7 +246,9 @@ const Marketplace = () => {
                       {product.photos.slice(0, 3).map((photo, index) => (
                         <img
                           key={index}
-                          className="w-full h-36 object-cover rounded-lg mb-2"
+                          className={` ${
+                            product.photos.length > 1 ? "h-36" : "h-72"
+                          } w-full  object-cover rounded-lg mb-2`}
                           src={photo}
                           alt={`PostPic ${index} by ${product.firstName} ${product.lastName}`}
                         />
