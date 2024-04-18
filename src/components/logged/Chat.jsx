@@ -108,7 +108,10 @@ const Chat = () => {
             ...prevMessages,
             [user.id]: lastMessage,
           }));
-          if (lastMessage.recipientId === currentUser.uid) {
+          if (
+            lastMessage.recipientId === currentUser.uid &&
+            !lastMessage.read
+          ) {
             toast.info(`${user.firstName} sent you a message`, {
               autoClose: 5000,
             });
@@ -135,6 +138,17 @@ const Chat = () => {
           users: [currentUser.uid, user.id],
           messages: [],
         });
+      } else {
+        // Mark messages as read in the database
+        const messages = chatDocSnap.data().messages || [];
+        messages.forEach((message) => {
+          if (message.senderId === user.id && !message.read) {
+            message.read = true;
+          }
+        });
+
+        // Update the messages in the database
+        await updateDoc(chatDocRef, { messages });
       }
 
       navigate(`/chat/${chatId}`);
@@ -212,6 +226,7 @@ const Chat = () => {
               recipientId: selectedUser.id,
               content: messageContent,
               timestamp: new Date(),
+              read: false, // Set the read field to false
             },
           ],
         });
@@ -224,6 +239,7 @@ const Chat = () => {
               recipientId: selectedUser.id,
               content: messageContent,
               timestamp: new Date(),
+              read: false, // Set the read field to false
             },
           ],
         });
@@ -237,6 +253,8 @@ const Chat = () => {
 
   const handleMessageChange = (e) => {
     setMessageText(e.target.value);
+
+    // Update read status of messages when message text changes
   };
 
   const handleSendMessage = () => {
