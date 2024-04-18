@@ -349,7 +349,7 @@ const MyAccount = () => {
                 title: "Are you sure?",
                 text: "This action cannot be undone.",
                 icon: "warning",
-                html: '<input id="confirmInput" class="swal2-input" placeholder="Type \'Confirm\' to proceed">',
+                html: '<input id="confirmInput" class="p-3 input input-bordered text-xs md:text-base w-full" placeholder="Type \'Confirm\' to proceed">',
                 showCancelButton: true,
                 confirmButtonColor: "#d33",
                 confirmButtonText: "Yes, delete my account",
@@ -405,33 +405,141 @@ const MyAccount = () => {
     }
   };
   // Function for account deactivation confirmation
-  const deactivateAccount = () => {
-    Swal.fire({
-      title: "Deactivate Account",
-      input: "text",
-      inputPlaceholder: "Please specify your reason...",
-      showCancelButton: true,
-      confirmButtonText: "Deactivate",
-      confirmButtonColor: "#d33",
-      cancelButtonText: "Cancel",
-      focusCancel: true,
-      preConfirm: (value) => {
-        if (!value) {
-          Swal.showValidationMessage("Please specify your reason");
-        }
-        return value;
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const reason = result.value;
-        // Perform account deactivation logic here
+  const deactivateAccount = async () => {
+    const inputOptions = {
+      "Discouraged negative feedback": "Discouraged negative feedback",
+      "Lack of trust in buyer-seller interactions.":
+        "Lack of trust in buyer-seller interactions.",
+      "I just want to deactivate": "I just want to deactivate",
+      "Too much time involved in selling": "Too much time involved in selling",
+      "Identity protection": "Identity protection",
+      "Financial reasons": "Financial reasons",
+      Others: "Others",
+    };
+
+    try {
+      const {
+        value: { reason, explanation },
+      } = await Swal.fire({
+        title: "Deactivate Account",
+        html: `
+        <textarea id="explanationInput" class="p-3 input input-bordered text-xs md:text-base w-full" placeholder="Please provide an explanation..." style="margin-top: 10px;"></textarea>
+        <select id="reasonSelect" class="swal2-select mx-auto" style="border: 1px solid #ccc; border-radius: 5px; padding: 5px;">
+          <option value="" disabled selected>Select a reason...</option>
+          ${Object.entries(inputOptions)
+            .map(([key, value]) => `<option value="${key}">${value}</option>`)
+            .join("")}
+        </select>
+      `,
+        showCancelButton: true,
+        confirmButtonText: "Deactivate",
+        confirmButtonColor: "#d33",
+        cancelButtonText: "Cancel",
+        focusCancel: true,
+        preConfirm: () => {
+          const reason = document.getElementById("reasonSelect").value;
+          const explanation = document.getElementById("explanationInput").value;
+
+          if (!reason || !explanation) {
+            Swal.showValidationMessage(
+              "Please select a reason and provide an explanation"
+            );
+            return false;
+          }
+
+          return { reason, explanation };
+        },
+      });
+
+      if (!reason || !explanation) return;
+
+      const confirmResult = await Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone.",
+        icon: "warning",
+        html: `
+        <input id="confirmInput" class="swal2-input text-xs md:text-base w-full mx-auto" style="border: 1px solid #ccc; border-radius: 5px; padding: 2px;"
+               placeholder="Type 'Deactivate to proceed'">
+      `,
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Yes, deactivate my account",
+        preConfirm: () => {
+          const confirmInputValue =
+            document.getElementById("confirmInput").value;
+          if (confirmInputValue.trim().toLowerCase() !== "deactivate") {
+            Swal.showValidationMessage("Please type 'Deactivate' to proceed");
+            return false;
+          }
+        },
+      });
+
+      if (!confirmResult.isConfirmed) {
         Swal.fire({
-          title: "Account Deactivated",
-          text: `Your account has been deactivated. Reason: ${reason}`,
-          icon: "success",
+          title: "Deactivation Canceled",
+          text: "Your account deactivation has been canceled.",
+          icon: "info",
         });
+        return;
       }
-    });
+
+      // Perform account deactivation logic here
+      // Add code here to update the user's account status to deactivated
+
+      const userId = auth.currentUser.uid;
+      const docRef = doc(firestore, "accountDeactivateReasons", userId);
+
+      await setDoc(docRef, { reason, explanation, userId });
+
+      // Hide recipes
+      const recipesQuery = query(
+        collection(firestore, "recipes"),
+        where("userUid", "==", userId)
+      );
+      const recipesSnapshot = await getDocs(recipesQuery);
+      recipesSnapshot.forEach(async (doc) => {
+        await updateDoc(doc.ref, { accountDeactivated: true });
+      });
+
+      // Hide products
+      const productsQuery = query(
+        collection(firestore, "products"),
+        where("userUid", "==", userId)
+      );
+      const productsSnapshot = await getDocs(productsQuery);
+      productsSnapshot.forEach(async (doc) => {
+        await updateDoc(doc.ref, { accountDeactivated: true });
+      });
+
+      // Hide chats
+      const chatsQuery = query(
+        collection(firestore, "chats"),
+        where("messages", "array-contains", { senderId: userId })
+      );
+      const chatsSnapshot = await getDocs(chatsQuery);
+      chatsSnapshot.forEach(async (doc) => {
+        await updateDoc(doc.ref, { accountDeactivated: true });
+      });
+
+      Swal.fire({
+        title: "Account Deactivated",
+        text: `Your account has been deactivated. Reason: ${reason}. Explanation: ${explanation}`,
+        icon: "success",
+      });
+
+      navigate("/");
+
+      // Update user status to deactivated
+      const userRef = doc(firestore, "registered", userId);
+      await updateDoc(userRef, { isDeactivated: true });
+    } catch (error) {
+      console.error("Error deactivating account:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while deactivating your account.",
+        "error"
+      );
+    }
   };
 
   return (
