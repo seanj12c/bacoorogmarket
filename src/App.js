@@ -42,6 +42,7 @@ import ProductInfo from "./components/logged/ProductInfo";
 import RecipeInfo from "./components/logged/RecipeInfo";
 import Swal from "sweetalert2";
 import Appeal from "./components/authentication/Appeal";
+import Deactivated from "./components/authentication/Deactivated";
 
 function AppRoutes() {
   const location = useLocation();
@@ -67,7 +68,10 @@ function AppRoutes() {
         try {
           const docSnap = await getDoc(userRef);
           const userData = docSnap.data();
-          if (userData.deleteAccount) {
+          if (userData.isDeactivated) {
+            setLoading(false);
+            navigate("/account/deactivation");
+          } else if (userData.deleteAccount) {
             setLoading(false);
             navigate("/deletion/confirmation");
           } else if (userData.disabled) {
@@ -139,6 +143,7 @@ function AppRoutes() {
     "/fillup",
     "/user/appeal",
     "/deletion/confirmation",
+    "/account/deactivation",
   ];
 
   const isNavbarHidden = navbarHiddenRoutes.includes(location.pathname);
@@ -293,6 +298,20 @@ function AppRoutes() {
                 <Navigate to="/admin/users" />
               ) : (
                 <DeleteConfirmation />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/account/deactivation"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <Deactivated />
               )
             ) : (
               <Navigate to="/login" />
