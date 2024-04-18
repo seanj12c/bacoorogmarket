@@ -339,160 +339,179 @@ const Profile = () => {
               </div>
               <div className="md:pt-24">
                 {displayProducts ? (
-                  userPosts.filter((post) => post.type === "product").length >
-                  0 ? (
-                    userPosts
-                      .filter((post) => post.type === "product")
-                      .sort((a, b) => b.productId - a.productId)
-                      .map((product, index) => (
-                        <div
-                          onClick={() => handleProductClick(product.id)}
-                          key={index}
-                          className={`${
-                            product.isHidden ? "relative" : ""
-                          } bg-bgray rounded-lg mt-2 shadow p-4 z-[-1] cursor-pointer`}
-                        >
-                          {product.isHidden && (
-                            <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
-                              <p className="text-white">
-                                This post is hidden due to: {product.hideReason}
-                              </p>
-                            </div>
-                          )}
-                          <div className="flex gap-2 py-2 items-center w-full justify-between">
-                            <div className="flex gap-2 items-center w-full justify-between px-2">
-                              <div className="flex gap-4 items-center">
-                                <img
-                                  src={user.profilePhotoUrl}
-                                  alt="Profile"
-                                  className="w-12 h-12 rounded-full object-cover inline-block"
-                                />
-                                <div>
-                                  <p className="text-primary text-sm font-semibold">
-                                    {user.firstName} {user.lastName}
-                                  </p>
-                                  <p className="text-gray-500 text-xs">
-                                    {product.timestamp}
-                                  </p>
+                  // Render products
+                  <div className="">
+                    {userPosts.filter(
+                      (post) => post.type === "product" && !post.isHidden
+                    ).length > 0 ? (
+                      userPosts
+                        .filter(
+                          (post) => post.type === "product" && !post.isHidden
+                        )
+                        .sort((a, b) => b.productId - a.productId)
+                        .map((product, index) => (
+                          // Render product item
+                          <div
+                            onClick={() => handleProductClick(product.id)}
+                            key={index}
+                            className={`${
+                              product.isHidden ? "relative" : ""
+                            } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
+                          >
+                            {product.isHidden && (
+                              <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
+                                <p className="text-white">
+                                  This post is hidden due to:{" "}
+                                  {product.hideReason}
+                                </p>
+                              </div>
+                            )}
+                            <div className="flex gap-2 py-2 items-center w-full justify-between">
+                              <div className="flex gap-2 items-center w-full justify-between px-2">
+                                <div className="flex gap-4 items-center">
+                                  <img
+                                    src={user.profilePhotoUrl}
+                                    alt="Profile"
+                                    className="w-12 h-12 rounded-full object-cover inline-block"
+                                  />
+                                  <div>
+                                    <p className="text-primary text-sm font-semibold">
+                                      {user.firstName} {user.lastName}
+                                    </p>
+                                    <p className="text-gray-500 text-xs">
+                                      {product.timestamp}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="mb-4">
-                            <h1 className="text-lg font-semibold mb-2">
-                              {product.caption}
-                            </h1>
-                          </div>
-                          <div
-                            className={
-                              product.photos && product.photos.length > 1
-                                ? "grid gap-2 grid-cols-2"
-                                : ""
-                            }
-                          >
-                            {product.photos &&
-                              product.photos
-                                .slice(0, 4)
-                                .map((photo, photoIndex) => (
-                                  <img
-                                    key={photoIndex}
-                                    className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
-                                    src={photo}
-                                    alt=""
-                                  />
-                                ))}
-                          </div>
-                        </div>
-                      ))
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-10">
-                      <div className="flex flex-col items-center justify-center gap-4 w-full">
-                        <div className="skeleton h-32 w-full"></div>
-                        <div className="skeleton h-4 w-full"></div>
-                        <div className="skeleton h-4 w-full"></div>
-                        <div className="skeleton h-4 w-full"></div>
-                      </div>
-                      <p className="text-center text-xs md:text-lg text-primary italic">
-                        Oh no! {user.firstName} haven't posted any products yet.
-                      </p>
-                    </div>
-                  )
-                ) : userPosts.filter((post) => post.type === "recipe").length >
-                  0 ? (
-                  userPosts
-                    .filter((post) => post.type === "recipe")
-                    .sort((a, b) => b.recipeId - a.recipeId)
-                    .map((recipe, index) => (
-                      <div
-                        onClick={() => handleRecipeClick(recipe.id)}
-                        key={index}
-                        className={`${
-                          recipe.isHidden ? "relative" : ""
-                        } bg-bgray rounded-lg mt-2 shadow p-4 z-[-1] cursor-pointer`}
-                      >
-                        {recipe.isHidden && (
-                          <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
-                            <p className="text-white">
-                              This post is hidden due to: {recipe.hideReason}
-                            </p>
-                          </div>
-                        )}
-                        <div className="flex gap-2 py-2 items-center w-full justify-between">
-                          <div className="flex gap-2 items-center w-full justify-between px-2">
-                            <div className="flex gap-4 items-center">
-                              <img
-                                src={user.profilePhotoUrl}
-                                alt="Profile"
-                                className="w-12 h-12 rounded-full object-cover inline-block"
-                              />
-                              <div>
-                                <p className="text-primary text-sm font-semibold">
-                                  {user.firstName} {user.lastName}
-                                </p>
-                                <p className="text-gray-500 text-xs">
-                                  {recipe.timestamp}
-                                </p>
-                              </div>
+                            <div className="mb-4">
+                              <h1 className="text-lg font-semibold mb-2">
+                                {product.caption}
+                              </h1>
+                            </div>
+                            <div
+                              className={
+                                product.photos && product.photos.length > 1
+                                  ? "grid gap-2 grid-cols-2"
+                                  : ""
+                              }
+                            >
+                              {product.photos &&
+                                product.photos
+                                  .slice(0, 4)
+                                  .map((photo, photoIndex) => (
+                                    <img
+                                      key={photoIndex}
+                                      className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
+                                      src={photo}
+                                      alt=""
+                                    />
+                                  ))}
                             </div>
                           </div>
+                        ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-10">
+                        <div className="flex flex-col items-center justify-center gap-4 w-full">
+                          <div className="skeleton h-32 w-full"></div>
+                          <div className="skeleton h-4 w-full"></div>
+                          <div className="skeleton h-4 w-full"></div>
+                          <div className="skeleton h-4 w-full"></div>
                         </div>
-                        <div className="mb-4">
-                          <h1 className="text-lg font-semibold mb-2">
-                            {recipe.caption}
-                          </h1>
-                        </div>
-                        <div
-                          className={
-                            recipe.photos && recipe.photos.length > 1
-                              ? "grid gap-2 grid-cols-2"
-                              : ""
-                          }
-                        >
-                          {recipe.photos &&
-                            recipe.photos
-                              .slice(0, 4)
-                              .map((photo, photoIndex) => (
-                                <img
-                                  key={photoIndex}
-                                  className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
-                                  src={photo}
-                                  alt=""
-                                />
-                              ))}
-                        </div>
+                        <p className="text-center text-xs md:text-lg text-primary italic">
+                          Oh no! {user.firstName} haven't posted any products
+                          yet.
+                        </p>
                       </div>
-                    ))
+                    )}
+                  </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-10">
-                    <div className="flex flex-col items-center justify-center gap-4 w-full">
-                      <div className="skeleton h-32 w-full"></div>
-                      <div className="skeleton h-4 w-full"></div>
-                      <div className="skeleton h-4 w-full"></div>
-                      <div className="skeleton h-4 w-full"></div>
-                    </div>
-                    <p className="text-center text-xs md:text-lg text-primary italic">
-                      Oh no! {user.firstName} have no recipes posted yet.
-                    </p>
+                  // Render recipes
+                  <div className="">
+                    {userPosts.filter(
+                      (post) => post.type === "recipe" && !post.isHidden
+                    ).length > 0 ? (
+                      userPosts
+                        .filter(
+                          (post) => post.type === "recipe" && !post.isHidden
+                        )
+                        .sort((a, b) => b.recipeId - a.recipeId)
+                        .map((recipe, index) => (
+                          // Render recipe item
+                          <div
+                            onClick={() => handleRecipeClick(recipe.id)}
+                            key={index}
+                            className={`${
+                              recipe.isHidden ? "relative" : ""
+                            } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
+                          >
+                            {recipe.isHidden && (
+                              <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
+                                <p className="text-white">
+                                  This post is hidden due to:{" "}
+                                  {recipe.hideReason}
+                                </p>
+                              </div>
+                            )}
+                            <div className="flex gap-2 py-2 items-center w-full justify-between">
+                              <div className="flex gap-2 items-center w-full justify-between px-2">
+                                <div className="flex gap-4 items-center">
+                                  <img
+                                    src={user.profilePhotoUrl}
+                                    alt="Profile"
+                                    className="w-12 h-12 rounded-full object-cover inline-block"
+                                  />
+                                  <div>
+                                    <p className="text-primary text-sm font-semibold">
+                                      {user.firstName} {user.lastName}
+                                    </p>
+                                    <p className="text-gray-500 text-xs">
+                                      {recipe.timestamp}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mb-4">
+                              <h1 className="text-lg font-semibold mb-2">
+                                {recipe.caption}
+                              </h1>
+                            </div>
+                            <div
+                              className={
+                                recipe.photos && recipe.photos.length > 1
+                                  ? "grid gap-2 grid-cols-2"
+                                  : ""
+                              }
+                            >
+                              {recipe.photos &&
+                                recipe.photos
+                                  .slice(0, 4)
+                                  .map((photo, photoIndex) => (
+                                    <img
+                                      key={photoIndex}
+                                      className="w-full h-40 md:h-72 object-cover rounded-lg mb-2"
+                                      src={photo}
+                                      alt=""
+                                    />
+                                  ))}
+                            </div>
+                          </div>
+                        ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-10">
+                        <div className="flex flex-col items-center justify-center gap-4 w-full">
+                          <div className="skeleton h-32 w-full"></div>
+                          <div className="skeleton h-4 w-full"></div>
+                          <div className="skeleton h-4 w-full"></div>
+                          <div className="skeleton h-4 w-full"></div>
+                        </div>
+                        <p className="text-center text-xs md:text-lg text-primary italic">
+                          Oh no! {user.firstName} have no recipes posted yet.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
