@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import check from "../../assets/check.gif";
-import loginbg from "../../assets/loginbg.jpg";
+import loginbg from "../../assets/loginbg.png";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../firebase"; // Assuming you have firestore exported from firebase.js
 import {
