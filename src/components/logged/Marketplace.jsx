@@ -50,7 +50,8 @@ const Marketplace = () => {
               data.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
               data.description
                 .toLowerCase()
-                .includes(searchQuery.toLowerCase()))
+                .includes(searchQuery.toLowerCase())) &&
+            !data.isHidden // Check if the product is not hidden
           ) {
             productsData.push({
               id: docSnap.id,
