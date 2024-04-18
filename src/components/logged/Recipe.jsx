@@ -28,21 +28,24 @@ const Recipe = () => {
       const recipesData = [];
       for (const doc of querySnapshot.docs) {
         const data = doc.data();
-        const userData = await getUserData(data.userUid);
-        recipesData.push({
-          id: doc.id,
-          profilePhotoUrl: userData.profilePhotoUrl,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          timestamp: data.timestamp,
-          caption: data.caption,
-          ingredients: data.ingredients,
-          instructions: data.instructions,
-          photos: data.photos,
-          recipeId: data.recipeId,
-          userUid: data.userUid,
-          likers: data.likers ? data.likers.length : 0, // Assuming likers is an array
-        });
+        // Check if the recipe is not hidden
+        if (!data.isHidden) {
+          const userData = await getUserData(data.userUid);
+          recipesData.push({
+            id: doc.id,
+            profilePhotoUrl: userData.profilePhotoUrl,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            timestamp: data.timestamp,
+            caption: data.caption,
+            ingredients: data.ingredients,
+            instructions: data.instructions,
+            photos: data.photos,
+            recipeId: data.recipeId,
+            userUid: data.userUid,
+            likers: data.likers ? data.likers.length : 0, // Assuming likers is an array
+          });
+        }
       }
       // Sort recipes based on number of likers in descending order
       recipesData.sort((a, b) => b.likers - a.likers);
