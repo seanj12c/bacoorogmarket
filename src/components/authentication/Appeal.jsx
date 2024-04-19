@@ -11,6 +11,7 @@ const Appeal = () => {
   const [reason, setReason] = useState("");
   const [recaptchaCompleted, setRecaptchaCompleted] = useState(false);
   const [existingAppeal, setExistingAppeal] = useState(null); // State to hold existing appeal data
+  const [disabledReason, setDisabledReason] = useState(null); // State to hold disabled reason
 
   useEffect(() => {
     // Fetch the currently authenticated user's email and set it as the initial value for email state
@@ -45,6 +46,25 @@ const Appeal = () => {
       }
     };
     fetchExistingAppeal();
+
+    const fetchDisabledReason = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const userId = user.uid;
+          // Fetch disabled reason
+          const disabledReasonDocRef = doc(firestore, "disabledReason", userId);
+          const disabledReasonDocSnap = await getDoc(disabledReasonDocRef);
+          if (disabledReasonDocSnap.exists()) {
+            const data = disabledReasonDocSnap.data();
+            setDisabledReason(data.reason); // Set disabled reason
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching disabled reason:", error);
+      }
+    };
+    fetchDisabledReason();
   }, []); // Run this effect only once after the component mounts
 
   const submitHandler = async (e) => {
@@ -164,6 +184,12 @@ const Appeal = () => {
               ? "Do you wish to update your reason to appeal your account suspension?"
               : "Provide additional information to appeal your account suspension."}
           </p>
+        </div>
+        <div>
+          <h1 className="text-center text-xs md:text-base  ">
+            Your account has been disabled due to reason; <br />
+            <span className="italic text-red-600">{disabledReason}</span>
+          </h1>
         </div>
         <form className="mt-8 space-y-6" onSubmit={submitHandler}>
           <div className="rounded-md shadow-sm -space-y-px">
