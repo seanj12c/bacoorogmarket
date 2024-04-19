@@ -206,6 +206,7 @@ const AdminUsers = () => {
               recipes="bg-white text-primary"
               appeals="bg-white text-primary"
               reports="bg-white text-primary"
+              deletions="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">

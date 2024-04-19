@@ -128,6 +128,7 @@ const AdminReports = () => {
               recipes="bg-white text-primary"
               appeals="bg-white text-primary"
               reports="bg-primary text-white "
+              deletions="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">

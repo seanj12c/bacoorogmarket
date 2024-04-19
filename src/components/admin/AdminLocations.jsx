@@ -150,13 +150,14 @@ const AdminLocations = () => {
               recipes="bg-white text-primary"
               appeals="bg-white text-primary"
               reports="bg-white text-primary"
+              deletions="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">
             {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
-               <img className="h-20 mx-auto" src={logo} alt="" />
+                <img className="h-20 mx-auto" src={logo} alt="" />
                 <h1 className="text-center font-bold text-xl">Admin Panel</h1>
               </div>
               <ul className="text-left text-black  flex flex-col h-full mt-6">

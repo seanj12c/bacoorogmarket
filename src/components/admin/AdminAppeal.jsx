@@ -183,6 +183,7 @@ const AdminAppeal = () => {
               recipes="bg-white text-primary"
               appeals="bg-primary text-white "
               reports="bg-white text-primary"
+              deletions="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">
