@@ -58,8 +58,8 @@ const PostARecipe = () => {
   const [photos, setPhotos] = useState([]);
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [isPhotoRequired, setIsPhotoRequired] = useState(false);
+  const [recipeType, setRecipeType] = useState(""); // Define recipeType state variable
   const [errors, setErrors] = useState({
     recipeName: "",
     ingredients: [],
@@ -225,6 +225,11 @@ const PostARecipe = () => {
     return valid;
   };
 
+  // Function to handle recipe type change
+  const handleRecipeTypeChange = (e) => {
+    setRecipeType(e.target.value); // Update recipeType state
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -243,6 +248,7 @@ const PostARecipe = () => {
       firstName, // Include user first name
       lastName, // Include user last name
       timestamp: formattedTimestamp,
+      recipeType,
     };
 
     const recipesRef = collection(firestore, "recipes");
@@ -284,6 +290,22 @@ const PostARecipe = () => {
   const goBack = () => {
     navigate(-1); // This will navigate back in the history stack
   };
+
+  const recipeTypeOptions = (
+    <select
+      value={recipeType}
+      onChange={handleRecipeTypeChange}
+      className="w-full border rounded p-2 mb-4"
+      required // Add the required attribute here
+    >
+      {/* Disable the "Select Recipe Type" option */}
+      <option value="" disabled>
+        -Select Type-
+      </option>
+      <option value="Tahong">Tahong</option>
+      <option value="Talaba">Talaba</option>
+    </select>
+  );
 
   return (
     <div className="p-4 sm:p-6 md:pb-0 pb-20 md:p-8 lg:p-10">
@@ -362,6 +384,11 @@ const PostARecipe = () => {
             onChange={handleFilesSelected}
           />
           {errors.photos && <p className="text-red-600">{errors.photos}</p>}
+        </div>
+
+        <div className="mb-4">
+          <h3 className="text-lg text-primary">Type of Recipe</h3>
+          {recipeTypeOptions}
         </div>
 
         <div className="mb-4">

@@ -11,7 +11,7 @@ import { firestore } from "../../firebase";
 
 import uploadload from "../../assets/loading.gif";
 import { FaSearch } from "react-icons/fa";
-import { MdOutlinePostAdd } from "react-icons/md";
+import { MdOutlinePostAdd, MdOutlineSort } from "react-icons/md";
 import { Link } from "react-router-dom";
 import bannerre from "../../assets/bannerre.jpg";
 
@@ -19,6 +19,7 @@ const Recipe = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSort, setSelectedSort] = useState("");
 
   useEffect(() => {
     const recipesCollection = collection(firestore, "recipes");
@@ -44,6 +45,7 @@ const Recipe = () => {
             recipeId: data.recipeId,
             userUid: data.userUid,
             likers: data.likers ? data.likers.length : 0, // Assuming likers is an array
+            recipeType: data.recipeType,
           });
         }
       }
@@ -72,11 +74,16 @@ const Recipe = () => {
   const filteredRecipes = recipes.filter((recipe) => {
     const searchLowerCase = searchQuery.toLowerCase();
     return (
-      recipe.firstName.toLowerCase().includes(searchLowerCase) ||
-      recipe.lastName.toLowerCase().includes(searchLowerCase) ||
-      recipe.caption.toLowerCase().includes(searchLowerCase) ||
-      recipe.ingredients.join(" ").toLowerCase().includes(searchLowerCase) ||
-      recipe.instructions.join(" ").toLowerCase().includes(searchLowerCase)
+      (recipe.firstName.toLowerCase().includes(searchLowerCase) ||
+        recipe.lastName.toLowerCase().includes(searchLowerCase) ||
+        recipe.caption.toLowerCase().includes(searchLowerCase) ||
+        recipe.ingredients.join(" ").toLowerCase().includes(searchLowerCase) ||
+        recipe.instructions
+          .join(" ")
+          .toLowerCase()
+          .includes(searchLowerCase)) &&
+      (selectedSort === "" ||
+        recipe.recipeType.toLowerCase() === selectedSort.toLowerCase())
     );
   });
 
@@ -100,6 +107,23 @@ const Recipe = () => {
             />
           </div>
           <div className="flex py-2 w-full justify-center items-center gap-2 px-4">
+            <div className="md:block hidden">
+              <div className="flex justify-between px-2 items-center border p-1 border-primary bg-primary rounded-lg">
+                <div className="flex items-center pr-3 gap-2">
+                  <MdOutlineSort className="text-white text-3xl" />
+                  <h3 className="text-xs sm:text-base text-white">Sort: </h3>
+                </div>
+                <select
+                  className="rounded-sm outline-none bg-primary text-lg sm:text-base border border-white text-white"
+                  value={selectedSort}
+                  onChange={(e) => setSelectedSort(e.target.value)}
+                >
+                  <option value="">-None-</option>
+                  <option value="Tahong">Tahong</option>
+                  <option value="Talaba">Talaba</option>
+                </select>
+              </div>
+            </div>
             <div className="border-primary border bg-[#FFFFFF] w-full px-2 flex items-center gap-2 rounded-md ">
               <FaSearch size={20} className="text-primary" />
               <input
@@ -117,6 +141,23 @@ const Recipe = () => {
                 </p>
               </div>
             </Link>
+          </div>
+          <div className="px-4 pb-2 md:hidden">
+            <div className="flex justify-between items-center border p-1 border-primary bg-primary rounded-lg">
+              <div className="flex items-center gap-2">
+                <MdOutlineSort className="text-white text-2xl sm:text-4xl" />
+                <h3 className="text-xs sm:text-base text-white">Sort: </h3>
+              </div>
+              <select
+                className="rounded-sm outline-none bg-primary text-xs sm:text-base border border-white text-white"
+                value={selectedSort}
+                onChange={(e) => setSelectedSort(e.target.value)}
+              >
+                <option value="">-None-</option>
+                <option value="Tahong">Tahong</option>
+                <option value="Talaba">Talaba</option>
+              </select>
+            </div>
           </div>
 
           {filteredRecipes.length === 0 ? (
