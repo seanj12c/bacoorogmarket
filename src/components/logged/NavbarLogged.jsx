@@ -13,6 +13,7 @@ import {
   CiChat1,
   CiCircleQuestion,
   CiForkAndKnife,
+  CiSearch,
 } from "react-icons/ci";
 import Swal from "sweetalert2";
 
@@ -153,7 +154,12 @@ export const NavbarLogged = () => {
                 tabIndex={0}
                 className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40"
               >
-                {" "}
+                <li className="py-1">
+                  <Link to={"/search/user"}>
+                    <CiSearch className="text-primary" size={15} />
+                    <span className="hover:text-primary "> Search a User</span>
+                  </Link>
+                </li>
                 <li className="py-1">
                   <Link to={"/home"}>
                     <CiHome className="text-primary" size={15} />
@@ -179,7 +185,7 @@ export const NavbarLogged = () => {
           </div>
 
           <div className="text-black ">
-            <ul className="hidden text-base lg:gap-5 md:gap-2 md:flex">
+            <ul className="hidden text-xs lg:text-base lg:gap-5 md:flex">
               <Link to={"/marketplace"} className="border-r border-black pr-4">
                 <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
                   Marketplace
@@ -213,7 +219,22 @@ export const NavbarLogged = () => {
             </ul>
           </div>
 
-          <div className="md:flex gap-5 items-center hidden"></div>
+          <div className="md:flex gap-5 items-center hidden">
+            <Link
+              to="/search/user"
+              className="btn btn-sm lg:flex hidden btn-primary"
+            >
+              <CiSearch />
+              Search a User
+            </Link>
+            <Link
+              to="/search/user"
+              className="btn md:flex btn-xs lg:hidden hidden btn-primary"
+            >
+              <CiSearch />
+              Search a User
+            </Link>
+          </div>
           <div className="md:dropdown md:flex px-3 py-1 rounded-lg shadow-primary shadow-sm  items-center hidden  dropdown-bottom dropdown-end dropdown-hover">
             <div tabIndex={0} role="button">
               {profilePicture ? (
