@@ -103,18 +103,33 @@ const Chat = () => {
       return onSnapshot(chatDocRef, (doc) => {
         const chatData = doc.data();
         const lastMessage = chatData?.messages?.[chatData.messages.length - 1];
-        if (lastMessage && user.firstName && user.lastName) {
-          setLastMessages((prevMessages) => ({
-            ...prevMessages,
-            [user.id]: lastMessage,
-          }));
-          if (
-            lastMessage.recipientId === currentUser.uid &&
-            !lastMessage.read
-          ) {
-            toast.info(`${user.firstName} sent you a message`, {
-              autoClose: 5000,
-            });
+        if (lastMessage) {
+          if (!user.isDeactivated && user.firstName && user.lastName) {
+            setLastMessages((prevMessages) => ({
+              ...prevMessages,
+              [user.id]: lastMessage,
+            }));
+            if (
+              lastMessage.recipientId === currentUser.uid &&
+              !lastMessage.read
+            ) {
+              toast.info(`${user.firstName} sent you a message`, {
+                autoClose: 3000,
+              });
+            }
+          } else {
+            setLastMessages((prevMessages) => ({
+              ...prevMessages,
+              [user.id]: lastMessage,
+            }));
+            if (
+              lastMessage.recipientId === currentUser.uid &&
+              !lastMessage.read
+            ) {
+              toast.info(`Deactivated User sent you a message`, {
+                autoClose: 3000,
+              });
+            }
           }
         }
       });
@@ -409,13 +424,22 @@ const Chat = () => {
                   >
                     <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
                       <img
-                        src={user.profilePhotoUrl}
-                        alt={`${user.firstName} ${user.lastName}`}
+                        src={
+                          user.isDeactivated
+                            ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
+                            : user.profilePhotoUrl
+                        }
+                        alt={
+                          user.isDeactivated
+                            ? "Deactivated Account"
+                            : `${user.firstName} ${user.lastName}`
+                        }
                         className="w-9 h-9 object-cover rounded-full"
                       />
-                      <div>
-                        <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
-                          {user.firstName} {user.lastName}
+                      <div className="flex flex-col gap-1 items-start">
+                        <h3 className="text-xs lg:text-lg font-bold lg:text-start">
+                          {user.isDeactivated ? "Deactivated" : user.firstName}{" "}
+                          {user.isDeactivated ? "Account" : user.lastName}
                         </h3>
                         {lastMessages[user.id] && (
                           <p className="text-sm text-gray-500">
@@ -428,6 +452,17 @@ const Chat = () => {
                               : lastMessages[user.id].content}
                           </p>
                         )}
+
+                        {lastMessages[user.id] &&
+                          !lastMessages[user.id].read &&
+                          lastMessages[user.id].recipientId ===
+                            currentUser.uid && (
+                            <div className="flex justify-center w-full md:justify-start">
+                              <span className="indicator-item badge badge-primary">
+                                Unread
+                              </span>
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -488,13 +523,24 @@ const Chat = () => {
                         >
                           <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
                             <img
-                              src={user.profilePhotoUrl}
-                              alt={`${user.firstName} ${user.lastName}`}
+                              src={
+                                user.isDeactivated
+                                  ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
+                                  : user.profilePhotoUrl
+                              }
+                              alt={
+                                user.isDeactivated
+                                  ? "Deactivated Account"
+                                  : `${user.firstName} ${user.lastName}`
+                              }
                               className="w-9 h-9 object-cover rounded-full"
                             />
                             <div>
                               <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
-                                {user.firstName} {user.lastName}
+                                {user.isDeactivated
+                                  ? "Deactivated"
+                                  : user.firstName}{" "}
+                                {user.isDeactivated ? "Account" : user.lastName}
                               </h3>
                             </div>
                           </div>
@@ -509,11 +555,20 @@ const Chat = () => {
                   <div className="flex gap-2 items-center ">
                     <img
                       className="h-10 w-10 object-cover rounded-full"
-                      src={selectedUser.profilePhotoUrl}
+                      src={
+                        selectedUser.isDeactivated
+                          ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
+                          : selectedUser.profilePhotoUrl
+                      }
                       alt=""
                     />
                     <h2 className="font-bold">
-                      {selectedUser.firstName} {selectedUser.lastName}
+                      {selectedUser.isDeactivated
+                        ? "Deactivated"
+                        : selectedUser.firstName}{" "}
+                      {selectedUser.isDeactivated
+                        ? "Account"
+                        : selectedUser.lastName}
                     </h2>
                   </div>
                   <div className="flex flex-col md:flex-row gap-2">
@@ -542,9 +597,13 @@ const Chat = () => {
                         </h3>
                         <p className="py-4">
                           This message will be going to delete in the database.
-                          So, {selectedUser.firstName} can also not be able to
-                          see it anymore. Are you sure you want to delete this
-                          conversation? This action cannot be undone.
+                          So,{" "}
+                          {selectedUser.isDeactivated
+                            ? "Deactivated User"
+                            : selectedUser.firstName}{" "}
+                          can also not be able to see it anymore. Are you sure
+                          you want to delete this conversation? This action
+                          cannot be undone.
                         </p>
                         <div className="modal-action">
                           <button
@@ -592,8 +651,16 @@ const Chat = () => {
                               ) : (
                                 <>
                                   <img
-                                    src={selectedUser.profilePhotoUrl} // Displaying selected user's profile photo
-                                    alt={`${selectedUser.firstName} ${selectedUser.lastName}`}
+                                    src={
+                                      selectedUser.isDeactivated
+                                        ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
+                                        : selectedUser.profilePhotoUrl
+                                    }
+                                    alt={
+                                      selectedUser.isDeactivated
+                                        ? "Deactivated Account"
+                                        : `${selectedUser.firstName} ${selectedUser.lastName}`
+                                    }
                                     className="w-8 h-8 object-cover rounded-full mr-2"
                                   />
                                 </>
