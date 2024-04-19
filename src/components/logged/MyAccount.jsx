@@ -217,6 +217,13 @@ const MyAccount = () => {
 
   const confirmDelete = (post) => {
     deletePost(post);
+    Swal.fire({
+      icon: "success",
+      title: "Deleted",
+      text: "The post has been deleted.",
+      timer: 2000, // Set the notification to automatically close after 2 seconds
+      showConfirmButton: false, // Hide the "OK" button
+    });
   };
 
   const handleDeletePost = (post) => {
@@ -837,8 +844,21 @@ const MyAccount = () => {
                         >
                           {product.isHidden && (
                             <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
-                              <p className="text-white">
-                                This post is hidden due to: {product.hideReason}
+                              <p className="text-white text-xs md:text-base text-center">
+                                <div className="flex flex-col">
+                                  <p className="text-white text-xs md:text-base text-center">
+                                    This post is hidden due to:{" "}
+                                    {product.hideReason}
+                                  </p>
+                                  <div className="flex justify-center">
+                                    <button
+                                      onClick={() => handleDeletePost(product)}
+                                      className="btn btn-error text-white btn-xs md:btn-sm"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
                               </p>
                             </div>
                           )}
@@ -867,7 +887,11 @@ const MyAccount = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div style={{ position: "relative" }}>
+                              <div
+                                className={`${
+                                  product.isHidden ? "hidden" : "relative"
+                                }`}
+                              >
                                 <HiDotsHorizontal
                                   className="text-primary"
                                   size={20}
@@ -971,9 +995,20 @@ const MyAccount = () => {
                         >
                           {recipe.isHidden && (
                             <div className="absolute inset-0 bg-black bg-opacity-80 rounded-lg flex items-center justify-center">
-                              <p className="text-white">
-                                This post is hidden due to: {recipe.hideReason}
-                              </p>
+                              <div className="flex flex-col">
+                                <p className="text-white text-xs md:text-base text-center">
+                                  This post is hidden due to:{" "}
+                                  {recipe.hideReason}
+                                </p>
+                                <div className="flex justify-center">
+                                  <button
+                                    onClick={() => handleDeletePost(recipe)}
+                                    className="btn btn-error text-white btn-xs md:btn-sm"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                           )}
                           <div className="flex gap-2 py-2 items-center w-full justify-between">
@@ -1001,7 +1036,11 @@ const MyAccount = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div style={{ position: "relative" }}>
+                              <div
+                                className={`${
+                                  recipe.isHidden ? "hidden" : "relative"
+                                }`}
+                              >
                                 <HiDotsHorizontal
                                   className="text-primary"
                                   size={20}
@@ -1100,14 +1139,14 @@ const MyAccount = () => {
                 <div className="flex justify-center space-x-4">
                   <button
                     onClick={() => confirmDelete(selectedPost)}
-                    className="bg-green-400 rounded text-white px-4 py-1"
+                    className="btn btn-primary text-white btn-xs"
                   >
                     Yes
                   </button>
 
                   <button
                     onClick={handleCancelDelete}
-                    className="bg-red-400 rounded text-white px-4 py-1"
+                    className="btn btn-error text-white btn-xs"
                   >
                     No
                   </button>
