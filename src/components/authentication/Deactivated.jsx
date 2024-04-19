@@ -144,7 +144,7 @@ const Deactivate = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center ">
+    <div className="min-h-screen px-1 md:px-0 flex items-center justify-center ">
       <img
         className="z-[-1] absolute h-screen w-screen mx-auto object-cover pointer-events-none select-none"
         src={loginbg}
@@ -157,10 +157,10 @@ const Deactivate = () => {
         {deactivateReason ? (
           <div className="mb-4">
             <p>
-              Reason: <strong>{deactivateReason.reason}</strong>
+              Your Reason: <strong>{deactivateReason.reason}</strong>
             </p>
             <p>
-              Explanation: <strong>{deactivateReason.explanation}</strong>
+              Your Explanation: <strong>{deactivateReason.explanation}</strong>
             </p>
           </div>
         ) : (
