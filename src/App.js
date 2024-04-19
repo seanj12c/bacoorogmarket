@@ -43,6 +43,7 @@ import RecipeInfo from "./components/logged/RecipeInfo";
 import Swal from "sweetalert2";
 import Appeal from "./components/authentication/Appeal";
 import Deactivated from "./components/authentication/Deactivated";
+import SearchAUser from "./components/logged/SearchAUser";
 
 function AppRoutes() {
   const location = useLocation();
@@ -284,6 +285,20 @@ function AppRoutes() {
                 <Navigate to="/admin/users" />
               ) : (
                 <PostARecipe />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />{" "}
+        <Route
+          path="/search/user"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <SearchAUser />
               )
             ) : (
               <Navigate to="/login" />
