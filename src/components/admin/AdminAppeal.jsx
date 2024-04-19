@@ -24,7 +24,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminAppeal = () => {
   const [loading, setLoading] = useState(true);
-
+  const [searchQuery, setSearchQuery] = useState("");
   const [appeals, setAppeals] = useState([]);
 
   const navigate = useNavigate();
@@ -163,6 +163,20 @@ const AdminAppeal = () => {
     }
   };
 
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter appeals based on search query
+  const filteredAppeals = appeals.filter((appeal) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      appeal.userData.firstName.toLowerCase().includes(query) ||
+      appeal.userData.lastName.toLowerCase().includes(query) ||
+      appeal.email.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div>
       {loading ? (
@@ -248,8 +262,17 @@ const AdminAppeal = () => {
             {/* Appeals List */}
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <h2 className="text-2xl text-center font-bold mt-8">Appeals</h2>
+              <div className="w-full mt-4">
+                <input
+                  type="text"
+                  placeholder="Search by name or reason"
+                  className="border-2 border-gray-300 px-3 bg-white h-10 w-full rounded-lg text-sm focus:outline-none"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+              </div>
               <ul className="mt-4">
-                {appeals.length === 0 ? (
+                {filteredAppeals.length === 0 ? (
                   // No appeals message
                   <div className="flex w-full items-center flex-col justify-center mt-4">
                     <div className="flex flex-col gap-4 w-full">
@@ -289,7 +312,7 @@ const AdminAppeal = () => {
                     </div>
                   </div>
                 ) : (
-                  appeals.map((appeal) => (
+                  filteredAppeals.map((appeal) => (
                     <li
                       key={appeal.id}
                       className="card glass rounded-lg mb-2 p-3"
