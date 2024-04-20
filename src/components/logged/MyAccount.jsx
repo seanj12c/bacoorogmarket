@@ -169,15 +169,80 @@ const MyAccount = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    closeForm();
     const userId = auth.currentUser.uid;
     const db = getFirestore();
     const userDocRef = doc(db, "registered", userId);
 
     try {
-      await updateDoc(userDocRef, formData);
-      console.log("User data updated successfully!");
-      document.getElementById("my_modal_3").close();
+      const userDocSnapshot = await getDoc(userDocRef);
+      const userData = userDocSnapshot.data();
+
+      // Check if last edit was made more than 14 days ago
+      const lastEditTimestamp = userData.lastEditTimestamp || 0;
+      const currentTime = Date.now();
+      const timeDiffInDays = Math.ceil(
+        (currentTime - lastEditTimestamp) / (1000 * 60 * 60 * 24)
+      );
+
+      if (timeDiffInDays < 14) {
+        const lastEditDate = new Date(lastEditTimestamp);
+        const options = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
+          timeZone: "Asia/Manila",
+        };
+        const formattedLastEditDate = lastEditDate.toLocaleDateString(
+          "en-PH",
+          options
+        );
+        Swal.fire({
+          title: "Cannot update profile",
+          html: `Please try again after 14 days. Your profile was last updated on ${formattedLastEditDate}.`,
+          icon: "warning",
+        });
+        return;
+      }
+
+      // Show confirmation dialog using SweetAlert
+      const { value: confirmed } = await Swal.fire({
+        title: "Are you sure on your details?",
+        html: `
+        <div class="text-start">
+          <p>First Name: <strong>${formData.firstName}</strong></p>
+          <p>Last Name: <strong>${formData.lastName}</strong></p>
+          <p>Address: <strong>${formData.address}</strong></p>
+          <p>Contact: <strong>${formData.contact}</strong></p>
+        </div>`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+        cancelButtonText: "Cancel",
+      });
+
+      if (confirmed) {
+        await updateDoc(userDocRef, {
+          ...formData,
+          lastEditTimestamp: currentTime, // Update the last edit timestamp
+        });
+        Swal.fire({
+          title: "Profile Updated!",
+          text: "Your profile has been successfully updated.",
+          icon: "success",
+          timer: 3000, // Show for 3 seconds
+          timerProgressBar: true,
+
+          showConfirmButton: false,
+        });
+
+        console.log("User data updated successfully!");
+        document.getElementById("my_modal_3").close();
+      }
     } catch (error) {
       console.error("Error updating user data:", error);
     }
