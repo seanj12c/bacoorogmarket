@@ -15,16 +15,16 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminReports = () => {
   const [loading, setLoading] = useState(true);
-
   const [reports, setReports] = useState([]);
+  const [filteredReports, setFilteredReports] = useState([]);
   const [products, setProducts] = useState({});
   const [registeredUsers, setRegisteredUsers] = useState({});
   const [recipes, setRecipes] = useState({});
   const [reportType, setReportType] = useState("product"); // Default to product reports
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch reports data based on the selected report type
     const fetchReports = async () => {
       const db = getFirestore();
       const reportsRef = collection(
@@ -37,17 +37,14 @@ const AdminReports = () => {
       );
       const querySnapshot = await getDocs(reportsRef);
       const reportsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id, // Include the document ID in each report object
+        id: doc.id,
         ...doc.data(),
       }));
       setReports(reportsData);
       setLoading(false);
     };
-    // Fetch products and registered users data
     const fetchAdditionalData = async () => {
       const db = getFirestore();
-
-      // Fetch products data
       const productsRef = collection(db, "products");
       const productsSnapshot = await getDocs(productsRef);
       const productsData = {};
@@ -55,8 +52,6 @@ const AdminReports = () => {
         productsData[doc.id] = doc.data();
       });
       setProducts(productsData);
-
-      // Fetch registered users data
       const registeredRef = collection(db, "registered");
       const registeredSnapshot = await getDocs(registeredRef);
       const registeredData = {};
@@ -64,8 +59,6 @@ const AdminReports = () => {
         registeredData[doc.id] = doc.data();
       });
       setRegisteredUsers(registeredData);
-
-      // Fetch recipes data
       const recipesRef = collection(db, "recipes");
       const recipesSnapshot = await getDocs(recipesRef);
       const recipesData = {};
@@ -78,6 +71,24 @@ const AdminReports = () => {
     fetchReports();
     fetchAdditionalData();
   }, [reportType]);
+
+  useEffect(() => {
+    // Filter reports based on search query
+    const filtered = reports.filter((report) => {
+      const user = registeredUsers[report.userId];
+      if (!user) return false;
+      const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+      const firstName = user.firstName.toLowerCase();
+      const lastName = user.lastName.toLowerCase();
+      const query = searchQuery.toLowerCase();
+      return (
+        fullName.includes(query) ||
+        firstName.includes(query) ||
+        lastName.includes(query)
+      );
+    });
+    setFilteredReports(filtered);
+  }, [reports, searchQuery, registeredUsers]);
 
   const handleLogoutConfirmation = () => {
     Swal.fire({
@@ -106,6 +117,10 @@ const AdminReports = () => {
 
   const handleReportTypeChange = (event) => {
     setReportType(event.target.value);
+  };
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
   };
 
   return (
@@ -204,6 +219,15 @@ const AdminReports = () => {
                   <option value="profile">Profile Reports</option>
                 </select>
               </div>
+              <div className="flex justify-center mb-4">
+                <input
+                  type="text"
+                  placeholder="Search by name..."
+                  className="px-4 py-2 border w-full border-gray-300 rounded-md bg-base-100 text-sm focus:outline-none focus:border-primary"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+              </div>
               <h1 className="text-center text-2xl font-bold">
                 {reportType === "product"
                   ? "Product"
@@ -213,7 +237,7 @@ const AdminReports = () => {
                 Reports
               </h1>
               <ul className="grid gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {reports.map((report, index) => (
+                {filteredReports.map((report, index) => (
                   <li className="glass w-full p-5" key={index}>
                     {registeredUsers[report.userId] && (
                       <div className="flex items-center gap-2">
