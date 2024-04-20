@@ -4,7 +4,15 @@ import { FaArrowAltCircleUp, FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../authContext";
-import { getFirestore, doc, onSnapshot, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  onSnapshot,
+  getDoc,
+  collection,
+  where,
+  query,
+} from "firebase/firestore";
 import { getAuth, signOut } from "firebase/auth";
 
 import {
@@ -19,13 +27,15 @@ import Swal from "sweetalert2";
 
 import { MdOutlineManageAccounts } from "react-icons/md";
 import { LiaSearchLocationSolid } from "react-icons/lia";
+import { BiMessageRoundedError } from "react-icons/bi";
 
 export const NavbarLogged = () => {
   const [fix, setFix] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [unreadMessages, setUnreadMessages] = useState(false);
   const navigate = useNavigate();
-
   const auth = useAuth();
+
   const handleGoToTop = () => {
     window.scrollTo({
       top: 0,
@@ -79,6 +89,49 @@ export const NavbarLogged = () => {
         unsubscribe();
       };
     }
+  }, [auth]);
+
+  useEffect(() => {
+    if (!auth.currentUser) return;
+
+    const db = getFirestore();
+    const q = query(
+      collection(db, "chats"),
+      where("users", "array-contains", auth.currentUser.uid)
+    );
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let hasUnreadMessages = false; // Flag to track if there are unread messages
+
+      querySnapshot.forEach((doc) => {
+        const chatData = doc.data();
+        console.log("Chat Data:", chatData);
+
+        // Access and check if there are unread messages
+        if (chatData.messages) {
+          const unreadMessages = chatData.messages.filter(
+            (message) =>
+              !message.read && message.recipientId === auth.currentUser.uid
+          );
+
+          if (unreadMessages.length > 0) {
+            hasUnreadMessages = true; // Set flag to true if there are unread messages
+          }
+        }
+      });
+
+      // Set the state based on the flag value
+      setUnreadMessages(hasUnreadMessages);
+
+      // If there are no unread messages, set unreadMessages to false
+      if (!hasUnreadMessages) {
+        setUnreadMessages(false);
+      }
+    });
+
+    return () => {
+      unsubscribe(); // Unsubscribe from the snapshot listener when the component unmounts
+    };
   }, [auth]);
 
   const handleLogoutConfirmation = () => {
@@ -206,11 +259,15 @@ export const NavbarLogged = () => {
                   Recipe
                 </li>
               </Link>
-              <Link to={"/chat"}>
+              <Link to={"/chat"} className={unreadMessages ? "relative" : ""}>
                 <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
                   Chats
+                  {unreadMessages && (
+                    <span className="absolute top-0 right-0 w-3 h-3 bg-primary rounded-full"></span>
+                  )}
                 </li>
               </Link>
+
               <Link to={"/faqs"}>
                 <li className="p-2 lg:p-3 hover:text-primary  hover:-translate-y-1 ease-in-out duration-300 transition-all">
                   FAQs
@@ -316,7 +373,14 @@ export const NavbarLogged = () => {
           <span className="btm-nav-label">Recipes</span>
         </Link>
         <Link to="/chat" className="">
-          <CiChat1 size={15} />
+          {unreadMessages && (
+            <span className="absolute top-2  sm:right-6 right-3 w-3 h-3 bg-primary rounded-full"></span>
+          )}
+          {unreadMessages ? (
+            <BiMessageRoundedError size={15} className="animate-bounce" />
+          ) : (
+            <CiChat1 size={15} />
+          )}
           <span className="btm-nav-label">Chats</span>
         </Link>
       </div>
