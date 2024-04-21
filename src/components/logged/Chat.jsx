@@ -8,7 +8,6 @@ import {
   getDoc,
   getDocs,
   onSnapshot,
-  deleteDoc,
   serverTimestamp,
   addDoc,
 } from "firebase/firestore";
@@ -19,6 +18,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import Swal from "sweetalert2";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -32,6 +32,7 @@ const Chat = () => {
   const [messageText, setMessageText] = useState("");
   const [unsubscribe, setUnsubscribe] = useState(null);
   const [lastMessages, setLastMessages] = useState({});
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -209,18 +210,57 @@ const Chat = () => {
     });
   };
 
+  const addDeleteFlag = async (userId, chatId) => {
+    try {
+      const chatDocRef = doc(firestore, "chats", chatId);
+      const chatDocSnap = await getDoc(chatDocRef);
+      if (chatDocSnap.exists()) {
+        const chatData = chatDocSnap.data();
+        if (chatData && chatData.messages && Array.isArray(chatData.messages)) {
+          const updatedMessages = chatData.messages.map((message) => {
+            if (!message.isDelete) {
+              message.isDelete = [userId];
+            } else if (!message.isDelete.includes(userId)) {
+              message.isDelete.push(userId);
+            }
+            return message;
+          });
+
+          await updateDoc(chatDocRef, { messages: updatedMessages });
+          console.log("Delete flag added to messages successfully!");
+        } else {
+          console.log("No messages found in the conversation.");
+        }
+      } else {
+        console.log("Conversation document does not exist.");
+      }
+    } catch (error) {
+      console.error("Error adding delete flag to messages:", error);
+    }
+  };
+
   const deleteConversation = async () => {
     try {
       if (selectedUser) {
+        setIsDeleting(true); // Set isDeleting to true when deletion starts
         const chatId = [currentUser.uid, selectedUser.id].sort().join("");
-        const chatDocRef = doc(firestore, "chats", chatId);
-        await deleteDoc(chatDocRef);
-        console.log("Conversation deleted successfully!");
+        await addDeleteFlag(currentUser.uid, chatId);
         setSelectedUser(null);
         updateLastMessage(selectedUser.id);
+        // Close the modal
+        document.getElementById("deleteconvo").close();
+        // Display success message
+        Swal.fire({
+          icon: "success",
+          title: "Deleted",
+          showConfirmButton: false,
+          timer: 2000,
+        });
       }
     } catch (error) {
       console.error("Error deleting conversation:", error);
+    } finally {
+      setIsDeleting(false); // Set isDeleting back to false after deletion completes
     }
   };
 
@@ -441,28 +481,39 @@ const Chat = () => {
                           {user.isDeactivated ? "Deactivated" : user.firstName}{" "}
                           {user.isDeactivated ? "Account" : user.lastName}
                         </h3>
-                        {lastMessages[user.id] && (
-                          <p className="text-sm text-gray-500">
-                            {lastMessages[user.id].senderId === currentUser.uid
-                              ? "You: "
-                              : `${user.firstName}: `}
-                            {lastMessages[user.id].content.length > 7
-                              ? lastMessages[user.id].content.substring(0, 7) +
-                                "..."
-                              : lastMessages[user.id].content}
-                          </p>
-                        )}
-
-                        {lastMessages[user.id] &&
-                          !lastMessages[user.id].read &&
-                          lastMessages[user.id].recipientId ===
-                            currentUser.uid && (
-                            <div className="flex justify-center w-full md:justify-start">
-                              <span className="indicator-item badge badge-primary">
-                                Unread
-                              </span>
-                            </div>
-                          )}
+                        {lastMessages[user.id] ? (
+                          lastMessages[user.id].isDelete?.includes(
+                            currentUser.uid
+                          ) ? (
+                            <p className="text-sm text-gray-500">
+                              Deleted Messages
+                            </p>
+                          ) : (
+                            <>
+                              <p className="text-sm text-gray-500">
+                                {lastMessages[user.id].senderId ===
+                                currentUser.uid
+                                  ? "You: "
+                                  : `${user.firstName}: `}
+                                {lastMessages[user.id].content.length > 7
+                                  ? lastMessages[user.id].content.substring(
+                                      0,
+                                      7
+                                    ) + "..."
+                                  : lastMessages[user.id].content}
+                              </p>
+                              {!lastMessages[user.id].read &&
+                                lastMessages[user.id].recipientId ===
+                                  currentUser.uid && (
+                                  <div className="flex justify-center w-full md:justify-start">
+                                    <span className="indicator-item badge badge-primary">
+                                      Unread
+                                    </span>
+                                  </div>
+                                )}
+                            </>
+                          )
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -470,33 +521,36 @@ const Chat = () => {
 
                 {searchQuery === ""
                   ? // Display only the first three users without last messages
-                    usersWithoutLastMessages.slice(0, 3).map((user) => (
-                      <div
-                        key={user.id}
-                        className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
-                          selectedUser && selectedUser.id === user.id
-                            ? "bg-gray-200"
-                            : ""
-                        }`}
-                        onClick={() => handleUserSelect(user)}
-                      >
-                        <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
-                          <img
-                            src={user.profilePhotoUrl}
-                            alt={`${user.firstName} ${user.lastName}`}
-                            className="w-9 h-9 object-cover rounded-full"
-                          />
-                          <div>
-                            <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
-                              {user.firstName} {user.lastName}
-                            </h3>
-                            <p className="text-sm italic text-primary">
-                              Suggested User
-                            </p>
+                    usersWithoutLastMessages
+                      .slice(0, 3)
+                      .filter((user) => !user.isDeactivated) // Filter out deactivated users
+                      .map((user) => (
+                        <div
+                          key={user.id}
+                          className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
+                            selectedUser && selectedUser.id === user.id
+                              ? "bg-gray-200"
+                              : ""
+                          }`}
+                          onClick={() => handleUserSelect(user)}
+                        >
+                          <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
+                            <img
+                              src={user.profilePhotoUrl}
+                              alt={`${user.firstName} ${user.lastName}`}
+                              className="w-9 h-9 object-cover rounded-full"
+                            />
+                            <div>
+                              <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
+                                {user.firstName} {user.lastName}
+                              </h3>
+                              <p className="text-sm italic text-primary">
+                                Suggested User
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      ))
                   : // Display all filtered users
                     usersWithoutLastMessages
                       .filter(
@@ -596,21 +650,26 @@ const Chat = () => {
                           Delete a Conversation
                         </h3>
                         <p className="py-4">
-                          This message will be going to delete in the database.
-                          So,{" "}
-                          {selectedUser.isDeactivated
-                            ? "Deactivated User"
-                            : selectedUser.firstName}{" "}
-                          can also not be able to see it anymore. Are you sure
-                          you want to delete this conversation? This action
-                          cannot be undone.
+                          Are you sure you want to delete your conversation with{" "}
+                          <span className="font-bold">
+                            {selectedUser.isDeactivated
+                              ? "Deactivated User"
+                              : selectedUser.firstName}
+                          </span>
+                          ? This action cannot be undone.
                         </p>
                         <div className="modal-action">
                           <button
                             onClick={deleteConversation}
-                            className="btn btn-error text-white"
+                            className={`btn btn-error text-white flex items-center justify-center ${
+                              isDeleting ? "cursor-not-allowed opacity-50" : ""
+                            }`}
                           >
-                            Delete
+                            {isDeleting ? (
+                              <AiOutlineLoading3Quarters className="animate-spin" />
+                            ) : (
+                              <span>Delete</span>
+                            )}
                           </button>
                           <form method="dialog">
                             {/* if there is a button in form, it will close the modal */}
@@ -630,58 +689,75 @@ const Chat = () => {
                       className=""
                       style={{ maxHeight: "400px", overflowY: "auto" }}
                     >
-                      {messages.map((message, index) => (
-                        <div key={index} className=" w-full">
-                          <div
-                            className={`${
-                              message.senderId === currentUser.uid
-                                ? "chat chat-end "
-                                : "chat chat-start "
-                            } p-2  mb-1 w-full flex flex-col`}
-                          >
-                            <div className="flex items-center">
-                              {message.senderId === currentUser.uid ? (
-                                <>
-                                  <img
-                                    src={currentUser.profilePhotoUrl} // Displaying current user's profile photo
-                                    alt={currentUser.firstName}
-                                    className="w-8 h-8 hidden rounded-full mr-2"
-                                  />
-                                </>
-                              ) : (
-                                <>
-                                  <img
-                                    src={
-                                      selectedUser.isDeactivated
-                                        ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
-                                        : selectedUser.profilePhotoUrl
-                                    }
-                                    alt={
-                                      selectedUser.isDeactivated
-                                        ? "Deactivated Account"
-                                        : `${selectedUser.firstName} ${selectedUser.lastName}`
-                                    }
-                                    className="w-8 h-8 object-cover rounded-full mr-2"
-                                  />
-                                </>
-                              )}
-                              <div className="">
-                                <div>
-                                  <h1
-                                    className={`${
-                                      message.senderId === currentUser.uid
-                                        ? "chat-bubble-primary "
-                                        : "chat-bubble-info"
-                                    } chat-bubble max-w-xs text-base overflow-x-hidden break-all  md:max-w-lg`}
-                                  >
-                                    {message.content}
-                                  </h1>
+                      {messages.some(
+                        (message) =>
+                          !message.isDelete?.includes(currentUser.uid)
+                      ) ? (
+                        // If there are messages without the user's ID in isDelete array
+                        messages
+                          .filter(
+                            (message) =>
+                              !message.isDelete?.includes(currentUser.uid)
+                          )
+                          .map((message, index) => (
+                            <div key={index} className="w-full">
+                              <div
+                                className={`${
+                                  message.senderId === currentUser.uid
+                                    ? "chat chat-end "
+                                    : "chat chat-start "
+                                } p-2 mb-1 w-full flex flex-col`}
+                              >
+                                <div className="flex items-center">
+                                  {message.senderId === currentUser.uid ? (
+                                    <>
+                                      <img
+                                        src={currentUser.profilePhotoUrl}
+                                        alt={currentUser.firstName}
+                                        className="w-8 h-8 hidden rounded-full mr-2"
+                                      />
+                                    </>
+                                  ) : (
+                                    <>
+                                      <img
+                                        src={
+                                          selectedUser.isDeactivated
+                                            ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
+                                            : selectedUser.profilePhotoUrl
+                                        }
+                                        alt={
+                                          selectedUser.isDeactivated
+                                            ? "Deactivated Account"
+                                            : `${selectedUser.firstName} ${selectedUser.lastName}`
+                                        }
+                                        className="w-8 h-8 object-cover rounded-full mr-2"
+                                      />
+                                    </>
+                                  )}
+                                  <div className="">
+                                    <div>
+                                      <h1
+                                        className={`${
+                                          message.senderId === currentUser.uid
+                                            ? "chat-bubble-primary "
+                                            : "chat-bubble-info"
+                                        } chat-bubble max-w-xs text-base overflow-x-hidden break-all md:max-w-lg`}
+                                      >
+                                        {message.content}
+                                      </h1>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      ))}
+                          ))
+                      ) : (
+                        // If all messages have the user's ID in isDelete array
+                        <p className="text-gray-500 text-center">
+                          You recently deleted your conversation with{" "}
+                          {selectedUser.firstName}.
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <div>
@@ -693,6 +769,7 @@ const Chat = () => {
                     </div>
                   )}
                 </div>
+
                 <form onSubmit={handleFormSubmit} className="flex items-center">
                   <input
                     type="text"
