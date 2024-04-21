@@ -30,6 +30,7 @@ const AdminDelete = () => {
   const navigate = useNavigate();
   const [deletionHistory, setDeletionHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchDeletionHistory = async () => {
@@ -199,6 +200,17 @@ const AdminDelete = () => {
     setShowRequests((prev) => !prev);
   };
 
+  // Search function
+  const filteredRequests = deletionRequests.filter((request) => {
+    const fullName = `${request.userData.firstName} ${request.userData.lastName}`;
+    return fullName.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  const filteredHistory = deletionHistory.filter((historyItem) => {
+    const fullName = `${historyItem.userHistoryData.firstName} ${historyItem.userHistoryData.lastName}`;
+    return fullName.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div>
       {loading ? (
@@ -294,9 +306,19 @@ const AdminDelete = () => {
                   <option value="deletionRE">History</option>
                 </select>
               </div>
+              {/* Search Input */}
+              <div className="flex justify-center items-center mb-4">
+                <input
+                  type="text"
+                  placeholder="Search by name..."
+                  className="border border-gray-300 rounded-md w-full px-3 py-2 focus:outline-none focus:border-primary"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
               <ul className="mt-4">
                 {showRequests ? (
-                  deletionRequests.length === 0 ? (
+                  filteredRequests.length === 0 ? (
                     // No deletionRequests message
                     <div className="flex w-full items-center flex-col justify-center mt-4">
                       <p className="text-xl md:text-2xl ml-4">
@@ -304,7 +326,7 @@ const AdminDelete = () => {
                       </p>
                     </div>
                   ) : (
-                    deletionRequests.map((deletionRequest) => (
+                    filteredRequests.map((deletionRequest) => (
                       <div>
                         <h1 className="text-center mb-2 font-bold text-2xl">
                           Deletion Requests
@@ -356,14 +378,14 @@ const AdminDelete = () => {
                     <ul className="mt-2">
                       {loadingHistory ? (
                         <div>Loading history...</div>
-                      ) : deletionHistory.length === 0 ? (
+                      ) : filteredHistory.length === 0 ? (
                         <div className="flex w-full items-center flex-col justify-center mt-4">
                           <p className="text-xl md:text-2xl ml-4">
                             There is no deletion history.
                           </p>
                         </div>
                       ) : (
-                        deletionHistory.map((historyItem) => (
+                        filteredHistory.map((historyItem) => (
                           <li
                             key={historyItem.id}
                             className="card glass rounded-lg mb-2 p-3"
