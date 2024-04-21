@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   updateDoc,
@@ -33,6 +33,11 @@ const Chat = () => {
   const [unsubscribe, setUnsubscribe] = useState(null);
   const [lastMessages, setLastMessages] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
+  const chatRef = useRef();
+
+  useEffect(() => {
+    chatRef.current?.scrollIntoView();
+  }, [messages]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -700,7 +705,7 @@ const Chat = () => {
                               !message.isDelete?.includes(currentUser.uid)
                           )
                           .map((message, index) => (
-                            <div key={index} className="w-full">
+                            <div ref={chatRef} key={index} className="w-full">
                               <div
                                 className={`${
                                   message.senderId === currentUser.uid
