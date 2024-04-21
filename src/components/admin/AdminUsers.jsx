@@ -99,50 +99,90 @@ const AdminUsers = () => {
   };
 
   const disableAccount = async (user) => {
-    // Prompt the user to enter a reason
-    const { value: reason } = await Swal.fire({
-      title: `Enter reason for disabling ${user.firstName} ${user.lastName}`,
-      input: "text",
-      inputPlaceholder: "Reason...",
-      showCancelButton: true,
-      confirmButtonText: "Disable",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      inputValidator: (value) => {
-        if (!value) {
-          return "You need to enter a reason!";
-        }
-      },
-    });
-
-    // Proceed only if the user provided a reason
-    if (reason) {
-      const result = await Swal.fire({
-        title: `Are you sure you want to DISABLE ${user.firstName} ${user.lastName}?`,
-        icon: "warning",
+    try {
+      const { value: reason } = await Swal.fire({
+        title: `Why do you want to disable ${user.firstName}'s account?`,
+        input: "select",
+        inputOptions: {
+          "Posting Inappropriate Content": "Posting Inappropriate Content",
+          "Identity Theft": "Identity Theft",
+          "Inappropriate Display Picture": "Inappropriate Display Picture",
+          "Harassment or Bullying": "Harassment or Bullying",
+          Spam: "Spam",
+          "Scamming/Bogus Buyer": "Scamming/Bogus Buyer",
+          Others: "Others",
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to select a reason";
+          }
+        },
+        inputPlaceholder: "Select a reason",
+        inputAttributes: {
+          autocapitalize: "off",
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;",
+        },
         showCancelButton: true,
-        confirmButtonText: "Disable",
         cancelButtonText: "Cancel",
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
+        confirmButtonColor: "#008080",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        html: `
+          <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
+        `,
+        preConfirm: async () => {
+          const reason = Swal.getPopup().querySelector(".swal2-select").value;
+          const explanation =
+            Swal.getPopup().querySelector("#swal-input2").value;
+
+          if (!reason || !explanation) {
+            Swal.showValidationMessage("Please fill out all fields");
+            return;
+          }
+
+          try {
+            const reportData = {
+              reason,
+              explanation,
+              userId: user.userId,
+            };
+            const userRef = doc(firestore, "registered", user.id);
+            await updateDoc(userRef, { disabled: true });
+            const reasonRef = doc(firestore, "disabledReason", user.id);
+
+            await setDoc(reasonRef, reportData);
+
+            Swal.fire({
+              title: "Report Submitted!",
+              text: `${user.firstName}'s account has been disabled.`,
+              icon: "success",
+            });
+          } catch (error) {
+            console.error("Error reporting profile:", error);
+            Swal.fire(
+              "Error!",
+              "An error occurred while disabling the account.",
+              "error"
+            );
+          }
+        },
       });
 
-      if (result.isConfirmed) {
-        // Update the database with the reason
-        const userRef = doc(firestore, "registered", user.id);
-        await updateDoc(userRef, {
-          disabled: true,
+      if (!reason) {
+        Swal.fire({
+          title: "Cancelled",
+          text: "Disabling the account has been cancelled.",
+          icon: "error",
+          confirmButtonColor: "#008080",
         });
-
-        // Store the reason in the database collection
-        const reasonRef = doc(firestore, "disabledReason", user.userId);
-        await setDoc(reasonRef, {
-          reason: reason,
-        });
-
-        Swal.fire("Disabled!", `User ${user.firstName} disabled.`, "success");
       }
+    } catch (error) {
+      console.error("Error reporting profile:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while disabling the account.",
+        "error"
+      );
     }
   };
 
