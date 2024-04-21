@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+} from "firebase/firestore";
 import uploadload from "../../assets/loading.gif";
 import { FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
@@ -12,6 +22,7 @@ import { getAuth, signOut } from "firebase/auth";
 import { AiOutlineLogout } from "react-icons/ai";
 import Swal from "sweetalert2";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { firestore } from "../../firebase";
 
 const AdminReports = () => {
   const [loading, setLoading] = useState(true);
@@ -121,6 +132,161 @@ const AdminReports = () => {
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
+  };
+
+  const enableAccount = async (report) => {
+    const user = registeredUsers[report.userId];
+    const result = await Swal.fire({
+      title: `Are you sure you want to enable ${user.firstName}'s account?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Enable",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#67BA6A",
+      cancelButtonColor: "#3085d6",
+    });
+
+    if (result.isConfirmed) {
+      const userRef = doc(firestore, "registered", user.userId);
+
+      // Remove the reason document from the disabledReason collection
+      const reasonRef = doc(firestore, "disabledReason", user.userId);
+      await deleteDoc(reasonRef);
+
+      const appealQuery = query(
+        collection(firestore, "userAppeal"),
+        where("userId", "==", user.userId)
+      );
+      const appealSnapshot = await getDocs(appealQuery);
+      appealSnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+
+      try {
+        // Update the user's disabled status
+        await updateDoc(userRef, { disabled: false });
+
+        // Update local state to reflect the change in user's disabled status
+        setRegisteredUsers((prevUsers) => ({
+          ...prevUsers,
+          [user.userId]: {
+            ...prevUsers[user.userId],
+            disabled: false,
+          },
+        }));
+
+        Swal.fire("Enabled!", `User ${user.firstName} enabled.`, "success");
+      } catch (error) {
+        console.error("Error enabling user:", error);
+        Swal.fire(
+          "Error!",
+          "An error occurred while enabling the user.",
+          "error"
+        );
+      }
+    }
+  };
+
+  const disableAccount = async (report) => {
+    const user = registeredUsers[report.userId];
+
+    try {
+      const { value: reason } = await Swal.fire({
+        title: `Why do you want to disable ${user.firstName}'s account?`,
+        input: "select",
+        inputOptions: {
+          "Posting Inappropriate Content": "Posting Inappropriate Content",
+          "Identity Theft": "Identity Theft",
+          "Inappropriate Display Picture": "Inappropriate Display Picture",
+          "Harassment or Bullying": "Harassment or Bullying",
+          Spam: "Spam",
+          "Scamming/Bogus Buyer": "Scamming/Bogus Buyer",
+          Others: "Others",
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return "You need to select a reason";
+          }
+        },
+        inputPlaceholder: "Select a reason",
+        inputAttributes: {
+          autocapitalize: "off",
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;",
+        },
+        showCancelButton: true,
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#008080",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        html: `
+          <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
+        `,
+        preConfirm: async () => {
+          const reason = Swal.getPopup().querySelector(".swal2-select").value;
+          const explanation =
+            Swal.getPopup().querySelector("#swal-input2").value;
+
+          if (!reason || !explanation) {
+            Swal.showValidationMessage("Please fill out all fields");
+            return;
+          }
+
+          try {
+            // Disable the account
+            const userRef = doc(firestore, "registered", user.userId);
+            await updateDoc(userRef, { disabled: true });
+
+            // Create a record of the disable reason
+            const reasonRef = doc(firestore, "disabledReason", user.userId);
+            const reportData = {
+              reason,
+              explanation,
+              userId: user.userId,
+            };
+            await setDoc(reasonRef, reportData);
+
+            // Update local state to reflect the change in user's disabled status
+            setRegisteredUsers((prevUsers) => ({
+              ...prevUsers,
+              [user.userId]: {
+                ...prevUsers[user.userId],
+                disabled: true,
+              },
+            }));
+
+            // Show success message
+            Swal.fire({
+              title: "Report Submitted!",
+              text: `${user.firstName}'s account has been disabled.`,
+              icon: "success",
+            });
+          } catch (error) {
+            console.error("Error reporting profile:", error);
+            Swal.fire(
+              "Error!",
+              "An error occurred while disabling the account.",
+              "error"
+            );
+          }
+        },
+      });
+
+      if (!reason) {
+        Swal.fire({
+          title: "Cancelled",
+          text: "Disabling the account has been cancelled.",
+          icon: "error",
+          confirmButtonColor: "#008080",
+        });
+      }
+    } catch (error) {
+      console.error("Error reporting profile:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while disabling the account.",
+        "error"
+      );
+    }
   };
 
   return (
@@ -263,7 +429,24 @@ const AdminReports = () => {
                     )}
                     {reportType === "profile" && (
                       <div className="flex flex-col gap-2">
-                        <div className="py-1 flex justify-end">
+                        <div className="py-1 gap-2 flex justify-end">
+                          <button
+                            className={`btn btn-xs btn-primary ${
+                              registeredUsers[report.userId].disabled
+                                ? "btn-success text-white"
+                                : "btn-error text-white"
+                            }`}
+                            onClick={() =>
+                              registeredUsers[report.userId].disabled
+                                ? enableAccount(registeredUsers[report.userId])
+                                : disableAccount(registeredUsers[report.userId])
+                            }
+                          >
+                            {registeredUsers[report.userId].disabled
+                              ? "Enable"
+                              : "Disable"}
+                          </button>
+
                           <button
                             className="btn btn-xs btn-primary"
                             onClick={() =>
@@ -298,7 +481,23 @@ const AdminReports = () => {
                     )}
 
                     {reportType !== "profile" && (
-                      <div className="py-1 flex justify-end">
+                      <div className="py-1 flex gap-2 justify-end">
+                        <button
+                          className={`btn btn-xs btn-primary ${
+                            registeredUsers[report.userId].disabled
+                              ? "btn-success text-white"
+                              : "btn-error text-white"
+                          }`}
+                          onClick={() =>
+                            registeredUsers[report.userId].disabled
+                              ? enableAccount(registeredUsers[report.userId])
+                              : disableAccount(registeredUsers[report.userId])
+                          }
+                        >
+                          {registeredUsers[report.userId].disabled
+                            ? "Enable"
+                            : "Disable"}
+                        </button>
                         <button
                           className="btn btn-xs btn-primary"
                           onClick={() => {
