@@ -4,8 +4,8 @@ import {
   collection,
   query,
   onSnapshot,
-  deleteDoc,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
@@ -75,34 +75,6 @@ const AdminLocations = () => {
     lng: 120.9429,
   };
 
-  const handleDelete = async (productId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You will not be able to recover this product!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (result.isConfirmed) {
-      const productRef = doc(firestore, "products", productId);
-      try {
-        await deleteDoc(productRef);
-        console.log("Document successfully deleted!");
-        Swal.fire("Deleted!", "Your product has been deleted.", "success");
-      } catch (error) {
-        console.error("Error deleting document: ", error);
-        Swal.fire(
-          "Error!",
-          "An error occurred while deleting the product.",
-          "error"
-        );
-      }
-    }
-  };
-
   const navigate = useNavigate();
 
   const handleLogoutConfirmation = () => {
@@ -127,6 +99,90 @@ const AdminLocations = () => {
       navigate("/");
     } catch (error) {
       console.log("Error logging out:", error);
+    }
+  };
+
+  const toggleProductVisibility = async () => {
+    const productId = selectedLocation.id;
+    const isHidden = selectedLocation.isHidden;
+    try {
+      if (isHidden) {
+        // Product is hidden, show confirm dialog to show it
+        const confirmationResult = await Swal.fire({
+          title: "Show Product",
+          text: "Are you sure you want to show this product?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          confirmButtonText: "Yes",
+          cancelButtonText: "Cancel",
+        });
+
+        if (confirmationResult.isConfirmed) {
+          const productDocRef = doc(firestore, "products", productId);
+          await updateDoc(productDocRef, {
+            isHidden: false,
+            hideReason: null, // Clear the hide reason when showing the product
+          });
+          // Update local state to reflect the change
+          setLocations((prevProducts) =>
+            prevProducts.map((product) =>
+              product.id === productId
+                ? { ...product, isHidden: false, hideReason: null }
+                : product
+            )
+          );
+          Swal.fire("Success!", `Product has been shown.`, "success");
+        }
+        return;
+      }
+
+      // Product is visible, show input options to hide it
+      const { value: reason } = await Swal.fire({
+        title: "Hide Product",
+        input: "select",
+        inputLabel: "Select a reason",
+        inputOptions: {
+          "Inappropriate Content": "Inappropriate Content",
+          "Spam or Scams": "Spam or Scams",
+          "Copyright Infringement": "Copyright Infringement",
+          "False Information": "False Information",
+          "Violations of Website Policies": "Violations of Website Policies",
+          "Privacy Concerns": "Privacy Concerns",
+        },
+        inputPlaceholder: "Select a reason",
+        showCancelButton: true,
+        confirmButtonText: "Hide",
+        confirmButtonColor: "#d33",
+        cancelButtonText: "Cancel",
+        inputValidator: (value) => {
+          return !value && "You need to select a reason!";
+        },
+      });
+
+      if (reason) {
+        const productDocRef = doc(firestore, "products", productId);
+        await updateDoc(productDocRef, {
+          isHidden: true,
+          hideReason: reason, // Store the hide reason in Firestore
+        });
+        // Update local state to reflect the change
+        setLocations((prevProducts) =>
+          prevProducts.map((product) =>
+            product.id === productId
+              ? { ...product, isHidden: true, hideReason: reason }
+              : product
+          )
+        );
+        Swal.fire("Success!", `Product has been hidden.`, "success");
+      }
+    } catch (error) {
+      console.error("Error updating product visibility:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while updating product visibility.",
+        "error"
+      );
     }
   };
 
@@ -301,12 +357,21 @@ const AdminLocations = () => {
                             >
                               Get Direction
                             </button>
-                            <button
-                              className="font-normal md:btn-sm btn-xs w-full btn btn-danger text-white"
-                              onClick={() => handleDelete(selectedLocation.id)} // Assuming handleDelete function is implemented to handle product deletion
-                            >
-                              Delete Product
-                            </button>
+                            {selectedLocation.isHidden ? (
+                              <button
+                                className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
+                                onClick={toggleProductVisibility}
+                              >
+                                Show Product
+                              </button>
+                            ) : (
+                              <button
+                                className="font-normal md:btn-sm btn-xs w-full btn btn-danger text-white"
+                                onClick={toggleProductVisibility}
+                              >
+                                Hide Product
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ) : (
