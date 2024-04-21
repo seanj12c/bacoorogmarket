@@ -12,6 +12,7 @@ const Appeal = () => {
   const [recaptchaCompleted, setRecaptchaCompleted] = useState(false);
   const [existingAppeal, setExistingAppeal] = useState(null); // State to hold existing appeal data
   const [disabledReason, setDisabledReason] = useState(null); // State to hold disabled reason
+  const [disabledExplanation, setDisabledExplanation] = useState(null); // State to hold disabled reason
 
   useEffect(() => {
     // Fetch the currently authenticated user's email and set it as the initial value for email state
@@ -57,7 +58,8 @@ const Appeal = () => {
           const disabledReasonDocSnap = await getDoc(disabledReasonDocRef);
           if (disabledReasonDocSnap.exists()) {
             const data = disabledReasonDocSnap.data();
-            setDisabledReason(data.reason); // Set disabled reason
+            setDisabledReason(data.reason);
+            setDisabledExplanation(data.explanation); // Set disabled reason
           }
         }
       } catch (error) {
@@ -157,14 +159,14 @@ const Appeal = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="h-screen flex items-center justify-center py-12 sm:px-6 lg:px-8">
       <img
         className="z-[-1] absolute h-screen w-screen mx-auto object-cover pointer-events-none select-none"
         src={appealbg}
         alt=""
       />
 
-      <div className="max-w-md w-full  space-y-8  bg-white  p-6 lg:p-8  shadow-primary rounded-lg shadow-md">
+      <div className="max-w-md md:max-w-xl w-full  space-y-1   bg-white  p-6 lg:p-8  shadow-primary rounded-lg shadow-md">
         <div className="flex items-center w-full justify-end">
           <button
             onClick={handleLogout}
@@ -174,7 +176,7 @@ const Appeal = () => {
           </button>
         </div>
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-lg md:text-3xl font-extrabold text-gray-900">
             {existingAppeal
               ? "Your appeal is under review"
               : "Appeal Your Account Suspension"}
@@ -186,9 +188,17 @@ const Appeal = () => {
           </p>
         </div>
         <div>
-          <h1 className="text-center text-xs md:text-base  ">
+          <h1 className="text-center text-xs  ">
             Your account has been disabled due to reason; <br />
-            <span className="italic text-red-600">{disabledReason}</span>
+            <span className="italic font-bold text-red-600">
+              {disabledReason}
+            </span>
+          </h1>
+          <h1 className="text-xs">
+            Explanation:{" "}
+            <span className="italic font-bold text-red-600">
+              {disabledExplanation}
+            </span>
           </h1>
         </div>
         <form className="mt-8 space-y-6" onSubmit={submitHandler}>
