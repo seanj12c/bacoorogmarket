@@ -6,6 +6,7 @@ import {
   onSnapshot,
   doc,
   updateDoc,
+  getDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
@@ -27,6 +28,42 @@ import { AiOutlineLogout } from "react-icons/ai";
 import Swal from "sweetalert2";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
+// LocationCard component to display selected location details
+const LocationCard = ({ location, toggleProductVisibility }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-4">
+      <h2 className="text-xl font-bold mb-2">
+        {`${location.firstName} ${location.lastName}`}
+      </h2>
+      <p className="mb-2">{location.address}</p>
+      <p className="mb-2">{location.caption}</p>
+      <p className="mb-2">{location.description}</p>
+      <p className="mb-2">Price: {location.price}</p>
+      <div className="flex justify-between items-center">
+        <button
+          className="font-normal md:btn-sm btn-xs w-full btn btn-primary text-white"
+          onClick={() =>
+            window.open(
+              `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`,
+              "_blank"
+            )
+          }
+        >
+          Get Direction
+        </button>
+        <button
+          className={`font-normal md:btn-sm btn-xs w-full btn ${
+            location.isHidden ? "btn-success" : "btn-danger"
+          } text-white`}
+          onClick={toggleProductVisibility}
+        >
+          {location.isHidden ? "Show Product" : "Hide Product"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const AdminLocations = () => {
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
@@ -36,33 +73,50 @@ const AdminLocations = () => {
     const productsCollection = collection(firestore, "products");
     const productsQuery = query(productsCollection);
 
-    const unsubscribe = onSnapshot(productsQuery, (querySnapshot) => {
+    const unsubscribe = onSnapshot(productsQuery, async (querySnapshot) => {
       const locationsData = [];
-      querySnapshot.forEach((doc) => {
+      for (const doc of querySnapshot.docs) {
         const product = doc.data();
         if (
           product.location &&
           product.location.latitude &&
           product.location.longitude &&
-          product.firstName &&
-          product.lastName &&
-          product.address
+          product.registeredId &&
+          product.address &&
+          product.caption &&
+          product.description &&
+          product.isHidden !== undefined &&
+          product.otherInformation &&
+          product.photos &&
+          product.price !== undefined &&
+          product.userUid
         ) {
-          locationsData.push({
-            id: doc.id,
-            latitude: product.location.latitude,
-            longitude: product.location.longitude,
-            firstName: product.firstName,
-            lastName: product.lastName,
-            address: product.address,
-          });
+          const registeredDoc = await getDoc(
+            doc(firestore, "registered", product.registeredId)
+          );
+          if (registeredDoc.exists()) {
+            const registeredData = registeredDoc.data();
+            locationsData.push({
+              id: doc.id,
+              latitude: product.location.latitude,
+              longitude: product.location.longitude,
+              firstName: registeredData.firstName,
+              lastName: registeredData.lastName,
+              address: product.address,
+              caption: product.caption,
+              description: product.description,
+              isHidden: product.isHidden,
+              otherInformation: product.otherInformation,
+              photos: product.photos,
+              price: product.price,
+              userUid: product.userUid,
+            });
+          }
         }
-      });
+      }
       console.log("Locations Data:", locationsData);
       setLocations(locationsData);
       setLoading(false);
-
-      // localStorage.setItem("productLocations", JSON.stringify(locationsData));
     });
 
     return () => {
@@ -103,6 +157,8 @@ const AdminLocations = () => {
   };
 
   const toggleProductVisibility = async () => {
+    if (!selectedLocation) return;
+
     const productId = selectedLocation.id;
     const isHidden = selectedLocation.isHidden;
     try {
@@ -286,7 +342,6 @@ const AdminLocations = () => {
                     options={{
                       mapTypeControl: false,
                       streetViewControl: false,
-
                       borderRadius: "8px",
                     }}
                   >
@@ -312,78 +367,14 @@ const AdminLocations = () => {
                           setSelectedLocation(null);
                         }}
                       >
-                        <div>
-                          <h2>{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
-                        </div>
+                        <LocationCard
+                          location={selectedLocation}
+                          toggleProductVisibility={toggleProductVisibility}
+                        />
                       </InfoWindow>
                     )}
                   </GoogleMap>
                 </LoadScript>
-              </div>
-              <div>
-                <h1 className="text-lg md:text-2xl font-bold my-4 text-center">
-                  {selectedLocation
-                    ? "Selected Location Details"
-                    : "Please tap the marker on the map"}
-                </h1>
-                <div className="overflow-auto">
-                  <table className="w-full table table-xs text-xs text-center border-separate bg-gray-200">
-                    <thead>
-                      <tr className="bg-primary text-white">
-                        <th className="p-1">Name</th>
-                        <th className="p-1">Address</th>
-
-                        <th className="p-1">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedLocation ? (
-                        <tr>
-                          <td className="p-1">
-                            {selectedLocation.firstName}{" "}
-                            {selectedLocation.lastName}
-                          </td>
-                          <td className="p-1">{selectedLocation.address}</td>
-
-                          <td className="p-1 flex gap-2 w-full">
-                            <button
-                              className="font-normal md:btn-sm btn-xs w-full btn btn-primary text-white"
-                              onClick={() =>
-                                window.open(
-                                  `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`,
-                                  "_blank"
-                                )
-                              }
-                            >
-                              Get Direction
-                            </button>
-                            {selectedLocation.isHidden ? (
-                              <button
-                                className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
-                                onClick={toggleProductVisibility}
-                              >
-                                Show Product
-                              </button>
-                            ) : (
-                              <button
-                                className="font-normal md:btn-sm btn-xs w-full btn btn-danger text-white"
-                                onClick={toggleProductVisibility}
-                              >
-                                Hide Product
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ) : (
-                        <tr>
-                          <td colSpan="4" className="p-1">
-                            No location selected
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
               </div>
             </div>
           </div>
