@@ -176,6 +176,13 @@ const AdminLocations = () => {
     }
   };
 
+  console.log("Locations:", locations);
+
+  console.log(
+    "Locations Latitude:",
+    locations.map((location) => location.location.latitude)
+  );
+
   return (
     <div>
       {loading ? (
@@ -271,7 +278,10 @@ const AdminLocations = () => {
                 >
                   <GoogleMap
                     mapContainerStyle={{ height: "300px", width: "100%" }}
-                    center={defaultCenter}
+                    center={{
+                      lat: parseFloat(defaultCenter.lat),
+                      lng: parseFloat(defaultCenter.lng),
+                    }}
                     zoom={12}
                     options={{
                       mapTypeControl: false,
@@ -284,14 +294,15 @@ const AdminLocations = () => {
                       <Marker
                         key={location.id}
                         position={{
-                          lat: location.latitude,
-                          lng: location.longitude,
+                          lat: parseFloat(location.location.latitude),
+                          lng: parseFloat(location.location.longitude),
                         }}
                         onClick={() => {
                           setSelectedLocation(location);
                         }}
                       />
                     ))}
+
                     {selectedLocation && (
                       <InfoWindow
                         position={{
