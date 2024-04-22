@@ -148,6 +148,17 @@ const Chat = () => {
 
   const handleUserSelect = async (user) => {
     try {
+      // Show loading state
+      Swal.fire({
+        title: "Loading...",
+        timer: 2000, // Auto close after 2 seconds
+        allowOutsideClick: false,
+        showConfirmButton: false, // Remove OK button
+        onBeforeOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       setSelectedUser(user);
       const chatId = [currentUser.uid, user.id].sort().join("");
       const chatDocRef = doc(firestore, "chats", chatId);
@@ -173,6 +184,12 @@ const Chat = () => {
       }
 
       navigate(`/chat/${chatId}`);
+
+      // Wait for 2 seconds before navigating to /chat
+      setTimeout(() => {
+        navigate("/chat");
+        Swal.close();
+      }, 2000);
     } catch (error) {
       console.error("Error selecting user:", error);
     }
@@ -306,6 +323,7 @@ const Chat = () => {
       }
 
       console.log("Message sent successfully!");
+      navigate("/chat");
     } catch (error) {
       console.error("Error sending message:", error);
     }
