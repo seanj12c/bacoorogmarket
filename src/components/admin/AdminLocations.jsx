@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
 import {
   collection,
-  query,
+  getDoc,
   onSnapshot,
   doc,
   updateDoc,
-  getDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
@@ -34,60 +33,45 @@ const AdminLocations = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
-    const productsCollection = collection(firestore, "products");
-    const productsQuery = query(productsCollection);
-
-    const unsubscribe = onSnapshot(productsQuery, async (querySnapshot) => {
-      const locationsData = [];
-      for (const doc of querySnapshot.docs) {
-        const product = doc.data();
-        if (
-          product.location &&
-          product.location.latitude &&
-          product.location.longitude &&
-          product.registeredId &&
-          product.address &&
-          product.caption &&
-          product.description &&
-          product.isHidden &&
-          product.otherInformation &&
-          product.photos &&
-          product.price &&
-          product.userUid
-        ) {
-          const registeredDoc = await getDoc(
-            doc(firestore, "registered", product.registeredId)
-          );
-          if (registeredDoc.exists()) {
-            const registeredData = registeredDoc.data();
-            locationsData.push({
-              id: doc.id,
-              latitude: product.location.latitude,
-              longitude: product.location.longitude,
-              firstName: registeredData.firstName,
-              lastName: registeredData.lastName,
-              address: product.address,
-              caption: product.caption,
-              description: product.description,
-              isHidden: product.isHidden,
-              otherInformation: product.otherInformation,
-              photos: product.photos,
-              price: product.price,
-              userUid: product.userUid,
-            });
+    const unsubscribe = onSnapshot(
+      collection(firestore, "products"),
+      (querySnapshot) => {
+        const locationsData = [];
+        querySnapshot.forEach(async (doc) => {
+          const product = doc.data();
+          if (
+            product.location &&
+            product.location.latitude &&
+            product.location.longitude &&
+            product.address
+          ) {
+            // Fetch user details from registered collection
+            const registeredDoc = await getDoc(
+              doc(firestore, "registered", product.userId)
+            );
+            const registered = registeredDoc.data();
+            if (registered) {
+              locationsData.push({
+                id: doc.id,
+                latitude: product.location.latitude,
+                longitude: product.location.longitude,
+                firstName: registered.firstName,
+                lastName: registered.lastName,
+                address: product.address,
+              });
+            }
           }
-        }
+        });
+        console.log("Locations Data:", locationsData);
+        setLocations(locationsData);
+        setLoading(false);
       }
-      console.log("Locations Data:", locationsData);
-      setLocations(locationsData);
-      setLoading(false);
-    });
+    );
 
     return () => {
       unsubscribe();
     };
   }, []);
-
   const defaultCenter = {
     lat: 14.4576,
     lng: 120.9429,
@@ -232,7 +216,9 @@ const AdminLocations = () => {
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />
-                <h1 className="text-center font-bold text-xl">Admin Panel</h1>
+                <h1 className="text-center font-bold text-xl">
+                  Admin Panel
+                </h1>{" "}
               </div>
               <ul className="text-left text-black  flex flex-col h-full mt-6">
                 <Link to="/admin/users">
