@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import NavbarAdmin from "./NavbarAdmin";
 import {
   collection,
-  getDoc,
+  query,
   onSnapshot,
   doc,
   updateDoc,
@@ -33,45 +33,43 @@ const AdminLocations = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(firestore, "products"),
-      (querySnapshot) => {
-        const locationsData = [];
-        querySnapshot.forEach(async (doc) => {
-          const product = doc.data();
-          if (
-            product.location &&
-            product.location.latitude &&
-            product.location.longitude &&
-            product.address
-          ) {
-            // Fetch user details from registered collection
-            const registeredDoc = await getDoc(
-              doc(firestore, "registered", product.userId)
-            );
-            const registered = registeredDoc.data();
-            if (registered) {
-              locationsData.push({
-                id: doc.id,
-                latitude: product.location.latitude,
-                longitude: product.location.longitude,
-                firstName: registered.firstName,
-                lastName: registered.lastName,
-                address: product.address,
-              });
-            }
-          }
-        });
-        console.log("Locations Data:", locationsData);
-        setLocations(locationsData);
-        setLoading(false);
-      }
-    );
+    const productsCollection = collection(firestore, "products");
+    const productsQuery = query(productsCollection);
+
+    const unsubscribe = onSnapshot(productsQuery, (querySnapshot) => {
+      const locationsData = [];
+      querySnapshot.forEach((doc) => {
+        const product = doc.data();
+        if (
+          product.location &&
+          product.location.latitude &&
+          product.location.longitude &&
+          product.firstName &&
+          product.lastName &&
+          product.address
+        ) {
+          locationsData.push({
+            id: doc.id,
+            latitude: product.location.latitude,
+            longitude: product.location.longitude,
+            firstName: product.firstName,
+            lastName: product.lastName,
+            address: product.address,
+          });
+        }
+      });
+      console.log("Locations Data:", locationsData);
+      setLocations(locationsData);
+      setLoading(false);
+
+      // localStorage.setItem("productLocations", JSON.stringify(locationsData));
+    });
 
     return () => {
       unsubscribe();
     };
   }, []);
+
   const defaultCenter = {
     lat: 14.4576,
     lng: 120.9429,
@@ -104,87 +102,47 @@ const AdminLocations = () => {
     }
   };
 
-  const toggleProductVisibility = async () => {
-    const productId = selectedLocation.id;
-    const isHidden = selectedLocation.isHidden;
+  const handleShowProduct = async (productId) => {
     try {
-      if (isHidden) {
-        // Product is hidden, show confirm dialog to show it
-        const confirmationResult = await Swal.fire({
-          title: "Show Product",
-          text: "Are you sure you want to show this product?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          confirmButtonText: "Yes",
-          cancelButtonText: "Cancel",
-        });
-
-        if (confirmationResult.isConfirmed) {
-          const productDocRef = doc(firestore, "products", productId);
-          await updateDoc(productDocRef, {
-            isHidden: false,
-            hideReason: null, // Clear the hide reason when showing the product
-          });
-          // Update local state to reflect the change
-          setLocations((prevProducts) =>
-            prevProducts.map((product) =>
-              product.id === productId
-                ? { ...product, isHidden: false, hideReason: null }
-                : product
-            )
-          );
-          Swal.fire("Success!", `Product has been shown.`, "success");
-        }
-        return;
-      }
-
-      // Product is visible, show input options to hide it
-      const { value: reason } = await Swal.fire({
-        title: "Hide Product",
-        input: "select",
-        inputLabel: "Select a reason",
-        inputOptions: {
-          "Inappropriate Content": "Inappropriate Content",
-          "Spam or Scams": "Spam or Scams",
-          "Copyright Infringement": "Copyright Infringement",
-          "False Information": "False Information",
-          "Violations of Website Policies": "Violations of Website Policies",
-          "Privacy Concerns": "Privacy Concerns",
-        },
-        inputPlaceholder: "Select a reason",
-        showCancelButton: true,
-        confirmButtonText: "Hide",
-        confirmButtonColor: "#d33",
-        cancelButtonText: "Cancel",
-        inputValidator: (value) => {
-          return !value && "You need to select a reason!";
-        },
+      const productDocRef = doc(firestore, "products", productId);
+      await updateDoc(productDocRef, {
+        isHidden: false,
+        hideReason: null, // Clear the hide reason when showing the product
       });
-
-      if (reason) {
-        const productDocRef = doc(firestore, "products", productId);
-        await updateDoc(productDocRef, {
-          isHidden: true,
-          hideReason: reason, // Store the hide reason in Firestore
-        });
-        // Update local state to reflect the change
-        setLocations((prevProducts) =>
-          prevProducts.map((product) =>
-            product.id === productId
-              ? { ...product, isHidden: true, hideReason: reason }
-              : product
-          )
-        );
-        Swal.fire("Success!", `Product has been hidden.`, "success");
-      }
-    } catch (error) {
-      console.error("Error updating product visibility:", error);
-      Swal.fire(
-        "Error!",
-        "An error occurred while updating product visibility.",
-        "error"
+      // Update local state to reflect the change
+      setLocations((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId
+            ? { ...product, isHidden: false, hideReason: null }
+            : product
+        )
       );
+      Swal.fire("Success!", `Product has been shown.`, "success");
+    } catch (error) {
+      console.error("Error showing product:", error);
+      Swal.fire("Error!", "An error occurred while showing product.", "error");
+    }
+  };
+
+  const handleHideProduct = async (productId, reason) => {
+    try {
+      const productDocRef = doc(firestore, "products", productId);
+      await updateDoc(productDocRef, {
+        isHidden: true,
+        hideReason: reason,
+      });
+      // Update local state to reflect the change
+      setLocations((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId
+            ? { ...product, isHidden: true, hideReason: reason }
+            : product
+        )
+      );
+      Swal.fire("Success!", `Product has been hidden.`, "success");
+    } catch (error) {
+      console.error("Error hiding product:", error);
+      Swal.fire("Error!", "An error occurred while hiding product.", "error");
     }
   };
 
@@ -216,9 +174,7 @@ const AdminLocations = () => {
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />
-                <h1 className="text-center font-bold text-xl">
-                  Admin Panel
-                </h1>{" "}
+                <h1 className="text-center font-bold text-xl">Admin Panel</h1>
               </div>
               <ul className="text-left text-black  flex flex-col h-full mt-6">
                 <Link to="/admin/users">
@@ -337,7 +293,9 @@ const AdminLocations = () => {
                         <th className="p-1">Name</th>
                         <th className="p-1">Address</th>
 
-                        <th className="p-1">Action</th>
+                        <th colSpan="2" className="p-1">
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -361,17 +319,23 @@ const AdminLocations = () => {
                             >
                               Get Direction
                             </button>
+                          </td>
+                          <td>
                             {selectedLocation.isHidden ? (
                               <button
                                 className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
-                                onClick={toggleProductVisibility}
+                                onClick={() =>
+                                  handleShowProduct(selectedLocation.id)
+                                }
                               >
                                 Show Product
                               </button>
                             ) : (
                               <button
                                 className="font-normal md:btn-sm btn-xs w-full btn btn-danger text-white"
-                                onClick={toggleProductVisibility}
+                                onClick={() =>
+                                  handleHideProduct(selectedLocation.id)
+                                }
                               >
                                 Hide Product
                               </button>
@@ -379,11 +343,46 @@ const AdminLocations = () => {
                           </td>
                         </tr>
                       ) : (
-                        <tr>
-                          <td colSpan="4" className="p-1">
-                            No location selected
-                          </td>
-                        </tr>
+                        // If no location is selected, display all products
+                        locations.map((location) => (
+                          <tr key={location.id}>
+                            <td className="p-1">
+                              {location.firstName} {location.lastName}
+                            </td>
+                            <td className="p-1">{location.address}</td>
+
+                            <td className="p-1 flex gap-2 w-full">
+                              <button
+                                className="font-normal md:btn-sm btn-xs w-full btn btn-primary text-white"
+                                onClick={() =>
+                                  window.open(
+                                    `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                Get Direction
+                              </button>
+                            </td>
+                            <td>
+                              {location.isHidden ? (
+                                <button
+                                  className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
+                                  onClick={() => handleShowProduct(location.id)}
+                                >
+                                  Show Product
+                                </button>
+                              ) : (
+                                <button
+                                  className="font-normal md:btn-sm btn-xs w-full btn btn-error text-white"
+                                  onClick={() => handleHideProduct(location.id)}
+                                >
+                                  Hide Product
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))
                       )}
                     </tbody>
                   </table>
