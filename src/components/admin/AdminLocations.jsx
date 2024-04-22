@@ -306,8 +306,8 @@ const AdminLocations = () => {
                     {selectedLocation && (
                       <InfoWindow
                         position={{
-                          lat: selectedLocation.latitude,
-                          lng: selectedLocation.longitude,
+                          lat: parseFloat(selectedLocation.location.latitude),
+                          lng: parseFloat(selectedLocation.location.longitude),
                         }}
                         onCloseClick={() => {
                           setSelectedLocation(null);
