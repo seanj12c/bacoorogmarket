@@ -365,14 +365,18 @@ const AdminLocations = () => {
                             {selectedLocation.isHidden ? (
                               <button
                                 className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
-                                onClick={toggleProductVisibility}
+                                onClick={() =>
+                                  toggleProductVisibility(selectedLocation.id)
+                                }
                               >
                                 Show Product
                               </button>
                             ) : (
                               <button
-                                className="font-normal md:btn-sm btn-xs w-full btn btn-danger text-white"
-                                onClick={toggleProductVisibility}
+                                className="font-normal md:btn-sm btn-xs w-full btn btn-error text-white"
+                                onClick={() =>
+                                  toggleProductVisibility(selectedLocation.id)
+                                }
                               >
                                 Hide Product
                               </button>
