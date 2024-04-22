@@ -125,6 +125,7 @@ const AdminLocations = () => {
             )
           );
           Swal.fire("Success!", `Product has been shown.`, "success");
+          setSelectedLocation(null);
         }
       } else {
         // Product is visible, show input options to hide it
@@ -164,6 +165,7 @@ const AdminLocations = () => {
             )
           );
           Swal.fire("Success!", `Product has been hidden.`, "success");
+          setSelectedLocation(null);
         }
       }
     } catch (error) {
