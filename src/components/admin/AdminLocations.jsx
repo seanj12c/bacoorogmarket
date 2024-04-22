@@ -3,9 +3,10 @@ import NavbarAdmin from "./NavbarAdmin";
 import {
   collection,
   query,
-  onSnapshot,
+  getDocs,
   doc,
   updateDoc,
+  getDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
@@ -33,41 +34,24 @@ const AdminLocations = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
-    const productsCollection = collection(firestore, "products");
-    const productsQuery = query(productsCollection);
-
-    const unsubscribe = onSnapshot(productsQuery, (querySnapshot) => {
-      const locationsData = [];
-      querySnapshot.forEach((doc) => {
-        const product = doc.data();
-        if (
-          product.location &&
-          product.location.latitude &&
-          product.location.longitude &&
-          product.firstName &&
-          product.lastName &&
-          product.address
-        ) {
-          locationsData.push({
-            id: doc.id,
-            latitude: product.location.latitude,
-            longitude: product.location.longitude,
-            firstName: product.firstName,
-            lastName: product.lastName,
-            address: product.address,
-          });
-        }
-      });
-      console.log("Locations Data:", locationsData);
-      setLocations(locationsData);
-      setLoading(false);
-
-      // localStorage.setItem("productLocations", JSON.stringify(locationsData));
-    });
-
-    return () => {
-      unsubscribe();
+    const fetchLocations = async () => {
+      try {
+        const productsCollection = collection(firestore, "products");
+        const productsQuery = query(productsCollection);
+        const querySnapshot = await getDocs(productsQuery);
+        const locationsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setLocations(locationsData);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+        setLoading(false);
+      }
     };
+
+    fetchLocations();
   }, []);
 
   const defaultCenter = {
@@ -102,47 +86,93 @@ const AdminLocations = () => {
     }
   };
 
-  const handleShowProduct = async (productId) => {
+  const toggleProductVisibility = async (productId, isHidden) => {
     try {
       const productDocRef = doc(firestore, "products", productId);
-      await updateDoc(productDocRef, {
-        isHidden: false,
-        hideReason: null, // Clear the hide reason when showing the product
-      });
-      // Update local state to reflect the change
-      setLocations((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === productId
-            ? { ...product, isHidden: false, hideReason: null }
-            : product
-        )
-      );
-      Swal.fire("Success!", `Product has been shown.`, "success");
-    } catch (error) {
-      console.error("Error showing product:", error);
-      Swal.fire("Error!", "An error occurred while showing product.", "error");
-    }
-  };
+      const productSnapshot = await getDoc(productDocRef);
+      const productData = productSnapshot.data();
 
-  const handleHideProduct = async (productId, reason) => {
-    try {
-      const productDocRef = doc(firestore, "products", productId);
-      await updateDoc(productDocRef, {
-        isHidden: true,
-        hideReason: reason,
-      });
-      // Update local state to reflect the change
-      setLocations((prevProducts) =>
-        prevProducts.map((product) =>
-          product.id === productId
-            ? { ...product, isHidden: true, hideReason: reason }
-            : product
-        )
-      );
-      Swal.fire("Success!", `Product has been hidden.`, "success");
+      if (!productData) {
+        console.error("Product not found");
+        return;
+      }
+
+      const updatedIsHidden = !productData.isHidden;
+
+      if (!updatedIsHidden) {
+        // Product is hidden, show confirm dialog to show it
+        const confirmationResult = await Swal.fire({
+          title: "Show Product",
+          text: "Are you sure you want to show this product?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          confirmButtonText: "Yes",
+          cancelButtonText: "Cancel",
+        });
+
+        if (confirmationResult.isConfirmed) {
+          await updateDoc(productDocRef, {
+            isHidden: false,
+            hideReason: null, // Clear the hide reason when showing the product
+          });
+          // Update local state to reflect the change
+          setLocations((prevProducts) =>
+            prevProducts.map((product) =>
+              product.id === productId
+                ? { ...product, isHidden: false, hideReason: null }
+                : product
+            )
+          );
+          Swal.fire("Success!", `Product has been shown.`, "success");
+        }
+      } else {
+        // Product is visible, show input options to hide it
+        const { value: reason } = await Swal.fire({
+          title: "Hide Product",
+          input: "select",
+          inputLabel: "Select a reason",
+          inputOptions: {
+            "Inappropriate Content": "Inappropriate Content",
+            "Spam or Scams": "Spam or Scams",
+            "Copyright Infringement": "Copyright Infringement",
+            "False Information": "False Information",
+            "Violations of Website Policies": "Violations of Website Policies",
+            "Privacy Concerns": "Privacy Concerns",
+          },
+          inputPlaceholder: "Select a reason",
+          showCancelButton: true,
+          confirmButtonText: "Hide",
+          confirmButtonColor: "#d33",
+          cancelButtonText: "Cancel",
+          inputValidator: (value) => {
+            return !value && "You need to select a reason!";
+          },
+        });
+
+        if (reason) {
+          await updateDoc(productDocRef, {
+            isHidden: true,
+            hideReason: reason, // Store the hide reason in Firestore
+          });
+          // Update local state to reflect the change
+          setLocations((prevProducts) =>
+            prevProducts.map((product) =>
+              product.id === productId
+                ? { ...product, isHidden: true, hideReason: reason }
+                : product
+            )
+          );
+          Swal.fire("Success!", `Product has been hidden.`, "success");
+        }
+      }
     } catch (error) {
-      console.error("Error hiding product:", error);
-      Swal.fire("Error!", "An error occurred while hiding product.", "error");
+      console.error("Error updating product visibility:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while updating product visibility.",
+        "error"
+      );
     }
   };
 
@@ -324,18 +354,14 @@ const AdminLocations = () => {
                             {selectedLocation.isHidden ? (
                               <button
                                 className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
-                                onClick={() =>
-                                  handleShowProduct(selectedLocation.id)
-                                }
+                                onClick={toggleProductVisibility}
                               >
                                 Show Product
                               </button>
                             ) : (
                               <button
                                 className="font-normal md:btn-sm btn-xs w-full btn btn-danger text-white"
-                                onClick={() =>
-                                  handleHideProduct(selectedLocation.id)
-                                }
+                                onClick={toggleProductVisibility}
                               >
                                 Hide Product
                               </button>
@@ -368,14 +394,18 @@ const AdminLocations = () => {
                               {location.isHidden ? (
                                 <button
                                   className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
-                                  onClick={() => handleShowProduct(location.id)}
+                                  onClick={() =>
+                                    toggleProductVisibility(location.id)
+                                  }
                                 >
                                   Show Product
                                 </button>
                               ) : (
                                 <button
                                   className="font-normal md:btn-sm btn-xs w-full btn btn-error text-white"
-                                  onClick={() => handleHideProduct(location.id)}
+                                  onClick={() =>
+                                    toggleProductVisibility(location.id)
+                                  }
                                 >
                                   Hide Product
                                 </button>
