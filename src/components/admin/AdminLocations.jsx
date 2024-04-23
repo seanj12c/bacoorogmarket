@@ -192,11 +192,12 @@ const AdminLocations = () => {
     const details = modal.querySelector(".modal-box p");
 
     let productDetails = `<div class="text-left">`;
+    productDetails += `<p><span class="font-bold">Name:</span> ${location.caption}</p>`;
     productDetails += `<p><span class="font-bold">Name:</span> ${location.firstName} ${location.lastName}</p>`;
     productDetails += `<p><span class="font-bold">Address:</span> ${location.address}</p>`;
-    productDetails += `<p><span class="font-bold">Description:</span> ${location.description}</p>`;
+    productDetails += `<p><span class="font-bold">Product Description:</span> ${location.description}</p>`;
     productDetails += `<p><span class="font-bold">Date Posted:</span> ${location.timestamp}</p>`;
-    productDetails += `<p><span class="font-bold">Price: ₱</span>${location.price}</p>`;
+    productDetails += `<p><span class="font-bold">Price: ₱</span>${location.price}.00</p>`;
 
     // Check if otherInformation is available
     if (location.otherInformation) {
