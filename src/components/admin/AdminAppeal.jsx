@@ -26,6 +26,7 @@ const AdminAppeal = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [appeals, setAppeals] = useState([]);
+  const [reportType, setReportType] = useState("");
 
   const navigate = useNavigate();
 
@@ -33,18 +34,38 @@ const AdminAppeal = () => {
     const fetchAppeals = async () => {
       try {
         const db = getFirestore();
-        const appealRef = collection(db, "userAppeal");
+        let appealRef = collection(db, "userAppeal");
+
+        if (reportType === "recipe" || reportType === "product") {
+          appealRef = collection(db, "postAppeal");
+        }
+
         const snapshot = await getDocs(appealRef);
         const appealData = await Promise.all(
           snapshot.docs.map(async (doc) => {
             if (doc.id !== "sample") {
-              const userData = await getUserData(doc.data().userId);
-              return {
-                id: doc.id,
-                email: doc.data().email,
-                reason: doc.data().reason,
-                userData: userData,
-              };
+              if (reportType === "recipe" || reportType === "product") {
+                const postData = doc.data();
+                if (postData.typeOfPost === reportType) {
+                  const userData = await getUserData(postData.userId);
+                  return {
+                    id: doc.id,
+                    email: userData.email,
+                    explanation: postData.explanation,
+                    userData: userData,
+                  };
+                } else {
+                  return null;
+                }
+              } else {
+                const userData = await getUserData(doc.data().userId);
+                return {
+                  id: doc.id,
+                  email: userData.email,
+                  reason: doc.data().reason,
+                  userData: userData,
+                };
+              }
             }
             return null;
           })
@@ -57,7 +78,7 @@ const AdminAppeal = () => {
     };
 
     fetchAppeals();
-  }, []);
+  }, [reportType]);
 
   const getUserData = async (userId) => {
     try {
@@ -167,6 +188,10 @@ const AdminAppeal = () => {
     setSearchQuery(event.target.value);
   };
 
+  const handleReportTypeChange = (event) => {
+    setReportType(event.target.value);
+  };
+
   // Filter appeals based on search query
   const filteredAppeals = appeals.filter((appeal) => {
     const query = searchQuery.toLowerCase();
@@ -262,6 +287,18 @@ const AdminAppeal = () => {
             {/* Appeals List */}
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <h2 className="text-2xl text-center font-bold mt-8">Appeals</h2>
+              <div className="w-full flex gap-2 items-center justify-end mt-4">
+                <h1 className="text-xs">Type of Appeal</h1>
+                <select
+                  className="px-4 py-2 border border-gray-300 rounded-md bg-base-100 text-sm focus:outline-none focus:border-blue-500"
+                  value={reportType}
+                  onChange={handleReportTypeChange}
+                >
+                  <option value="">Account Appeal</option>
+                  <option value="recipe">Recipe Appeal</option>
+                  <option value="product">Product Appeal</option>
+                </select>
+              </div>
               <div className="w-full mt-4">
                 <input
                   type="text"
@@ -275,41 +312,9 @@ const AdminAppeal = () => {
                 {filteredAppeals.length === 0 ? (
                   // No appeals message
                   <div className="flex w-full items-center flex-col justify-center mt-4">
-                    <div className="flex flex-col gap-4 w-full">
-                      <div className="flex gap-4 items-center">
-                        <div className="skeleton w-16 h-16 rounded-full shrink-0"></div>
-
-                        <div className="flex w-full justify-between">
-                          <div className="flex flex-col gap-4">
-                            <div className="skeleton h-4 w-20"></div>
-                            <div className="skeleton h-4 w-28"></div>
-                          </div>
-                          <div>
-                            <div className="skeleton h-10 w-20"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="skeleton h-32 w-full"></div>
-                    </div>
                     <p className="text-xl md:text-2xl ml-4">
                       There are no Appeals
                     </p>
-                    <div className="flex flex-col gap-4 w-full">
-                      <div className="flex gap-4 items-center">
-                        <div className="skeleton w-16 h-16 rounded-full shrink-0"></div>
-
-                        <div className="flex w-full justify-between">
-                          <div className="flex flex-col gap-4">
-                            <div className="skeleton h-4 w-20"></div>
-                            <div className="skeleton h-4 w-28"></div>
-                          </div>
-                          <div>
-                            <div className="skeleton h-10 w-20"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="skeleton h-32 w-full"></div>
-                    </div>
                   </div>
                 ) : (
                   filteredAppeals.map((appeal) => (
@@ -340,9 +345,15 @@ const AdminAppeal = () => {
                         <div>
                           <strong>Email:</strong> {appeal.email}
                         </div>
-                        <div>
-                          <strong>Reason:</strong> {appeal.reason}
-                        </div>
+                        {reportType === "recipe" || reportType === "product" ? (
+                          <div>
+                            <strong>Explanation:</strong> {appeal.explanation}
+                          </div>
+                        ) : (
+                          <div>
+                            <strong>Reason:</strong> {appeal.reason}
+                          </div>
+                        )}
                       </div>
                     </li>
                   ))
