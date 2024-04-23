@@ -266,7 +266,7 @@ const AdminDelete = () => {
                     Recipes
                   </li>
                 </Link>
-                <Link to="/admin/deletionRequest">
+                <Link to="/admin/appeal">
                   <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
                     <FaFile size={25} />
                     Appeal
