@@ -11,6 +11,7 @@ import {
   getDocs,
   deleteDoc,
   setDoc,
+  addDoc,
 } from "firebase/firestore";
 import { useAuth } from "../../authContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -306,6 +307,125 @@ const MyAccount = () => {
     if (file) {
       uploadProfilePicture(file);
     }
+  };
+
+  const handleAppealPost = async (post, typeOfPost) => {
+    const userId = auth.currentUser.uid;
+    const existingAppeal = await checkExistingAppeal(post.id, userId);
+
+    if (existingAppeal) {
+      // User already has an appeal, provide option to edit
+      Swal.fire({
+        title: "Wait for admin's approval",
+        text: "You have already submitted an appeal. Do you want to edit your explanation?",
+        input: "text",
+        inputValue: existingAppeal.explanation, // Prefill the existing explanation
+        inputPlaceholder: "Enter your updated explanation...",
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+        confirmButtonColor: "#008080",
+        cancelButtonText: "Cancel",
+        inputValidator: (value) => {
+          if (!value) {
+            return "Explanation is required!";
+          }
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Update the existing appeal in the Firebase Firestore database
+          updateAppealInDatabase(existingAppeal.id, result.value);
+        }
+      });
+    } else {
+      // User doesn't have an existing appeal, allow to submit a new one
+      Swal.fire({
+        title: "Appeal Post",
+        text: "Please provide an explanation for appealing this post:",
+        input: "text",
+        inputPlaceholder: "Enter your explanation...",
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+        confirmButtonColor: "#008080",
+        cancelButtonText: "Cancel",
+        inputValidator: (value) => {
+          if (!value) {
+            return "Explanation is required!";
+          }
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Save the new appeal to the Firebase Firestore database
+          saveNewAppealToDatabase(post, typeOfPost, result.value);
+        }
+      });
+    }
+  };
+
+  // Function to check if the user has already submitted an appeal for the given post
+  const checkExistingAppeal = async (postId, userId) => {
+    const db = getFirestore();
+    const querySnapshot = await getDocs(
+      query(
+        collection(db, "postAppeal"),
+        where("postId", "==", postId),
+        where("userId", "==", userId)
+      )
+    );
+    if (!querySnapshot.empty) {
+      // User has already submitted an appeal, return the first appeal found
+      return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+    }
+    return null; // User hasn't submitted an appeal for this post
+  };
+
+  // Function to save a new appeal to the Firebase Firestore database
+  const saveNewAppealToDatabase = (post, typeOfPost, explanation) => {
+    const userId = auth.currentUser.uid;
+    const postId = post.id;
+
+    const db = getFirestore();
+
+    addDoc(collection(db, "postAppeal"), {
+      userId: userId,
+      postId: postId,
+      typeOfPost: typeOfPost, // Save the type of post
+      explanation: explanation,
+      timestamp: new Date(),
+    })
+      .then(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Your appeal has been submitted successfully! Wait for admin's approval",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error adding appeal: ", error);
+      });
+  };
+
+  // Function to update an existing appeal in the Firebase Firestore database
+  const updateAppealInDatabase = (appealId, explanation) => {
+    const db = getFirestore();
+
+    updateDoc(doc(db, "postAppeal", appealId), {
+      explanation: explanation,
+      timestamp: new Date(),
+    })
+      .then(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Your appeal has been updated successfully! Wait for admin's approval",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      })
+      .catch((error) => {
+        console.error("Error updating appeal: ", error);
+      });
   };
 
   const uploadProfilePicture = async (file) => {
@@ -915,7 +1035,15 @@ const MyAccount = () => {
                                     This post is hidden due to:{" "}
                                     {product.hideReason}
                                   </p>
-                                  <div className="flex justify-center">
+                                  <div className="flex gap-2 justify-center">
+                                    <button
+                                      onClick={() =>
+                                        handleAppealPost(product, "product")
+                                      }
+                                      className="btn btn-primary btn-xs md:btn-sm "
+                                    >
+                                      Appeal
+                                    </button>
                                     <button
                                       onClick={() => handleDeletePost(product)}
                                       className="btn btn-error text-white btn-xs md:btn-sm"
@@ -1065,7 +1193,15 @@ const MyAccount = () => {
                                   This post is hidden due to:{" "}
                                   {recipe.hideReason}
                                 </p>
-                                <div className="flex justify-center">
+                                <div className="flex gap-2 justify-center">
+                                  <button
+                                    onClick={() =>
+                                      handleAppealPost(recipe, "recipe")
+                                    }
+                                    className="btn btn-primary btn-xs md:btn-sm "
+                                  >
+                                    Appeal
+                                  </button>
                                   <button
                                     onClick={() => handleDeletePost(recipe)}
                                     className="btn btn-error text-white btn-xs md:btn-sm"
