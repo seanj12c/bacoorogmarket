@@ -32,6 +32,7 @@ const AdminLocations = () => {
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -185,6 +186,70 @@ const AdminLocations = () => {
     locations.map((location) => location.location.latitude)
   );
 
+  const openModal = (location) => {
+    const modal = document.getElementById("my_modal_3");
+    const title = modal.querySelector(".modal-box h3");
+    const details = modal.querySelector(".modal-box p");
+
+    let productDetails = `<div class="text-left">`;
+    productDetails += `<p><span class="font-bold">Name:</span> ${location.firstName} ${location.lastName}</p>`;
+    productDetails += `<p><span class="font-bold">Address:</span> ${location.address}</p>`;
+    productDetails += `<p><span class="font-bold">Description:</span> ${location.description}</p>`;
+    productDetails += `<p><span class="font-bold">Date Posted:</span> ${location.timestamp}</p>`;
+    productDetails += `<p><span class="font-bold">Price: ₱</span>${location.price}</p>`;
+
+    // Check if otherInformation is available
+    if (location.otherInformation) {
+      productDetails += `<p><span class="font-bold">Other Information:</span> ${location.otherInformation}</p>`;
+    } else {
+      productDetails +=
+        "<p><span class='font-bold'>Other Information:</span> <span class='italic'>No other information provided</span></p>";
+    }
+
+    // Display photos
+    if (location.photos && location.photos.length > 0) {
+      productDetails +=
+        "<div class='pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 xl:grid-cols-3'>";
+      location.photos.forEach((photo, index) => {
+        productDetails += `<img src="${photo}" alt="Product Photo ${
+          index + 1
+        }" class="w-full h-60 object-cover rounded-lg" />\n`;
+      });
+      productDetails += "</div>";
+    }
+
+    // Display timestamp
+
+    productDetails += `</div>`;
+
+    // Update modal content with product details
+    title.innerText = "Product Details";
+    details.innerHTML = productDetails;
+
+    // Show modal
+    modal.showModal();
+  };
+
+  const closeModal = () => {
+    const modal = document.getElementById("my_modal_3");
+    modal.close();
+  };
+
+  const filteredLocations = locations.filter((location) => {
+    const fullName = `${location.firstName} ${location.lastName}`;
+    return (
+      location.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fullName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
+  // Function to handle search query change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div>
       {loading ? (
@@ -272,7 +337,6 @@ const AdminLocations = () => {
               <h1 className="text-2xl font-bold my-4 text-center">
                 Product Locations
               </h1>
-
               <div className="overflow-auto">
                 <LoadScript
                   googleMapsApiKey="AIzaSyBLZJ-nDBC4jlEDsMb7qS3kjuJp90fTPbM"
@@ -292,7 +356,7 @@ const AdminLocations = () => {
                       borderRadius: "8px",
                     }}
                   >
-                    {locations.map((location) => (
+                    {filteredLocations.map((location) => (
                       <Marker
                         key={location.id}
                         position={{
@@ -315,9 +379,7 @@ const AdminLocations = () => {
                           setSelectedLocation(null);
                         }}
                       >
-                        <div>
-                          <h2>{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
-                        </div>
+                        <h2>{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
                       </InfoWindow>
                     )}
                   </GoogleMap>
@@ -327,30 +389,56 @@ const AdminLocations = () => {
                 <h1 className="text-lg md:text-2xl font-bold my-4 text-center">
                   {selectedLocation
                     ? "Selected Location Details"
-                    : "Please tap the marker on the map"}
+                    : "Please tap the marker on the map to display specific user"}
                 </h1>
+
+                <div className="flex justify-center mb-4">
+                  <input
+                    type="text"
+                    placeholder="Search by name or address to display in table"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+                  />
+                </div>
                 <div className="overflow-auto">
-                  <table className="w-full table table-xs text-xs text-center border-separate bg-gray-200">
+                  <table className="w-full table table-xs text-xs text-center bg-gray-200 border border-gray-300">
                     <thead>
                       <tr className="bg-primary text-white">
-                        <th className="p-1">Name</th>
-                        <th className="p-1">Address</th>
-
-                        <th colSpan="2" className="p-1">
-                          Action
-                        </th>
+                        <th className="p-1 border border-gray-300">Name</th>
+                        <th className="p-1 border border-gray-300">Address</th>
+                        <th className="p-1 border border-gray-300">Action</th>
                       </tr>
                     </thead>
                     <tbody>
+                      <dialog id="my_modal_3" className="modal">
+                        <div className="modal-box">
+                          <form method="dialog">
+                            <button
+                              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                              onClick={closeModal}
+                            >
+                              ✕
+                            </button>
+                          </form>
+                          <h3 className="font-bold text-lg" id="modalTitle">
+                            Product Title
+                          </h3>
+                          <p className="py-4" id="modalDetails">
+                            Product Details Here.
+                          </p>
+                        </div>
+                      </dialog>
                       {selectedLocation ? (
                         <tr>
-                          <td className="p-1">
+                          <td className="p-1 border border-gray-300">
                             {selectedLocation.firstName}{" "}
                             {selectedLocation.lastName}
                           </td>
-                          <td className="p-1">{selectedLocation.address}</td>
-
-                          <td className="p-1 flex gap-2 w-full">
+                          <td className="p-1 border border-gray-300">
+                            {selectedLocation.address}
+                          </td>
+                          <td className="flex flex-col gap-2">
                             <button
                               className="font-normal md:btn-sm btn-xs w-full btn btn-primary text-white"
                               onClick={() =>
@@ -362,8 +450,6 @@ const AdminLocations = () => {
                             >
                               Get Direction
                             </button>
-                          </td>
-                          <td>
                             {selectedLocation.isHidden ? (
                               <button
                                 className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
@@ -383,18 +469,25 @@ const AdminLocations = () => {
                                 Hide Product
                               </button>
                             )}
+                            <button
+                              className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
+                              onClick={() => openModal(selectedLocation)}
+                            >
+                              View Details
+                            </button>
                           </td>
                         </tr>
                       ) : (
                         // If no location is selected, display all products
-                        locations.map((location) => (
+                        filteredLocations.map((location) => (
                           <tr key={location.id}>
-                            <td className="p-1">
+                            <td className="p-1 border border-gray-300">
                               {location.firstName} {location.lastName}
                             </td>
-                            <td className="p-1">{location.address}</td>
-
-                            <td className="p-1 flex gap-2 w-full">
+                            <td className="p-1 border border-gray-300">
+                              {location.address}
+                            </td>
+                            <td className="flex flex-col gap-2">
                               <button
                                 className="font-normal md:btn-sm btn-xs w-full btn btn-primary text-white"
                                 onClick={() =>
@@ -406,8 +499,6 @@ const AdminLocations = () => {
                               >
                                 Get Direction
                               </button>
-                            </td>
-                            <td>
                               {location.isHidden ? (
                                 <button
                                   className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
@@ -427,6 +518,13 @@ const AdminLocations = () => {
                                   Hide Product
                                 </button>
                               )}
+                              {/* You can open the modal using document.getElementById('ID').showModal() method */}
+                              <button
+                                className="font-normal md:btn-sm btn-xs w-full btn btn-success text-white"
+                                onClick={() => openModal(location)}
+                              >
+                                View Details
+                              </button>
                             </td>
                           </tr>
                         ))
