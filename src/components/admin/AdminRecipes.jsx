@@ -25,6 +25,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminRecipes = () => {
   const [recipes, setRecipes] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -41,8 +42,13 @@ const AdminRecipes = () => {
           recipeId: data.recipeId,
           caption: data.caption,
           photos: data.photos,
+          userUid: data.userUid,
           firstName: data.firstName,
           lastName: data.lastName,
+          ingredients: data.ingredients,
+          instructions: data.instructions,
+          timestamp: data.timestamp,
+
           isHidden: data.isHidden || false, // Initialize isHidden property
           // Add more fields if needed
         });
@@ -53,6 +59,27 @@ const AdminRecipes = () => {
 
     return () => {
       unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const registeredCollection = collection(firestore, "registered");
+    const unregister = onSnapshot(registeredCollection, (querySnapshot) => {
+      const usersData = [];
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data();
+        usersData.push({
+          id: doc.id,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          // Add more fields if needed
+        });
+      });
+      setUsers(usersData);
+    });
+
+    return () => {
+      unregister();
     };
   }, []);
 
@@ -140,9 +167,12 @@ const AdminRecipes = () => {
     return (
       recipe.recipeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       recipe.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (recipe.firstName + " " + recipe.lastName)
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      (users.find((user) => user.id === recipe.userUid) &&
+        `${users.find((user) => user.id === recipe.userUid).firstName} ${
+          users.find((user) => user.id === recipe.userUid).lastName
+        }`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()))
     );
   });
 
@@ -171,6 +201,16 @@ const AdminRecipes = () => {
     } catch (error) {
       console.log("Error logging out:", error);
     }
+  };
+
+  const openModal = (recipeId) => {
+    const modal = document.getElementById(`view_recipe_${recipeId}`);
+    modal.showModal();
+  };
+
+  const closeModal = (recipeId) => {
+    const modal = document.getElementById(`view_recipe_${recipeId}`);
+    modal.close();
   };
 
   return (
@@ -311,18 +351,31 @@ const AdminRecipes = () => {
                               <img
                                 src={recipe.photos[0]}
                                 alt={recipe.caption}
-                                className="h-12 w-12 object-cover rounded-md"
+                                className="w-12 h-12 mx-auto object-cover rounded-md"
                               />
                             ) : (
                               <span>No photo available</span>
                             )}
                           </td>
                           <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
-                            {recipe.firstName} {recipe.lastName}
+                            {users.find((user) => user.id === recipe.userUid)
+                              ? `${
+                                  users.find(
+                                    (user) => user.id === recipe.userUid
+                                  ).firstName
+                                } ${
+                                  users.find(
+                                    (user) => user.id === recipe.userUid
+                                  ).lastName
+                                }`
+                              : "User Not Found"}
                           </td>
-                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center">
+
+                          <td className="border flex flex-col gap-2 bg-gray-200 border-gray-300 px-4 py-2 text-center">
                             <button
-                              className="block font-normal btn-sm w-full btn btn-error text-white mt-2"
+                              className={`block font-normal btn-sm w-full btn ${
+                                recipe.isHidden ? "btn-success" : "btn-error"
+                              } text-white mt-2`}
                               onClick={() =>
                                 toggleRecipeVisibility(
                                   recipe.id,
@@ -333,6 +386,90 @@ const AdminRecipes = () => {
                             >
                               {recipe.isHidden ? "Show" : "Hide"}
                             </button>
+                            {/* You can open the modal using document.getElementById('ID').showModal() method */}
+                            <button
+                              className="btn btn-primary btn-sm w-full"
+                              onClick={() => openModal(recipe.id)}
+                            >
+                              Other Details
+                            </button>
+
+                            <dialog
+                              id={`view_recipe_${recipe.id}`}
+                              className="modal"
+                            >
+                              <div className="modal-box">
+                                <form method="dialog">
+                                  {/* if there is a button in form, it will close the modal */}
+                                  <button
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                    onClick={() => closeModal(recipe.id)}
+                                  >
+                                    ✕
+                                  </button>
+                                </form>
+                                <h3 className="font-bold text-lg">
+                                  {recipe.caption}
+                                </h3>
+                                <div className="text-start">
+                                  <p className="">
+                                    <span className="font-bold">
+                                      Posted by:
+                                    </span>{" "}
+                                    {recipe.firstName} {recipe.lastName}
+                                  </p>
+
+                                  <p className="">
+                                    <span className="font-bold">
+                                      Ingredients:
+                                    </span>
+                                    {recipe.ingredients.map(
+                                      (ingredient, index) => (
+                                        <li key={index}>{ingredient}</li>
+                                      )
+                                    )}
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">
+                                      Instructions:
+                                    </span>
+                                    {recipe.instructions.map(
+                                      (instruction, index) => (
+                                        <li
+                                          className="list-decimal"
+                                          key={index}
+                                        >
+                                          {instruction}
+                                        </li>
+                                      )
+                                    )}
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">Date:</span>{" "}
+                                    {recipe.timestamp}
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">
+                                      Other Information:
+                                    </span>{" "}
+                                    {recipe.otherInformation ||
+                                      "No other information provided"}
+                                  </p>
+                                </div>
+                                <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 xl:grid-cols-3">
+                                  {/* Display photos */}
+                                  {recipe.photos &&
+                                    recipe.photos.map((photo, index) => (
+                                      <img
+                                        key={index}
+                                        src={photo}
+                                        alt={`Recipe ${index + 1}`}
+                                        className="h-40 w-full object-cover rounded-md"
+                                      />
+                                    ))}
+                                </div>
+                              </div>
+                            </dialog>
                           </td>
                         </tr>
                       ))}
