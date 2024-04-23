@@ -24,6 +24,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -41,7 +42,11 @@ const AdminProducts = () => {
         productsData.push({
           id: doc.id,
           productId: data.productId,
+          userUid: data.userUid,
           caption: data.caption,
+          address: data.address,
+          description: data.description,
+          timestamp: data.timestamp,
           photos: data.photos,
           price: data.price, // Added price field
           firstName: data.firstName,
@@ -56,6 +61,27 @@ const AdminProducts = () => {
 
     return () => {
       unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const registeredCollection = collection(firestore, "registered");
+    const unregister = onSnapshot(registeredCollection, (querySnapshot) => {
+      const usersData = [];
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data();
+        usersData.push({
+          id: doc.id,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          // Add more fields if needed
+        });
+      });
+      setUsers(usersData);
+    });
+
+    return () => {
+      unregister();
     };
   }, []);
 
@@ -147,9 +173,12 @@ const AdminProducts = () => {
       product.productId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.price.toString().includes(searchQuery.toLowerCase()) || // Added price field to search
-      (product.firstName + " " + product.lastName)
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      (users.find((user) => user.id === product.userUid) &&
+        `${users.find((user) => user.id === product.userUid).firstName} ${
+          users.find((user) => user.id === product.userUid).lastName
+        }`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()))
     );
   });
 
@@ -178,6 +207,16 @@ const AdminProducts = () => {
     } catch (error) {
       console.log("Error logging out:", error);
     }
+  };
+
+  const openModal = (productId) => {
+    const modal = document.getElementById(`view_product_${productId}`);
+    modal.showModal();
+  };
+
+  const closeModal = (productId) => {
+    const modal = document.getElementById(`view_product_${productId}`);
+    modal.close();
   };
 
   return (
@@ -320,7 +359,7 @@ const AdminProducts = () => {
                               <img
                                 src={product.photos[0]}
                                 alt={product.caption}
-                                className="h-12 w-12 object-cover rounded-md"
+                                className="h-12 w-12 mx-auto object-cover rounded-md"
                               />
                             ) : (
                               <span>No photo available</span>
@@ -329,12 +368,25 @@ const AdminProducts = () => {
                           <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center text-xs">
                             ₱{product.price}.00
                           </td>
-                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center text-xs">
-                            {product.firstName} {product.lastName}
+                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
+                            {users.find((user) => user.id === product.userUid)
+                              ? `${
+                                  users.find(
+                                    (user) => user.id === product.userUid
+                                  ).firstName
+                                } ${
+                                  users.find(
+                                    (user) => user.id === product.userUid
+                                  ).lastName
+                                }`
+                              : "User Not Found"}
                           </td>
-                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center">
+
+                          <td className="border flex flex-col gap-2 border-gray-300 bg-gray-200  px-4 py-2 text-center">
                             <button
-                              className="block w-full font-normal btn-sm btn btn-error text-white mt-2"
+                              className={`block w-full font-normal btn-sm btn ${
+                                product.isHidden ? "btn-success" : "btn-error"
+                              } text-white mt-2`}
                               onClick={() =>
                                 toggleProductVisibility(
                                   product.id,
@@ -344,6 +396,77 @@ const AdminProducts = () => {
                             >
                               {product.isHidden ? "Show" : "Hide"}
                             </button>
+
+                            <button
+                              className="btn btn-primary btn-sm w-full"
+                              onClick={() => openModal(product.id)}
+                            >
+                              Other Details
+                            </button>
+                            <dialog
+                              id={`view_product_${product.id}`}
+                              className="modal"
+                            >
+                              <div className="modal-box">
+                                <form method="dialog">
+                                  {/* if there is a button in form, it will close the modal */}
+                                  <button
+                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                    onClick={() => closeModal(product.id)}
+                                  >
+                                    ✕
+                                  </button>
+                                </form>
+                                <h3 className="font-bold text-lg">
+                                  {product.caption}
+                                </h3>
+                                <div className="text-start">
+                                  <p className="">
+                                    <span className="font-bold">
+                                      Posted by:
+                                    </span>{" "}
+                                    {product.firstName} {product.lastName}
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">Address:</span>{" "}
+                                    {product.address}
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">
+                                      Description:
+                                    </span>{" "}
+                                    {product.description}
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">Date:</span>{" "}
+                                    {product.timestamp}
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">Price:</span> ₱
+                                    {product.price}.00
+                                  </p>
+                                  <p className="">
+                                    <span className="font-bold">
+                                      Other Information:
+                                    </span>{" "}
+                                    {product.otherInformation ||
+                                      "No other information provided"}
+                                  </p>
+                                </div>
+                                <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 xl:grid-cols-3">
+                                  {/* Display photos */}
+                                  {product.photos &&
+                                    product.photos.map((photo, index) => (
+                                      <img
+                                        key={index}
+                                        src={photo}
+                                        alt={`Products ${index + 1}`}
+                                        className="h-40 w-full object-cover rounded-md"
+                                      />
+                                    ))}
+                                </div>
+                              </div>
+                            </dialog>
                           </td>
                         </tr>
                       ))}
