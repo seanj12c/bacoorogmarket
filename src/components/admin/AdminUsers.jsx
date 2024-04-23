@@ -28,7 +28,6 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -51,6 +50,9 @@ const AdminUsers = () => {
             lastName: data.lastName,
             email: data.email,
             disabled: data.disabled || false,
+            profilePhotoUrl: data.profilePhotoUrl,
+            contact: data.contact,
+            address: data.address,
           });
         }
       });
@@ -226,6 +228,16 @@ const AdminUsers = () => {
     }
   };
 
+  const openModal = (userId) => {
+    const modal = document.getElementById(`view_profile_${userId}`);
+    modal.showModal();
+  };
+
+  const closeModal = (userId) => {
+    const modal = document.getElementById(`view_profile_${userId}`);
+    modal.close();
+  };
+
   return (
     <div>
       {loading ? (
@@ -371,19 +383,72 @@ const AdminUsers = () => {
                             <td className="border bg-gray-200  flex gap-2 px-4 py-2 text-center">
                               {user.disabled ? (
                                 <button
-                                  className="block w-full py-2 px-1 text-center bg-green-500 text-white rounded-md text-xs hover:bg-green-700 border border-gray-200 mt-2"
+                                  className="btn btn-xs text-white btn-success md:btn-sm"
                                   onClick={() => enableAccount(user)}
                                 >
                                   Enable
                                 </button>
                               ) : (
                                 <button
-                                  className="block w-full py-2 px-1 text-center bg-black text-white rounded-md text-xs hover:bg-gray-800 border border-gray-200 mt-2"
+                                  className="btn btn-xs btn-error text-white md:btn-sm"
                                   onClick={() => disableAccount(user)}
                                 >
                                   Disable
                                 </button>
                               )}
+
+                              <button
+                                className="btn btn-xs btn-primary text-white md:btn-sm"
+                                onClick={() => openModal(user.id)}
+                              >
+                                Other Details
+                              </button>
+
+                              <dialog
+                                id={`view_profile_${user.id}`}
+                                className="modal"
+                              >
+                                <div className="modal-box">
+                                  <form method="dialog">
+                                    <button
+                                      onClick={() => closeModal(user.id)}
+                                      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                    >
+                                      ✕
+                                    </button>
+                                  </form>
+                                  <div className="flex flex-col items-center justify-center gap-2">
+                                    <div>
+                                      <img
+                                        className="w-56 h-56 object-cover rounded-full border border-primary"
+                                        src={user.profilePhotoUrl}
+                                        alt=""
+                                      />
+                                    </div>
+                                    <h3 className="font-bold text-lg">
+                                      {user.firstName} {user.lastName}
+                                    </h3>{" "}
+                                  </div>
+                                  <div className="text-start">
+                                    <p className="">
+                                      <span className="font-bold">Email:</span>{" "}
+                                      {user.email}
+                                    </p>
+                                    <p className="">
+                                      <span className="font-bold">
+                                        Contact No:
+                                      </span>{" "}
+                                      {user.contact}
+                                    </p>
+                                    <p className="">
+                                      <span className="font-bold">
+                                        Address:
+                                      </span>{" "}
+                                      {user.address}
+                                    </p>
+                                  </div>
+                                </div>
+                              </dialog>
                             </td>
                           </tr>
                         ))}
