@@ -289,6 +289,189 @@ const AdminReports = () => {
     }
   };
 
+  const toggleRecipeVisibility = async (report) => {
+    const recipe = recipes[report.recipeId];
+    try {
+      if (!recipes[report.recipeId]) {
+        console.error(`Recipe with ID ${report.recipeId} not found.`);
+        return;
+      }
+
+      const caption = recipe.caption;
+
+      if (recipes[report.recipeId]?.isHidden) {
+        const confirmationResult = await Swal.fire({
+          title: "Show Recipe",
+          text: `Are you sure you want to show "${caption}"?`,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          confirmButtonText: "Yes",
+          cancelButtonText: "Cancel",
+        });
+
+        if (confirmationResult.isConfirmed) {
+          const recipeDocRef = doc(firestore, "recipes", report.recipeId);
+          await updateDoc(recipeDocRef, {
+            isHidden: false,
+            hideReason: null, // Clear the hide reason when showing the recipe
+          });
+
+          // Update local state to reflect the change in recipe's visibility
+          setRecipes((prevRecipes) => ({
+            ...prevRecipes,
+            [report.recipeId]: {
+              ...prevRecipes[report.recipeId],
+              isHidden: false,
+              hideReason: null,
+            },
+          }));
+
+          Swal.fire("Success!", `Recipe has been shown.`, "success");
+        }
+      } else {
+        const { value: reason } = await Swal.fire({
+          title: "Hide Recipe",
+          input: "select",
+          inputLabel: "Select a reason",
+          inputOptions: {
+            "Inappropriate Content": "Inappropriate Content",
+            "Misleading Information": "Misleading Information",
+            "Copyright Infringement": "Copyright Infringement",
+            "Safety Concerns": "Safety Concerns",
+            "Spam or Scams": "Spam or Scams",
+            "Violation of Community Guidelines":
+              "Violation of Community Guidelines",
+          },
+          inputPlaceholder: "Select a reason",
+          showCancelButton: true,
+          confirmButtonText: "Hide",
+          confirmButtonColor: "#d33",
+          cancelButtonText: "Cancel",
+          inputValidator: (value) => {
+            return !value && "You need to select a reason!";
+          },
+        });
+
+        if (reason) {
+          const recipeDocRef = doc(firestore, "recipes", report.recipeId);
+          await updateDoc(recipeDocRef, {
+            isHidden: true,
+            hideReason: reason, // Store the hide reason in Firestore
+          });
+
+          // Update local state to reflect the change in recipe's visibility
+          setRecipes((prevRecipes) => ({
+            ...prevRecipes,
+            [report.recipeId]: {
+              ...prevRecipes[report.recipeId],
+              isHidden: true,
+              hideReason: reason,
+            },
+          }));
+
+          Swal.fire("Success!", `Recipe has been hidden.`, "success");
+        }
+      }
+    } catch (error) {
+      console.error("Error updating recipe visibility:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while updating recipe visibility.",
+        "error"
+      );
+    }
+  };
+
+  const toggleProductVisibility = async (report) => {
+    try {
+      const productId = report.productId;
+      const isHidden = products[report.productId]?.isHidden;
+
+      if (isHidden) {
+        // Product is hidden, show confirm dialog to show it
+        const confirmationResult = await Swal.fire({
+          title: "Show Product",
+          text: "Are you sure you want to show this product?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          confirmButtonText: "Yes",
+          cancelButtonText: "Cancel",
+        });
+
+        if (confirmationResult.isConfirmed) {
+          const productDocRef = doc(firestore, "products", productId);
+          await updateDoc(productDocRef, {
+            isHidden: false,
+            hideReason: null, // Clear the hide reason when showing the product
+          });
+          // Update local state to reflect the change
+          setProducts((prevProducts) => ({
+            ...prevProducts,
+            [report.productId]: {
+              ...prevProducts[report.productId],
+              isHidden: false,
+              hideReason: null,
+            },
+          }));
+
+          Swal.fire("Success!", `Product has been shown.`, "success");
+        }
+        return;
+      }
+
+      // Product is visible, show input options to hide it
+      const { value: reason } = await Swal.fire({
+        title: "Hide Product",
+        input: "select",
+        inputLabel: "Select a reason",
+        inputOptions: {
+          "Inappropriate Content": "Inappropriate Content",
+          "Spam or Scams": "Spam or Scams",
+          "Copyright Infringement": "Copyright Infringement",
+          "False Information": "False Information",
+          "Violations of Website Policies": "Violations of Website Policies",
+          "Privacy Concerns": "Privacy Concerns",
+        },
+        inputPlaceholder: "Select a reason",
+        showCancelButton: true,
+        confirmButtonText: "Hide",
+        confirmButtonColor: "#d33",
+        cancelButtonText: "Cancel",
+        inputValidator: (value) => {
+          return !value && "You need to select a reason!";
+        },
+      });
+
+      if (reason) {
+        const productDocRef = doc(firestore, "products", productId);
+        await updateDoc(productDocRef, {
+          isHidden: true,
+          hideReason: reason, // Store the hide reason in Firestore
+        });
+        // Update local state to reflect the change
+        setProducts((prevProducts) => ({
+          ...prevProducts,
+          [report.productId]: {
+            ...prevProducts[report.productId],
+            isHidden: true,
+            hideReason: reason,
+          },
+        }));
+
+        Swal.fire("Success!", `Product has been hidden.`, "success");
+      }
+    } catch (error) {
+      console.error("Error updating product visibility:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while updating product visibility.",
+        "error"
+      );
+    }
+  };
+
   return (
     <div>
       {loading ? (
@@ -483,22 +666,6 @@ const AdminReports = () => {
                     {reportType !== "profile" && (
                       <div className="py-1 flex gap-2 justify-end">
                         <button
-                          className={`btn btn-xs btn-primary ${
-                            registeredUsers[report.userId].disabled
-                              ? "btn-success text-white"
-                              : "btn-error text-white"
-                          }`}
-                          onClick={() =>
-                            registeredUsers[report.userId].disabled
-                              ? enableAccount(registeredUsers[report.userId])
-                              : disableAccount(registeredUsers[report.userId])
-                          }
-                        >
-                          {registeredUsers[report.userId].disabled
-                            ? "Enable"
-                            : "Disable"}
-                        </button>
-                        <button
                           className="btn btn-xs btn-primary"
                           onClick={() => {
                             const modalId =
@@ -517,6 +684,21 @@ const AdminReports = () => {
                     )}
                     {reportType === "product" && products[report.productId] && (
                       <div>
+                        <div className="py-1 flex gap-2 justify-end">
+                          <button
+                            className={`btn btn-xs ${
+                              products[report.productId]?.isHidden
+                                ? "btn-success text-white"
+                                : "btn-error text-white"
+                            }`}
+                            onClick={() => toggleProductVisibility(report)}
+                          >
+                            {products[report.productId]?.isHidden
+                              ? "Show"
+                              : "Hide"}{" "}
+                            Product
+                          </button>
+                        </div>
                         <p>
                           <span className="font-bold "> Product Name:</span>{" "}
                           {products[report.productId].caption}
@@ -525,8 +707,23 @@ const AdminReports = () => {
                     )}
                     {reportType === "recipe" && (
                       <div>
+                        <div className="py-1 flex gap-2 justify-end">
+                          <button
+                            className={`btn btn-xs ${
+                              recipes[report.recipeId]?.isHidden
+                                ? "btn-success text-white"
+                                : "btn-error text-white"
+                            }`}
+                            onClick={() => toggleRecipeVisibility(report)}
+                          >
+                            {recipes[report.recipeId]?.isHidden
+                              ? "Show"
+                              : "Hide"}{" "}
+                            Recipe
+                          </button>
+                        </div>
                         <p>
-                          <span className="font-bold ">Recipe ID: </span>
+                          <span className="font-bold">Recipe ID: </span>
                           {report.recipeId}
                         </p>
                       </div>
