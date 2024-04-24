@@ -189,7 +189,7 @@ const Recipe = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="stats justify-center shadow">
+                      <div className="stats justify-center shadow overflow-hidden">
                         <div className="stat">
                           <div className="stat-title text-xs">Total Likes</div>
                           <div className="stat-value text-end text-sm text-primary">
