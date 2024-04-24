@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  onSnapshot,
   deleteDoc,
   doc,
   updateDoc,
@@ -39,27 +40,31 @@ const RecipeInfo = () => {
     const fetchRecipe = async () => {
       try {
         const recipeDocRef = doc(firestore, "recipes", recipeId);
-        const recipeDoc = await getDoc(recipeDocRef);
-        if (recipeDoc.exists()) {
-          const recipeData = recipeDoc.data();
-          const userDocRef = doc(firestore, "registered", recipeData.userUid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setRecipe({ id: recipeDoc.id, ...recipeData, ...userData });
-            // Update like count
-            setLikeCount(recipeData.likers ? recipeData.likers.length : 0);
-            // Check if the current user has already liked the recipe
-            setIsLiked(
-              recipeData.likers &&
-                recipeData.likers.includes(auth.currentUser.uid)
-            );
+        const unsubscribe = onSnapshot(recipeDocRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const recipeData = snapshot.data();
+            const userDocRef = doc(firestore, "registered", recipeData.userUid);
+            getDoc(userDocRef).then((userDoc) => {
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+                setRecipe({ id: snapshot.id, ...recipeData, ...userData }); // Fix here
+                // Update like count
+                setLikeCount(recipeData.likers ? recipeData.likers.length : 0);
+                // Check if the current user has already liked the recipe
+                setIsLiked(
+                  recipeData.likers &&
+                    recipeData.likers.includes(auth.currentUser.uid)
+                );
+              } else {
+                console.log("User not found");
+              }
+            });
           } else {
-            console.log("User not found");
+            console.log("Recipe not found");
           }
-        } else {
-          console.log("Recipe not found");
-        }
+        });
+
+        return () => unsubscribe();
       } catch (error) {
         console.error("Error fetching recipe:", error);
       }
