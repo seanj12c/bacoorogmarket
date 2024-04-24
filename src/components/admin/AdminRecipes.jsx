@@ -312,7 +312,10 @@ const AdminRecipes = () => {
 
               <div>
                 <h1 className="text-center pb-2 text-primary underline text-xs lg:hidden">
-                  Swipe left & right to view other data
+                  Swipe to view other data
+                </h1>
+                <h1 className="text-center pb-2 text-primary underline text-xs hidden lg:block">
+                  Scroll to view other data
                 </h1>
               </div>
 
