@@ -35,6 +35,7 @@ const Chat = () => {
   const [lastMessages, setLastMessages] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const chatRef = useRef();
 
   useEffect(() => {
@@ -291,6 +292,7 @@ const Chat = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setIsUploading(true); // Start uploading
       // Display a preview of the selected photo
       const reader = new FileReader();
       reader.onload = () => {
@@ -317,10 +319,16 @@ const Chat = () => {
       uploadBytes(storageRef, file).then((snapshot) => {
         console.log("Uploaded a file:", snapshot);
         // Get the download URL of the uploaded photo and pass it to sendMessage
-        getDownloadURL(snapshot.ref).then((downloadURL) => {
-          sendMessage(messageText, downloadURL);
-          setPhotoPreview(null);
-        });
+        getDownloadURL(snapshot.ref)
+          .then((downloadURL) => {
+            sendMessage(messageText, downloadURL);
+            setPhotoPreview(null);
+            setIsUploading(false); // Finish uploading
+          })
+          .catch((error) => {
+            console.error("Error getting download URL:", error);
+            setIsUploading(false); // Finish uploading
+          });
       });
     }
   };
@@ -548,12 +556,12 @@ const Chat = () => {
                           lastMessages[user.id].isDelete?.includes(
                             currentUser.uid
                           ) ? (
-                            <p className="text-sm text-gray-500">
+                            <p className="md:text-sm text-xs text-gray-500">
                               Deleted Messages
                             </p>
                           ) : (
                             <>
-                              <p className="text-sm text-gray-500">
+                              <p className="md:text-sm text-xs text-gray-500">
                                 {lastMessages[user.id].senderId ===
                                 currentUser.uid
                                   ? "You: "
@@ -609,7 +617,7 @@ const Chat = () => {
                               <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
                                 {user.firstName} {user.lastName}
                               </h3>
-                              <p className="text-sm italic text-primary">
+                              <p className="text-xs md:text-sm text-center md:text-start italic text-primary">
                                 Suggested User
                               </p>
                             </div>
@@ -864,7 +872,9 @@ const Chat = () => {
                         alt="Preview"
                         className="w-10 h-10 object-cover rounded mr-2"
                       />
-                      <AiOutlineLoading3Quarters className="absolute top-0 right-0 w-3 h-3 rounded-full animate-spin" />
+                      {isUploading && (
+                        <AiOutlineLoading3Quarters className="absolute top-0 right-0 w-3 h-3 rounded-full animate-spin" />
+                      )}
                     </div>
                   )}
 
@@ -885,6 +895,7 @@ const Chat = () => {
                   <button
                     type="submit"
                     className="btn btn-xs md:btn-sm btn-primary text-white"
+                    disabled={isUploading}
                   >
                     Send
                   </button>
