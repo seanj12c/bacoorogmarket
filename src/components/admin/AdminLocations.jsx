@@ -380,7 +380,9 @@ const AdminLocations = () => {
                           setSelectedLocation(null);
                         }}
                       >
-                        <h2>{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
+                        <div className="pb-2 pr-2 flex items-center justify-center mx-auto">
+                          <h2 className="text-center">{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
+                        </div>
                       </InfoWindow>
                     )}
                   </GoogleMap>
