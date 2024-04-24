@@ -8,7 +8,7 @@
 * {
   font-family: "Kanit", sans-serif;
   scroll-behavior: smooth !important;
-  scrollbar-width: none; /* Hide scrollbar in Firefox */
+ 
 }
 
 @media only screen and (min-width: 960px) {
@@ -40,9 +40,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-*::-webkit-scrollbar {
-  width: 0; /* Set the width of the scrollbar to 0 */
-}
+
 
 img {
   user-select: none;

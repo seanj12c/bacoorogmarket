@@ -512,7 +512,7 @@ const Chat = () => {
           <div className="flex flex-col gap-2 lg:flex-row">
             <div
               className="w-full lg:w-1/4 overflow-y-auto"
-              style={{ maxHeight: "400px" }}
+              style={{ maxHeight: "500px" }}
             >
               <div className="flex lg:flex-col gap-1">
                 {usersWithLastMessages.map((user) => (
@@ -669,7 +669,7 @@ const Chat = () => {
             </div>
 
             {selectedUser ? (
-              <div className="w-full border h-[400px] p-4 rounded-lg mb-4 lg:w-3/4 flex flex-col justify-between">
+              <div className="w-full border h-[500px] p-4 rounded-lg mb-4 lg:w-3/4 flex flex-col justify-between">
                 <div className="flex justify-between items-center border-b pb-2">
                   <div className="flex gap-2 items-center ">
                     <img
@@ -747,13 +747,10 @@ const Chat = () => {
                 </div>
                 <div
                   className=""
-                  style={{ maxHeight: "400px", overflowY: "auto" }}
+                  style={{ maxHeight: "500px", overflowY: "auto" }}
                 >
                   {messages.length > 0 ? (
-                    <div
-                      className=""
-                      style={{ maxHeight: "400px", overflowY: "auto" }}
-                    >
+                    <div className="">
                       {messages.some(
                         (message) =>
                           !message.isDelete?.includes(currentUser.uid)
@@ -894,7 +891,7 @@ const Chat = () => {
                 </form>
               </div>
             ) : (
-              <div className="w-full border h-[400px] items-center p-4 rounded-lg mb-4 lg:w-3/4 grid justify-center">
+              <div className="w-full border h-[500px] items-center p-4 rounded-lg mb-4 lg:w-3/4 grid justify-center">
                 <h2 className="text-center text-gray-500">
                   Select user to open a conversation
                 </h2>
