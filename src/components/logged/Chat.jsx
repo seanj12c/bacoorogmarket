@@ -16,9 +16,10 @@ import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes, getStorage } from "firebase/storage";
 import Swal from "sweetalert2";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { AiOutlinePicture } from "react-icons/ai";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ const Chat = () => {
   const [unsubscribe, setUnsubscribe] = useState(null);
   const [lastMessages, setLastMessages] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const chatRef = useRef();
 
   useEffect(() => {
@@ -286,7 +288,44 @@ const Chat = () => {
     }
   };
 
-  const sendMessage = async (messageContent) => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Display a preview of the selected photo
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Generate a random filename
+      const randomChars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let randomFilename = "";
+      for (let i = 0; i < 10; i++) {
+        randomFilename += randomChars.charAt(
+          Math.floor(Math.random() * randomChars.length)
+        );
+      }
+      const timestamp = new Date().getTime();
+      const filename = `${randomFilename}_${timestamp}`;
+
+      // Upload the photo to Firebase Storage
+      const storage = getStorage();
+      const storageRef = ref(storage, `photos/${filename}`);
+
+      uploadBytes(storageRef, file).then((snapshot) => {
+        console.log("Uploaded a file:", snapshot);
+        // Get the download URL of the uploaded photo and pass it to sendMessage
+        getDownloadURL(snapshot.ref).then((downloadURL) => {
+          sendMessage(messageText, downloadURL);
+          setPhotoPreview(null);
+        });
+      });
+    }
+  };
+
+  const sendMessage = async (messageContent, photoUrl) => {
     try {
       console.log("Sending message:", messageContent);
 
@@ -302,6 +341,7 @@ const Chat = () => {
               senderId: currentUser.uid,
               recipientId: selectedUser.id,
               content: messageContent,
+              photo: photoUrl, // Add the photo URL to the message
               timestamp: new Date(),
               read: false, // Set the read field to false
             },
@@ -315,6 +355,7 @@ const Chat = () => {
               senderId: currentUser.uid,
               recipientId: selectedUser.id,
               content: messageContent,
+              photo: photoUrl, // Add the photo URL to the message
               timestamp: new Date(),
               read: false, // Set the read field to false
             },
@@ -329,18 +370,17 @@ const Chat = () => {
     }
   };
 
-  const handleMessageChange = (e) => {
-    setMessageText(e.target.value);
-
-    // Update read status of messages when message text changes
-  };
-
   const handleSendMessage = () => {
     if (messageText.trim() === "") {
       return;
     }
-    sendMessage(messageText);
+    sendMessage(messageText, photoPreview);
     setMessageText("");
+    setPhotoPreview(null); // Clear the photo preview after sending message
+  };
+
+  const handleMessageChange = (e) => {
+    setMessageText(e.target.value);
   };
 
   const handleFormSubmit = (e) => {
@@ -518,12 +558,14 @@ const Chat = () => {
                                 currentUser.uid
                                   ? "You: "
                                   : `${user.firstName}: `}
-                                {lastMessages[user.id].content.length > 7
-                                  ? lastMessages[user.id].content.substring(
-                                      0,
-                                      7
-                                    ) + "..."
-                                  : lastMessages[user.id].content}
+                                {lastMessages[user.id].content.length > 0
+                                  ? lastMessages[user.id].content.length > 7
+                                    ? lastMessages[user.id].content.substring(
+                                        0,
+                                        7
+                                      ) + "..."
+                                    : lastMessages[user.id].content
+                                  : "Sent a photo."}
                               </p>
                               {!lastMessages[user.id].read &&
                                 lastMessages[user.id].recipientId ===
@@ -766,7 +808,21 @@ const Chat = () => {
                                             : "chat-bubble-info"
                                         } chat-bubble max-w-xs text-base overflow-x-hidden break-all md:max-w-lg`}
                                       >
-                                        {message.content}
+                                        {(!message.content ||
+                                          message.content === "") &&
+                                          message.photo && (
+                                            <img
+                                              className="w-52 h-52 object-cover"
+                                              src={message.photo}
+                                              alt=""
+                                            />
+                                          )}
+
+                                        {(!message.photo ||
+                                          message.photo === "") &&
+                                          message.content && (
+                                            <p>{message.content}</p>
+                                          )}
                                       </h1>
                                     </div>
                                   </div>
@@ -793,7 +849,10 @@ const Chat = () => {
                   )}
                 </div>
 
-                <form onSubmit={handleFormSubmit} className="flex items-center">
+                <form
+                  onSubmit={handleFormSubmit}
+                  className="flex gap-2 pt-2 items-center"
+                >
                   <input
                     type="text"
                     placeholder="Type your message..."
@@ -801,7 +860,35 @@ const Chat = () => {
                     onChange={handleMessageChange}
                     className="w-full border rounded p-2 mr-2"
                   />
-                  <button type="submit" className="btn btn-primary text-white">
+                  {photoPreview && (
+                    <div className="relative inline-block">
+                      <img
+                        src={photoPreview}
+                        alt="Preview"
+                        className="w-10 h-10 object-cover rounded mr-2"
+                      />
+                      <AiOutlineLoading3Quarters className="absolute top-0 right-0 w-3 h-3 rounded-full animate-spin" />
+                    </div>
+                  )}
+
+                  <label
+                    htmlFor="photoInput"
+                    className="btn btn-xs md:btn-sm flex items-center btn-primary text-white"
+                  >
+                    <AiOutlinePicture className="" />
+                    <span className="md:block hidden"> Send Photo</span>
+                  </label>
+                  <input
+                    id="photoInput"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="submit"
+                    className="btn btn-xs md:btn-sm btn-primary text-white"
+                  >
                     Send
                   </button>
                 </form>
