@@ -46,7 +46,7 @@ const SearchAUser = () => {
   };
 
   return (
-    <div className="container pt-28 mx-auto px-4 py-8">
+    <div className="container py-28 mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4">Search Users</h2>
       <input
         type="text"
