@@ -84,7 +84,7 @@ export const NavbarNotLogged = () => {
               </div>
             </a>
 
-            <div className="dropdown lg:hidden dropdown-bottom ">
+            <div className="dropdown md:hidden dropdown-bottom ">
               <div tabIndex={0} role="button">
                 <AiOutlineMenu size={25} />
               </div>
