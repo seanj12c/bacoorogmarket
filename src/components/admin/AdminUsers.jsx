@@ -347,7 +347,7 @@ const AdminUsers = () => {
                     search.
                   </p>
                 ) : (
-                  <table className="mx-auto table table-xs border-collapse">
+                  <table className="mx-auto table table-sm border-collapse">
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="border px-4 py-2 text-xs text-center">
@@ -380,7 +380,7 @@ const AdminUsers = () => {
                             <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
                               {user.email}
                             </td>
-                            <td className="border bg-gray-200  flex gap-2 px-4 py-2 text-center">
+                            <td className="border bg-gray-200 flex-col flex gap-2  text-center">
                               {user.disabled ? (
                                 <button
                                   className="btn btn-xs text-white btn-success md:btn-sm"
