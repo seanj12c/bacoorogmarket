@@ -27,7 +27,7 @@ const AdminAppeal = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [appeals, setAppeals] = useState([]);
   const [reportType, setReportType] = useState("");
-
+  const [selectedAppeal, setSelectedAppeal] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +53,7 @@ const AdminAppeal = () => {
                     email: userData.email,
                     explanation: postData.explanation,
                     userData: userData,
+                    postId: postData.postId,
                   };
                 } else {
                   return null;
@@ -202,6 +203,172 @@ const AdminAppeal = () => {
     );
   });
 
+  const handleEnableRecipe = async (postId, id) => {
+    const confirmed = await Swal.fire({
+      title: "Are you sure?",
+      text: "Once enabled, the recipe will be visible.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#008080",
+
+      confirmButtonText: "Yes, enable it!",
+    });
+
+    if (confirmed.isConfirmed) {
+      try {
+        const db = getFirestore();
+        // Update isHidden to false in "recipes" collection
+        const recipeDocRef = doc(db, "recipes", postId);
+        await updateDoc(recipeDocRef, {
+          isHidden: false,
+        });
+
+        // Delete document from "postAppeal" collection
+        const appealDocRef = doc(db, "postAppeal", id);
+        await deleteDoc(appealDocRef);
+
+        console.log("Recipe enabled successfully.");
+
+        // Show success message
+        Swal.fire("Enabled!", "The recipe has been enabled.", "success");
+      } catch (error) {
+        console.error("Error enabling recipe:", error);
+        // Show error message
+        Swal.fire(
+          "Error",
+          "Failed to enable the recipe. Please try again later.",
+          "error"
+        );
+      }
+    }
+  };
+
+  const handleEnableProduct = async (postId, id) => {
+    const confirmed = await Swal.fire({
+      title: "Are you sure?",
+      text: "Once enabled, the product will be visible.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#008080",
+
+      confirmButtonText: "Yes, enable it!",
+    });
+
+    if (confirmed.isConfirmed) {
+      try {
+        const db = getFirestore();
+        // Update isHidden to false in "products" collection
+        const productDocRef = doc(db, "products", postId);
+        await updateDoc(productDocRef, {
+          isHidden: false,
+        });
+
+        // Delete document from "postAppeal" collection
+        const appealDocRef = doc(db, "postAppeal", id);
+        await deleteDoc(appealDocRef);
+
+        console.log("Product enabled successfully.");
+
+        // Show success message
+        Swal.fire("Enabled!", "The product has been enabled.", "success");
+      } catch (error) {
+        console.error("Error enabling product:", error);
+        // Show error message
+        Swal.fire(
+          "Error",
+          "Failed to enable the product. Please try again later.",
+          "error"
+        );
+      }
+    }
+  };
+
+  const handleOpenModal = async (postId) => {
+    try {
+      const db = getFirestore();
+      let modalContent = "";
+
+      if (reportType === "recipe") {
+        const recipeDocRef = doc(db, "recipes", postId);
+        const recipeDoc = await getDoc(recipeDocRef);
+
+        if (recipeDoc.exists()) {
+          const recipeData = recipeDoc.data();
+          let otherInfo =
+            recipeData.otherInformation || "No other information provided";
+          let photos = Array.isArray(recipeData.photos)
+            ? recipeData.photos
+            : [recipeData.photos];
+
+          modalContent = `
+    <h3 class="font-bold text-center text-lg">${recipeData.caption}</h3>
+    <p><strong>Ingredients:</strong></p>
+    <ul class="list-disc">
+      ${recipeData.ingredients
+        .map((ingredient) => `<li>${ingredient}</li>`)
+        .join("")}
+    </ul>
+    <p><strong>Instructions:</strong></p>
+    <ol class="list-decimal">
+      ${recipeData.instructions
+        .map((instruction) => `<li>${instruction}</li>`)
+        .join("")}
+    </ol>
+    <p><strong>Date:</strong> ${recipeData.timestamp}</p>
+    <p><strong>Other Information:</strong> ${otherInfo}</p>
+    <div class="pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 xl:grid-cols-3">
+      ${photos
+        .map(
+          (photo) =>
+            `<img src="${photo}" alt="Recipe Photo" class="h-40 w-full object-cover rounded-md" />`
+        )
+        .join("")}
+    </div>
+  `;
+        } else {
+          modalContent = "<p>No recipe found</p>";
+        }
+      } else if (reportType === "product") {
+        const productDocRef = doc(db, "products", postId);
+        const productDoc = await getDoc(productDocRef);
+        if (productDoc.exists()) {
+          const productData = productDoc.data();
+          let otherInfo =
+            productData.otherInformation || "No other information provided";
+          let photos = Array.isArray(productData.photos)
+            ? productData.photos
+            : [productData.photos];
+          modalContent = `
+            <h3 class="font-bold text-center text-lg">${
+              productData.caption
+            } </h3>
+            <p><strong>Address:</strong> ${productData.address}</p>
+            <p><strong>Description:</strong> ${productData.description}</p>
+            <p><strong>Date:</strong> ${productData.timestamp}</p>
+            <p><strong>Price:</strong> ₱${productData.price}</p>
+            <p><strong>Other Information:</strong> ${otherInfo}</p>
+           <div class="pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 xl:grid-cols-3">
+      ${photos
+        .map(
+          (photo) =>
+            `<img src="${photo}" alt="Recipe Photo" class="h-40 w-full object-cover rounded-md" />`
+        )
+        .join("")}
+    </div>
+          `;
+        } else {
+          modalContent = "<p>No product found</p>";
+        }
+      }
+
+      // Update modal content and show the modal
+      document.getElementById("modalContent").innerHTML = modalContent;
+      document.getElementById("modal").showModal();
+    } catch (error) {
+      console.error("Error opening modal:", error);
+    }
+  };
+
   return (
     <div>
       {loading ? (
@@ -334,12 +501,95 @@ const AdminAppeal = () => {
                             {appeal.userData.lastName}
                           </div>
                         )}
-                        <button
-                          onClick={() => enableUser(appeal.userData.userId)}
-                          className="btn btn-primary btn-xs md:btn-md text-white"
-                        >
-                          Enable
-                        </button>
+                        <div className="flex flex-col md:flex-row gap-2">
+                          {reportType === "" && (
+                            <button
+                              onClick={() => enableUser(appeal.userData.userId)}
+                              className="btn btn-primary btn-xs md:btn-md text-white"
+                            >
+                              Enable User
+                            </button>
+                          )}
+                          {reportType === "recipe" ? (
+                            <button
+                              onClick={() =>
+                                handleEnableRecipe(appeal.postId, appeal.id)
+                              }
+                              className="btn btn-success btn-xs md:btn-md text-white"
+                            >
+                              Enable Recipe
+                            </button>
+                          ) : (
+                            reportType === "product" && (
+                              <button
+                                onClick={() =>
+                                  handleEnableProduct(appeal.postId, appeal.id)
+                                }
+                                className="btn btn-success btn-xs md:btn-md text-white"
+                              >
+                                Enable Product
+                              </button>
+                            )
+                          )}
+                          {reportType === "recipe" ? (
+                            <button
+                              onClick={() => handleOpenModal(appeal.postId)}
+                              className="btn btn-primary btn-xs md:btn-md text-white"
+                            >
+                              View Recipe
+                            </button>
+                          ) : (
+                            reportType === "product" && (
+                              <button
+                                onClick={() => handleOpenModal(appeal.postId)}
+                                className="btn btn-primary btn-xs md:btn-md text-white"
+                              >
+                                View Product
+                              </button>
+                            )
+                          )}
+                        </div>
+                        {selectedAppeal && (
+                          <dialog id="view_" className="modal">
+                            <div className="modal-box">
+                              <form method="dialog">
+                                <button
+                                  className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                  onClick={() => {
+                                    setSelectedAppeal(null);
+                                    document.getElementById("view_").close();
+                                  }}
+                                >
+                                  ✕
+                                </button>
+                              </form>
+                              {/* Render details based on the type of appeal */}
+                              <h3 className="font-bold text-lg">
+                                Appeal Details
+                              </h3>
+                              <p className="py-4">
+                                Press ESC key or click on ✕ button to close
+                              </p>
+                              {/* Example: Render recipe details */}
+                              {selectedAppeal && selectedAppeal.userData && (
+                                <div>
+                                  <p>
+                                    <strong>User:</strong>{" "}
+                                    {`${selectedAppeal.userData.firstName} ${selectedAppeal.userData.lastName}`}
+                                  </p>
+                                  <p>
+                                    <strong>Email:</strong>{" "}
+                                    {selectedAppeal.email}
+                                  </p>
+                                  <p>
+                                    <strong>Explanation:</strong>{" "}
+                                    {selectedAppeal.explanation}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </dialog>
+                        )}
                       </div>
                       <div className="text-xs sm:text-sm md:text-base">
                         <div>
@@ -363,6 +613,19 @@ const AdminAppeal = () => {
           </div>
         </div>
       )}
+      <dialog id="modal" className="modal">
+        <div className="modal-box">
+          <form method="dialog">
+            <button
+              className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              onClick={() => document.getElementById("modal").close()}
+            >
+              ✕
+            </button>
+          </form>
+          <div id="modalContent"></div>
+        </div>
+      </dialog>
     </div>
   );
 };
