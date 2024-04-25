@@ -45,7 +45,7 @@ export const NavbarLogged = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY >= 500) {
+      if (window.scrollY >= 70) {
         setFix(true);
       } else {
         setFix(false);
@@ -184,9 +184,9 @@ export const NavbarLogged = () => {
       <div
         className={`${
           fix
-            ? "bg-white opacity-95 transition-all ease-in-out duration-300"
-            : "bg-white opacity-100 transition-all ease-in-out duration-300"
-        } flex md:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 md:px-2 text-primary fixed top-0 w-full md:w-full z-50`}
+            ? "bg-white opacity-95  transition-all ease-in-out duration-300"
+            : "bg-transparent opacity-100 transition-all ease-in-out duration-300"
+        } flex  md:justify-around justify-between items-center h-24 shadow-md mx-auto px-6 md:px-2 text-primary fixed top-0 w-full md:w-full z-50`}
       >
         <div className="flex md:w-full justify-between md:justify-around  items-center">
           <div className="md:block hidden">
