@@ -11,7 +11,7 @@ import {
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
 
-import { FaFile, FaUsers } from "react-icons/fa";
+import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
@@ -300,11 +300,12 @@ const AdminRecipes = () => {
               <h1 className="text-2xl font-bold my-4 text-center">
                 Recipe Management
               </h1>
-              <div className="py-5">
+              <div className="border-primary  border w-full  px-2 flex items-center gap-2 rounded-md ">
+                <FaSearch size={20} className="text-primary" />
                 <input
                   type="text"
                   placeholder="Search for Caption/Name..."
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />

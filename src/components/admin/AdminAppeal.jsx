@@ -10,7 +10,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import uploadload from "../../assets/loading.gif";
-import { FaFile, FaUsers } from "react-icons/fa";
+import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
@@ -466,11 +466,12 @@ const AdminAppeal = () => {
                   <option value="product">Product Appeal</option>
                 </select>
               </div>
-              <div className="w-full mt-4">
+              <div className="border-primary mt-2 border w-full  px-2 flex items-center gap-2 rounded-md ">
+                <FaSearch size={20} className="text-primary" />
                 <input
                   type="text"
                   placeholder="Search by name or reason"
-                  className="border-2 border-gray-300 px-3 bg-white h-10 w-full rounded-lg text-sm focus:outline-none"
+                  className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
                   value={searchQuery}
                   onChange={handleSearch}
                 />

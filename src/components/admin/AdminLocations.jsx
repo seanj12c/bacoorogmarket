@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
-import { FaFile, FaUsers } from "react-icons/fa";
+import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
@@ -395,13 +395,14 @@ const AdminLocations = () => {
                     : "Please tap the marker on the map to display specific user"}
                 </h1>
 
-                <div className="flex justify-center mb-4">
+                <div className="border-primary mb-4  border w-full  px-2 flex items-center gap-2 rounded-md ">
+                  <FaSearch size={20} className="text-primary" />
                   <input
                     type="text"
                     placeholder="Search by name or address to display in table"
                     value={searchQuery}
                     onChange={handleSearchChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+                    className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
                   />
                 </div>
                 <div className="overflow-auto">

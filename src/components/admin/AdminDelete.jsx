@@ -11,7 +11,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import uploadload from "../../assets/loading.gif";
-import { FaFile, FaUsers } from "react-icons/fa";
+import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
@@ -307,11 +307,12 @@ const AdminDelete = () => {
                 </select>
               </div>
               {/* Search Input */}
-              <div className="flex justify-center items-center mb-4">
+              <div className="border-primary  border w-full mb-4 px-2 flex items-center gap-2 rounded-md ">
+                <FaSearch size={20} className="text-primary" />
                 <input
                   type="text"
                   placeholder="Search by name..."
-                  className="border border-gray-300 rounded-md w-full px-3 py-2 focus:outline-none focus:border-primary"
+                  className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
