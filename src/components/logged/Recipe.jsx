@@ -107,7 +107,15 @@ const Recipe = () => {
             />
           </div>
           <div className="flex py-2 w-full justify-center items-center gap-2 px-4">
-            <div className="md:block hidden">
+            <div className="md:flex gap-1 hidden">
+              <Link to="/post_recipe">
+                <div className="flex flex-col items-center border w-28 md:w-36 border-primary bg-primary rounded-lg">
+                  <MdOutlinePostAdd className="text-white" size={18} />
+                  <p className="text-center  text-xs md:text-base text-white">
+                    Post a Recipe
+                  </p>
+                </div>
+              </Link>
               <div className="flex justify-between px-2 items-center border p-1 border-primary bg-primary rounded-lg">
                 <div className="flex items-center pr-3 gap-2">
                   <MdOutlineSort className="text-white text-3xl" />
@@ -133,17 +141,9 @@ const Recipe = () => {
                 onChange={handleSearch}
               />
             </div>
-            <Link to="/post_recipe">
-              <div className="flex flex-col items-center border w-28 md:w-36 border-primary bg-primary rounded-lg">
-                <MdOutlinePostAdd className="text-white" size={18} />
-                <p className="text-center  text-xs md:text-base text-white">
-                  Post a Recipe
-                </p>
-              </div>
-            </Link>
           </div>
-          <div className="px-4 pb-2 md:hidden">
-            <div className="flex justify-between items-center border p-1 border-primary bg-primary rounded-lg">
+          <div className="px-4 pb-2 flex flex-col gap-2 w-full justify-between md:hidden">
+            <div className="flex justify-between w-full items-center border p-1 border-primary bg-primary rounded-lg">
               <div className="flex items-center gap-2">
                 <MdOutlineSort className="text-white text-2xl sm:text-4xl" />
                 <h3 className="text-xs sm:text-base text-white">Sort: </h3>
@@ -158,6 +158,17 @@ const Recipe = () => {
                 <option value="Talaba">Talaba</option>
               </select>
             </div>
+            <Link
+              className="btn btn-primary btn-sm sm:btn-md"
+              to="/post_recipe"
+            >
+              <div className="flex justify-center items-center border w-full border-primary bg-primary rounded-lg">
+                <MdOutlinePostAdd className="text-white" size={18} />
+                <p className="text-center  text-xs md:text-base text-white">
+                  Post a Recipe
+                </p>
+              </div>
+            </Link>
           </div>
 
           {filteredRecipes.length === 0 ? (
