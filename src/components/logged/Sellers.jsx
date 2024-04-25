@@ -1,6 +1,8 @@
+// Inside the Sellers component
+
 import React, { useEffect, useState } from "react";
 import { collection, query, onSnapshot } from "firebase/firestore";
-import { firestore, auth } from "../../firebase"; // Import auth from firebase
+import { firestore, auth } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
 import { Link } from "react-router-dom";
 
@@ -10,19 +12,21 @@ import {
   Marker,
   InfoWindow,
 } from "@react-google-maps/api";
+import { FaSearch } from "react-icons/fa";
 
 const Sellers = () => {
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [currentUserID, setCurrentUserID] = useState(null); // State to hold current user's ID
+  const [currentUserID, setCurrentUserID] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); // State to hold search query
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
-        setCurrentUserID(user.uid); // Set current user's ID if user is logged in
+        setCurrentUserID(user.uid);
       } else {
-        setCurrentUserID(null); // Set to null if no user is logged in
+        setCurrentUserID(null);
       }
     });
 
@@ -40,7 +44,8 @@ const Sellers = () => {
           product.firstName &&
           product.lastName &&
           product.address &&
-          product.userUid
+          product.userUid &&
+          !product.isHidden // Only add location if isHidden is false
         ) {
           locationsData.push({
             id: doc.id,
@@ -53,7 +58,6 @@ const Sellers = () => {
           });
         }
       });
-      console.log("Locations Data:", locationsData);
       setLocations(locationsData);
       setLoading(false);
     });
@@ -69,8 +73,19 @@ const Sellers = () => {
     lng: 120.9429,
   };
 
+  // Filter locations based on search query or selectedLocation
+  const filteredLocations = selectedLocation
+    ? [selectedLocation]
+    : locations.filter((location) => {
+        const fullName =
+          `${location.firstName} ${location.lastName}`.toLowerCase();
+        const address = location.address.toLowerCase();
+        const query = searchQuery.toLowerCase();
+        return fullName.includes(query) || address.includes(query);
+      });
+
   return (
-    <div className="md:pb-0 pb-20">
+    <div className="md:pb-0 pb-32">
       {loading ? (
         <div className="flex items-center justify-center h-screen">
           <img
@@ -80,65 +95,80 @@ const Sellers = () => {
           />
         </div>
       ) : (
-        <div className="h-screen pt-24  w-full">
-          <div className="md:flex md:flex-row">
-            <div className="container  mx-auto px-4">
-              <h1 className="text-2xl font-bold my-4 text-center">
-                Sellers Locations
-              </h1>
+        <div className="h-screen pt-24 w-full">
+          <div className="container mx-auto px-4">
+            <h1 className="text-2xl font-bold my-4 text-center">
+              Sellers Locations
+            </h1>
 
-              <div className="overflow-auto">
-                <LoadScript
-                  googleMapsApiKey="AIzaSyBLZJ-nDBC4jlEDsMb7qS3kjuJp90fTPbM"
-                  libraries={["places"]}
+            <div className="overflow-auto">
+              <LoadScript
+                googleMapsApiKey="AIzaSyBLZJ-nDBC4jlEDsMb7qS3kjuJp90fTPbM"
+                libraries={["places"]}
+              >
+                <GoogleMap
+                  mapContainerStyle={{ height: "300px", width: "100%" }}
+                  center={defaultCenter}
+                  zoom={12}
+                  options={{
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    borderRadius: "8px",
+                  }}
                 >
-                  <GoogleMap
-                    mapContainerStyle={{ height: "300px", width: "100%" }}
-                    center={defaultCenter}
-                    zoom={12}
-                    options={{
-                      mapTypeControl: false,
-                      streetViewControl: false,
-                      borderRadius: "8px",
-                    }}
-                  >
-                    {locations.map((location) => (
-                      <Marker
-                        key={location.id}
-                        position={{
-                          lat: location.latitude,
-                          lng: location.longitude,
-                        }}
-                        onClick={() => {
-                          setSelectedLocation(location);
-                        }}
-                      />
-                    ))}
-                    {selectedLocation && (
-                      <InfoWindow
-                        position={{
-                          lat: selectedLocation.latitude,
-                          lng: selectedLocation.longitude,
-                        }}
-                        onCloseClick={() => {
-                          setSelectedLocation(null);
-                        }}
-                      >
-                        <div className="text-xs items-center">
-                          <h2>{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
-                        </div>
-                      </InfoWindow>
-                    )}
-                  </GoogleMap>
-                </LoadScript>
+                  {/* Render markers for filtered locations */}
+                  {filteredLocations.map((location) => (
+                    <Marker
+                      key={location.id}
+                      position={{
+                        lat: location.latitude,
+                        lng: location.longitude,
+                      }}
+                      onClick={() => {
+                        setSelectedLocation(location);
+                      }}
+                    />
+                  ))}
+                  {/* Render selected location info window */}
+                  {selectedLocation && (
+                    <InfoWindow
+                      position={{
+                        lat: selectedLocation.latitude,
+                        lng: selectedLocation.longitude,
+                      }}
+                      onCloseClick={() => {
+                        setSelectedLocation(null);
+                      }}
+                    >
+                      <div className=" flex items-center justify-center mx-auto">
+                        <h2 className="text-center">{`${selectedLocation.firstName} ${selectedLocation.lastName}`}</h2>
+                      </div>
+                    </InfoWindow>
+                  )}
+                </GoogleMap>
+              </LoadScript>
+            </div>
+            {/* Render location details table */}
+            <div>
+              <h1 className="text-lg md:text-2xl font-bold my-4 text-center">
+                {selectedLocation
+                  ? "Selected Location Details"
+                  : "All Locations"}
+              </h1>
+              <div className="border-primary mb-2 border w-full  px-2 flex items-center gap-2 rounded-md ">
+                <FaSearch size={20} className="text-primary" />
+                <input
+                  type="text"
+                  placeholder="Search by name or address"
+                  className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-              <div>
-                <h1 className="text-lg md:text-2xl font-bold my-4 text-center">
-                  {selectedLocation
-                    ? "Selected Location Details"
-                    : "Please tap the marker on the map"}
-                </h1>
-                <div className="overflow-auto">
+              <div className="overflow-auto">
+                {filteredLocations.length === 0 ? (
+                  <p className="text-center">No locations found.</p>
+                ) : (
                   <table className="w-full table table-xs text-xs text-center border-separate bg-gray-200">
                     <thead>
                       <tr className="bg-primary text-white">
@@ -148,27 +178,26 @@ const Sellers = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedLocation ? (
-                        <tr>
+                      {filteredLocations.map((location) => (
+                        <tr key={location.id}>
                           <td className="p-1">
-                            {selectedLocation.firstName}{" "}
-                            {selectedLocation.lastName}
+                            {location.firstName} {location.lastName}
                           </td>
-                          <td className="p-1">{selectedLocation.address}</td>
+                          <td className="p-1">{location.address}</td>
                           <td className="flex justify-center flex-col md:flex-row w-full gap-2">
-                            {currentUserID !== selectedLocation.userId && (
+                            {currentUserID !== location.userId && (
                               <Link
-                                to={`/profile/${selectedLocation.userId}`}
+                                to={`/profile/${location.userId}`}
                                 className="font-normal btn-xs md:btn-sm btn btn-primary text-white"
                               >
                                 Go to Profile
                               </Link>
                             )}
                             <Link
-                              to={`/product/info/${selectedLocation.id}`}
+                              to={`/product/info/${location.id}`}
                               className="font-normal btn-xs md:btn-sm btn btn-primary text-white"
                             >
-                              {currentUserID === selectedLocation.userId
+                              {currentUserID === location.userId
                                 ? "Go to My Product"
                                 : "Go to Product"}
                             </Link>
@@ -176,27 +205,21 @@ const Sellers = () => {
                               className="font-normal btn-xs md:btn-sm btn btn-primary text-white"
                               onClick={() =>
                                 window.open(
-                                  `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`,
+                                  `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`,
                                   "_blank"
                                 )
                               }
                             >
-                              {currentUserID === selectedLocation.userId
+                              {currentUserID === location.userId
                                 ? "Go to My Direction"
                                 : "Get Direction"}
                             </button>
                           </td>
                         </tr>
-                      ) : (
-                        <tr>
-                          <td colSpan="4" className="p-1">
-                            No location selected
-                          </td>
-                        </tr>
-                      )}
+                      ))}
                     </tbody>
                   </table>
-                </div>
+                )}
               </div>
             </div>
           </div>
