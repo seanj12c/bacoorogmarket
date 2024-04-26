@@ -138,13 +138,17 @@ const RecipeInfo = () => {
     });
   };
 
-  const handleOpenInNewTab = () => {
-    const confirmOpen = window.confirm(
-      "Do you want to view this photo in a new tab?"
-    );
-    if (confirmOpen) {
-      window.open(recipe.photos[slideshowIndex], "_blank");
-    }
+  const handleViewPhoto = () => {
+    Swal.fire({
+      imageUrl: recipe.photos[slideshowIndex],
+      imageAlt: `Recipe-Photos ${slideshowIndex + 1}`,
+      showCloseButton: true,
+      showConfirmButton: false,
+      customClass: {
+        image: "custom-class-name",
+        closeButton: "btn btn-error btn-circle text-white",
+      },
+    });
   };
 
   const navigate = useNavigate();
@@ -336,7 +340,7 @@ const RecipeInfo = () => {
                   <div className="flex flex-col items-center justify-center">
                     <div className="flex items-center justify-center mb-2">
                       <div className="w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
-                        <div onClick={handleOpenInNewTab}>
+                        <div onClick={handleViewPhoto}>
                           <img
                             src={recipe.photos[slideshowIndex]}
                             alt={`Recipe-Photos ${slideshowIndex + 1}`}

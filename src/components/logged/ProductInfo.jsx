@@ -113,17 +113,18 @@ const ProductInfo = () => {
     }
   };
 
-  const handleOpenInNewTab = () => {
-    if (product && product.photos && product.photos.length > 0) {
-      const confirmOpen = window.confirm(
-        "Do you want to view this photo in a new tab?"
-      );
-      if (confirmOpen) {
-        window.open(product.photos[slideshowIndex], "_blank");
-      }
-    }
+  const handleViewPhoto = () => {
+    Swal.fire({
+      imageUrl: product.photos[slideshowIndex],
+      imageAlt: `Product-Photos ${slideshowIndex + 1}`,
+      showCloseButton: true,
+      showConfirmButton: false,
+      customClass: {
+        image: "custom-class-name",
+        closeButton: "btn btn-error btn-circle text-white",
+      },
+    });
   };
-
   const handleDeleteProduct = async () => {
     try {
       // Using SweetAlert for confirmation
@@ -314,7 +315,7 @@ const ProductInfo = () => {
               <div className="flex flex-col items-center justify-center">
                 <div className="flex items-center justify-center mb-2">
                   <div className="w-64 sm:w-96 md:w-[340px] lg:w-[500px] object-cover relative">
-                    <div onClick={handleOpenInNewTab}>
+                    <div onClick={handleViewPhoto}>
                       <img
                         src={product.photos[slideshowIndex]}
                         alt={`Product-Photos ${slideshowIndex + 1}`}

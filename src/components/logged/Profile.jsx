@@ -230,6 +230,19 @@ const Profile = () => {
     }
   };
 
+  const handleViewProfilePhoto = () => {
+    Swal.fire({
+      imageUrl: user.profilePhotoUrl,
+      imageAlt: "Profile",
+      customClass: {
+        image: "custom-profile-photo-class",
+        closeButton: "btn btn-error btn-circle text-white", // Apply custom styles to the image
+      },
+      showCloseButton: true,
+      showConfirmButton: false,
+    });
+  };
+
   return (
     <div className="md:max-w-full max-w-xl mx-auto md:p-0 p-4">
       {loading ? (
@@ -255,7 +268,8 @@ const Profile = () => {
                     <img
                       src={user.profilePhotoUrl}
                       alt="Profile"
-                      className="object-cover w-48 h-48 lg:w-36 lg:h-36 md:w-28 md:h-28 mx-auto"
+                      onClick={handleViewProfilePhoto}
+                      className="object-cover pointer-events-auto select-all w-48 h-48 lg:w-36 lg:h-36 md:w-28 md:h-28 mx-auto"
                       style={{
                         border: "2px solid #008080",
                         borderRadius: "50%",
