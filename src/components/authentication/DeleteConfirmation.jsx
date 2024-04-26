@@ -120,34 +120,24 @@ const DeletionConfirmation = () => {
 
       if (confirmation === "Delete") {
         try {
-          // Delete recipes
+          // Update recipes
           const recipesQuery = query(
             collection(db, "recipes"),
             where("userUid", "==", userId)
           );
           const recipesSnapshot = await getDocs(recipesQuery);
           recipesSnapshot.forEach(async (doc) => {
-            await deleteDoc(doc.ref);
+            await updateDoc(doc.ref, { isDeleted: true });
           });
 
-          // Delete products
+          // Update products
           const productsQuery = query(
             collection(db, "products"),
             where("userUid", "==", userId)
           );
           const productsSnapshot = await getDocs(productsQuery);
           productsSnapshot.forEach(async (doc) => {
-            await deleteDoc(doc.ref);
-          });
-
-          // Delete chats
-          const chatsQuery = query(
-            collection(db, "chats"),
-            where("messages", "array-contains", { senderId: userId })
-          );
-          const chatsSnapshot = await getDocs(chatsQuery);
-          chatsSnapshot.forEach(async (doc) => {
-            await deleteDoc(doc.ref);
+            await updateDoc(doc.ref, { isDeleted: true });
           });
 
           // Delete user appeals
@@ -160,10 +150,25 @@ const DeletionConfirmation = () => {
             await deleteDoc(doc.ref);
           });
 
-          // Delete account information from "registered" collection
+          // Delete post appeals
+          const appealsPostQuery = query(
+            collection(db, "postAppeal"),
+            where("userId", "==", userId)
+          );
+          const appealsPostSnapshot = await getDocs(appealsPostQuery);
+          appealsPostSnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+          });
+
+          // Update account information from "registered" collection
           const registeredDocRef = doc(db, "registered", userId);
-          await deleteDoc(registeredDocRef);
-          console.log("Data associated with the user deleted successfully.");
+          await updateDoc(registeredDocRef, {
+            isDeleted: true,
+            deleteAccount: false,
+          });
+          console.log(
+            "Data associated with the user marked as deleted successfully."
+          );
 
           // Show sweet alert
           Swal.fire({
@@ -185,8 +190,8 @@ const DeletionConfirmation = () => {
               });
           });
         } catch (error) {
-          console.error("Error deleting user data:", error);
-          setError("Failed to delete user data");
+          console.error("Error marking user data as deleted:", error);
+          setError("Failed to mark user data as deleted");
         }
       }
     }
