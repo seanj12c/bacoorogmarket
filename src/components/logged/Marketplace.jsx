@@ -38,6 +38,7 @@ const Marketplace = () => {
 
           // Check if the product is not hidden and not deactivated
           if (
+            !data.isDeleted &&
             !data.isHidden &&
             !userData.isDeactivated &&
             (freshnessFilter === "None" ||

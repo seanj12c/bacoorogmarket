@@ -30,7 +30,7 @@ const Recipe = () => {
       for (const doc of querySnapshot.docs) {
         const data = doc.data();
         // Check if the recipe is not hidden and not deactivated
-        if (!data.isHidden && !data.accountDeactivated) {
+        if (!data.isDeleted && !data.isHidden && !data.accountDeactivated) {
           const userData = await getUserData(data.userUid);
           recipesData.push({
             id: doc.id,
