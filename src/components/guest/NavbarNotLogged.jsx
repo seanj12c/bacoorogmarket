@@ -66,7 +66,7 @@ export const NavbarNotLogged = () => {
         className={`${
           fix
             ? "bg-white opacity-95 transition-all ease-in-out duration-700"
-            : ""
+            : "bg-transparent opacity-100"
         } flex lg:justify-around justify-between ease-linear duration-500 items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
       >
         <div className="lg:flex lg:w-full justify-between lg:justify-around  items-center">
@@ -84,7 +84,7 @@ export const NavbarNotLogged = () => {
               </div>
             </a>
 
-            <div className="dropdown md:hidden dropdown-bottom ">
+            <div className="dropdown lg:hidden dropdown-bottom ">
               <div tabIndex={0} role="button">
                 <AiOutlineMenu size={25} />
               </div>
