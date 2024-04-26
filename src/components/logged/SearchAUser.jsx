@@ -30,6 +30,7 @@ const SearchAUser = () => {
 
   const filteredUsers = users.filter((user) => {
     return (
+      !user.isDeleted &&
       !user.isDeactivated &&
       user.id !== currentUser.uid &&
       (user.firstName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -46,8 +47,8 @@ const SearchAUser = () => {
   };
 
   return (
-    <div className="container py-28 mx-auto px-4">
-      <h2 className="text-2xl font-bold mb-4">Search Users</h2>
+    <div className="container py-32 mx-auto px-4">
+      <h2 className="text-2xl font-bold mb-4">Search A Users</h2>
       <input
         type="text"
         placeholder="Search by name or address"
@@ -70,7 +71,7 @@ const SearchAUser = () => {
             <p className="font-bold">{`${user.firstName} ${user.lastName}`}</p>
             <p className="text-gray-500 text-xs">{user.address}</p>
             {!searchQuery && (
-              <p className="text-primary font-semibold">Suggested User</p>
+              <p className="text-primary font-semibold">People you may know</p>
             )}
           </div>
         ))}
