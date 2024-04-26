@@ -317,6 +317,12 @@ export const NavbarLogged = () => {
                 </button>
               </Link>
 
+              <Link to={"/report/user"}>
+                <button className="btn btn-primary btn-sm w-28  ">
+                  Report a User
+                </button>
+              </Link>
+
               <button
                 onClick={handleLogoutConfirmation}
                 className="btn btn-error btn-sm text-white w-28 "
