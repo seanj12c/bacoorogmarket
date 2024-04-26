@@ -303,7 +303,7 @@ const AdminDelete = () => {
                   onChange={toggleView}
                 >
                   <option value="deletionRequest">Deletion Requests</option>
-                  <option value="deletionRE">History</option>
+                  <option value="deletionRE">Granted Access</option>
                 </select>
               </div>
               {/* Search Input */}
@@ -317,6 +317,12 @@ const AdminDelete = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+              <div>
+                {" "}
+                <h1 className="text-center mb-2 font-bold text-2xl">
+                  Deletion Requests
+                </h1>
+              </div>
               <ul className="mt-4">
                 {showRequests ? (
                   filteredRequests.length === 0 ? (
@@ -329,9 +335,6 @@ const AdminDelete = () => {
                   ) : (
                     filteredRequests.map((deletionRequest) => (
                       <div>
-                        <h1 className="text-center mb-2 font-bold text-2xl">
-                          Deletion Requests
-                        </h1>
                         <li
                           key={deletionRequest.id}
                           className="card glass rounded-lg mb-2 p-3"
@@ -375,7 +378,6 @@ const AdminDelete = () => {
                   )
                 ) : (
                   <div>
-                    <h1 className="text-center font-bold text-2xl">History</h1>
                     <ul className="mt-2">
                       {loadingHistory ? (
                         <div>Loading history...</div>
