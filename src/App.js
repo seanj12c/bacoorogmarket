@@ -44,6 +44,8 @@ import Swal from "sweetalert2";
 import Appeal from "./components/authentication/Appeal";
 import Deactivated from "./components/authentication/Deactivated";
 import SearchAUser from "./components/logged/SearchAUser";
+import AccountDeleted from "./components/authentication/AccountDeleted";
+import ReportAUser from "./components/logged/ReportAUser";
 
 function AppRoutes() {
   const location = useLocation();
@@ -75,6 +77,10 @@ function AppRoutes() {
           } else if (userData.deleteAccount) {
             setLoading(false);
             navigate("/deletion/confirmation");
+          } else if (userData.isDeleted) {
+            // Check if account is deleted
+            setLoading(false);
+            navigate("/account/deleted");
           } else if (userData.disabled) {
             // Fetch reason from "disabledReason" collection based on user's UID
             const reasonRef = doc(
@@ -145,6 +151,7 @@ function AppRoutes() {
     "/user/appeal",
     "/deletion/confirmation",
     "/account/deactivation",
+    "/account/deleted",
   ];
 
   const isNavbarHidden = navbarHiddenRoutes.includes(location.pathname);
@@ -264,6 +271,20 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/report/user"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <ReportAUser />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
           path="/myaccount"
           element={
             user ? (
@@ -327,6 +348,20 @@ function AppRoutes() {
                 <Navigate to="/admin/users" />
               ) : (
                 <Deactivated />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/account/deleted"
+          element={
+            user ? (
+              admin ? (
+                <Navigate to="/admin/users" />
+              ) : (
+                <AccountDeleted />
               )
             ) : (
               <Navigate to="/login" />
