@@ -608,28 +608,39 @@ const AdminReports = () => {
                           <p className="italic text-error text-xs font-bold">
                             The reported user
                           </p>
-                        </div>
+                        </div>{" "}
+                        {report.isDeleted && (
+                          <p className="italic absolute top-0 bg-red-500 rounded-md right-0 text-white p-2 text-xs font-bold">
+                            Deleted user
+                          </p>
+                        )}
                       </div>
                     )}
                     {reportType === "profile" && (
                       <div className="flex flex-col gap-2">
                         <div className="py-1 gap-2 flex justify-end">
-                          <button
-                            className={`btn btn-xs btn-primary ${
-                              registeredUsers[report.userId].disabled
-                                ? "btn-success text-white"
-                                : "btn-error text-white"
-                            }`}
-                            onClick={() =>
-                              registeredUsers[report.userId].disabled
-                                ? enableAccount(registeredUsers[report.userId])
-                                : disableAccount(registeredUsers[report.userId])
-                            }
-                          >
-                            {registeredUsers[report.userId].disabled
-                              ? "Enable"
-                              : "Disable"}
-                          </button>
+                          {!report.isDeleted && (
+                            <button
+                              className={`btn btn-xs btn-primary ${
+                                registeredUsers[report.userId].disabled
+                                  ? "btn-success text-white"
+                                  : "btn-error text-white"
+                              }`}
+                              onClick={() =>
+                                registeredUsers[report.userId].disabled
+                                  ? enableAccount(
+                                      registeredUsers[report.userId]
+                                    )
+                                  : disableAccount(
+                                      registeredUsers[report.userId]
+                                    )
+                              }
+                            >
+                              {registeredUsers[report.userId].disabled
+                                ? "Enable"
+                                : "Disable"}
+                            </button>
+                          )}
 
                           <button
                             className="btn btn-xs btn-primary"
