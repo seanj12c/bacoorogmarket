@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { getAuth, signOut } from "firebase/auth";
 import Swal from "sweetalert2";
-import { FaFile, FaUsers } from "react-icons/fa";
+import { FaArrowAltCircleUp, FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
@@ -84,8 +84,27 @@ export const NavbarAdmin = ({
     }
   };
 
+  const handleGoToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <div className="h-full">
+      <div>
+        <button
+          className={`${
+            fix
+              ? "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-3 right-8"
+              : "fixed z-10 btn btn-circle duration-300 ease-in-out btn-primary bottom-3 right-8 hidden"
+          } border border-white`}
+          onClick={handleGoToTop}
+        >
+          <FaArrowAltCircleUp size={30} />
+        </button>
+      </div>
       <div
         className={`${
           fix ? "bg-white transition-all ease-in-out duration-700" : ""
