@@ -113,7 +113,12 @@ const Chat = () => {
         const chatData = doc.data();
         const lastMessage = chatData?.messages?.[chatData.messages.length - 1];
         if (lastMessage) {
-          if (!user.isDeactivated && user.firstName && user.lastName) {
+          if (
+            !user.isDeactivated &&
+            !user.isDeleted &&
+            user.firstName &&
+            user.lastName
+          ) {
             setLastMessages((prevMessages) => ({
               ...prevMessages,
               [user.id]: lastMessage,
@@ -135,7 +140,7 @@ const Chat = () => {
               lastMessage.recipientId === currentUser.uid &&
               !lastMessage.read
             ) {
-              toast.info(`Deactivated User sent you a message`, {
+              toast.info(`User sent you a message`, {
                 autoClose: 3000,
               });
             }
@@ -148,6 +153,22 @@ const Chat = () => {
       unsubscribeSnapshot.forEach((unsubscribe) => unsubscribe());
     };
   }, [users, currentUser]);
+
+  const openPhotoModal = (photoUrl) => {
+    Swal.fire({
+      imageUrl: photoUrl,
+      imageAlt: "Full screen photo",
+      showCloseButton: true,
+      showConfirmButton: false,
+      customClass: {
+        image: "custom-class-name",
+        closeButton: "btn btn-error btn-circle text-white", // Add Tailwind CSS class for the background color
+      },
+      onClose: () => {
+        // Add any actions you want to perform when the modal is closed
+      },
+    });
+  };
 
   const handleUserSelect = async (user) => {
     try {
@@ -536,21 +557,25 @@ const Chat = () => {
                     <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
                       <img
                         src={
-                          user.isDeactivated
+                          user.isDeactivated || user.isDeleted
                             ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
                             : user.profilePhotoUrl
                         }
                         alt={
-                          user.isDeactivated
-                            ? "Deactivated Account"
+                          user.isDeactivated || user.isDeleted
+                            ? "User"
                             : `${user.firstName} ${user.lastName}`
                         }
                         className="w-9 h-9 object-cover rounded-full"
                       />
                       <div className="flex flex-col gap-1 items-start">
                         <h3 className="text-xs lg:text-lg font-bold lg:text-start">
-                          {user.isDeactivated ? "Deactivated" : user.firstName}{" "}
-                          {user.isDeactivated ? "Account" : user.lastName}
+                          {user.isDeactivated || user.isDeleted
+                            ? ""
+                            : user.firstName}{" "}
+                          {user.isDeactivated || user.isDeleted
+                            ? "User"
+                            : user.lastName}
                         </h3>
                         {lastMessages[user.id] ? (
                           lastMessages[user.id].isDelete?.includes(
@@ -565,7 +590,11 @@ const Chat = () => {
                                 {lastMessages[user.id].senderId ===
                                 currentUser.uid
                                   ? "You: "
-                                  : `${user.firstName}: `}
+                                  : `${
+                                      user.isDeleted || user.isDeactivated
+                                        ? "User"
+                                        : user.firstName
+                                    }: `}
                                 {lastMessages[user.id].content.length > 0
                                   ? lastMessages[user.id].content.length > 7
                                     ? lastMessages[user.id].content.substring(
@@ -596,7 +625,7 @@ const Chat = () => {
                   ? // Display only the first three users without last messages
                     usersWithoutLastMessages
                       .slice(0, 3)
-                      .filter((user) => !user.isDeactivated) // Filter out deactivated users
+                      .filter((user) => !user.isDeactivated || !user.isDeleted) // Filter out deactivated users
                       .map((user) => (
                         <div
                           key={user.id}
@@ -651,23 +680,25 @@ const Chat = () => {
                           <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
                             <img
                               src={
-                                user.isDeactivated
+                                user.isDeactivated || user.isDeleted
                                   ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
                                   : user.profilePhotoUrl
                               }
                               alt={
-                                user.isDeactivated
-                                  ? "Deactivated Account"
+                                user.isDeactivated || user.isDeleted
+                                  ? "User"
                                   : `${user.firstName} ${user.lastName}`
                               }
                               className="w-9 h-9 object-cover rounded-full"
                             />
                             <div>
                               <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
-                                {user.isDeactivated
-                                  ? "Deactivated"
+                                {user.isDeactivated || user.isDeleted
+                                  ? " "
                                   : user.firstName}{" "}
-                                {user.isDeactivated ? "Account" : user.lastName}
+                                {user.isDeactivated || user.isDeleted
+                                  ? "User"
+                                  : user.lastName}
                               </h3>
                             </div>
                           </div>
@@ -683,18 +714,18 @@ const Chat = () => {
                     <img
                       className="h-10 w-10 object-cover rounded-full"
                       src={
-                        selectedUser.isDeactivated
+                        selectedUser.isDeactivated || selectedUser.isDeleted
                           ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
                           : selectedUser.profilePhotoUrl
                       }
                       alt=""
                     />
                     <h2 className="font-bold">
-                      {selectedUser.isDeactivated
-                        ? "Deactivated"
+                      {selectedUser.isDeactivated || selectedUser.isDeleted
+                        ? " "
                         : selectedUser.firstName}{" "}
-                      {selectedUser.isDeactivated
-                        ? "Account"
+                      {selectedUser.isDeactivated || selectedUser.isDeleted
+                        ? "User"
                         : selectedUser.lastName}
                     </h2>
                   </div>
@@ -725,8 +756,9 @@ const Chat = () => {
                         <p className="py-4">
                           Are you sure you want to delete your conversation with{" "}
                           <span className="font-bold">
-                            {selectedUser.isDeactivated
-                              ? "Deactivated User"
+                            {selectedUser.isDeactivated ||
+                            selectedUser.isDeleted
+                              ? "User"
                               : selectedUser.firstName}
                           </span>
                           ? This action cannot be undone.
@@ -791,13 +823,15 @@ const Chat = () => {
                                     <>
                                       <img
                                         src={
-                                          selectedUser.isDeactivated
+                                          selectedUser.isDeactivated ||
+                                          selectedUser.isDeleted
                                             ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
                                             : selectedUser.profilePhotoUrl
                                         }
                                         alt={
-                                          selectedUser.isDeactivated
-                                            ? "Deactivated Account"
+                                          selectedUser.isDeactivated ||
+                                          selectedUser.isDeleted
+                                            ? "User"
                                             : `${selectedUser.firstName} ${selectedUser.lastName}`
                                         }
                                         className="w-8 h-8 object-cover rounded-full mr-2"
@@ -817,9 +851,12 @@ const Chat = () => {
                                           message.content === "") &&
                                           message.photo && (
                                             <img
-                                              className="w-52 h-52 object-cover"
+                                              className="md:w-52 select-all pointer-events-auto md:h-52 w-32 h-32 object-cover cursor-pointer"
                                               src={message.photo}
                                               alt=""
+                                              onClick={() =>
+                                                openPhotoModal(message.photo)
+                                              }
                                             />
                                           )}
 
@@ -846,60 +883,76 @@ const Chat = () => {
                   ) : (
                     <div>
                       <div className="skeleton h-10 w-full"></div>
-                      <p className="text-gray-500 text-center">
-                        There are no messages here. Why not start a
-                        conversation?
-                      </p>
+                      {!selectedUser.isDeactivated &&
+                        !selectedUser.isDeleted && (
+                          <p className="text-gray-500 text-center">
+                            There are no messages here. Why not start a
+                            conversation?
+                          </p>
+                        )}
                     </div>
                   )}
                 </div>
 
-                <form
-                  onSubmit={handleFormSubmit}
-                  className="flex gap-2 pt-2 items-center"
-                >
-                  <input
-                    type="text"
-                    placeholder="Type your message..."
-                    value={messageText}
-                    onChange={handleMessageChange}
-                    className="w-full border rounded p-2 mr-2"
-                  />
-                  {photoPreview && (
-                    <div className="relative inline-block">
-                      <img
-                        src={photoPreview}
-                        alt="Preview"
-                        className="w-10 h-10 object-cover rounded mr-2"
-                      />
-                      {isUploading && (
-                        <AiOutlineLoading3Quarters className="absolute top-0 right-0 w-3 h-3 rounded-full animate-spin" />
-                      )}
-                    </div>
-                  )}
+                {selectedUser &&
+                (selectedUser.isDeactivated || selectedUser.isDeleted) ? (
+                  <h1 className="text-center text-xs md:text-base text-gray-500">
+                    You can't send a message in this conversation. This account
+                    has been deactivated or deleted.
+                  </h1>
+                ) : (
+                  <form
+                    onSubmit={handleFormSubmit}
+                    className="flex gap-2 pt-2 items-center"
+                  >
+                    <input
+                      type="text"
+                      placeholder="Type your message..."
+                      value={messageText}
+                      onChange={handleMessageChange}
+                      className="w-full border rounded p-2 mr-2"
+                    />
+                    {photoPreview && (
+                      <div className="relative inline-block">
+                        <img
+                          src={photoPreview}
+                          alt="Preview"
+                          className="w-10 h-10 object-cover rounded mr-2"
+                        />
+                      </div>
+                    )}
 
-                  <label
-                    htmlFor="photoInput"
-                    className="btn btn-xs md:btn-sm flex items-center btn-primary text-white"
-                  >
-                    <AiOutlinePicture className="" />
-                    <span className="md:block hidden"> Send Photo</span>
-                  </label>
-                  <input
-                    id="photoInput"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-xs md:btn-sm btn-primary text-white"
-                    disabled={isUploading}
-                  >
-                    Send
-                  </button>
-                </form>
+                    <label
+                      disabled={isUploading}
+                      htmlFor="photoInput"
+                      className="btn btn-xs md:btn-sm flex items-center btn-primary text-white"
+                    >
+                      {isUploading ? (
+                        <AiOutlineLoading3Quarters className="animate-spin" />
+                      ) : (
+                        <AiOutlinePicture className="" />
+                      )}
+
+                      <span className="md:block hidden">
+                        {isUploading ? "Sending..." : "Send Photo"}
+                      </span>
+                    </label>
+                    <input
+                      id="photoInput"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-xs md:btn-sm btn-primary text-white"
+                      disabled={isUploading}
+                    >
+                      Send
+                    </button>
+                  </form>
+                )}
               </div>
             ) : (
               <div className="w-full border h-[500px] items-center p-4 rounded-lg mb-4 lg:w-3/4 grid justify-center">
