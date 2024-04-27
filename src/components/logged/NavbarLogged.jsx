@@ -24,7 +24,7 @@ import {
   CiSearch,
 } from "react-icons/ci";
 import Swal from "sweetalert2";
-
+import { MdOutlineReport } from "react-icons/md";
 import { MdOutlineManageAccounts } from "react-icons/md";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { BiMessageRoundedError } from "react-icons/bi";
@@ -223,6 +223,12 @@ export const NavbarLogged = () => {
                   <Link to={"/faqs"}>
                     <CiCircleQuestion className="text-primary" size={15} />
                     <span className="hover:text-primary ">FAQs</span>
+                  </Link>
+                </li>
+                <li className="py-1">
+                  <Link to={"/report/user"}>
+                    <MdOutlineReport className="text-primary" size={15} />
+                    <span className="hover:text-primary "> Report a User</span>
                   </Link>
                 </li>
                 <li className="py-1">
