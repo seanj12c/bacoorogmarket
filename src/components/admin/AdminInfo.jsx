@@ -1,0 +1,219 @@
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { IoReturnDownBackOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+
+const AdminInfo = () => {
+  const { userId } = useParams();
+  const [userInfo, setUserInfo] = useState(null);
+  const [userProducts, setUserProducts] = useState([]);
+  const [userRecipes, setUserRecipes] = useState([]);
+  const [showProducts, setShowProducts] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const db = getFirestore();
+      const registeredRef = collection(db, "registered");
+      const userQuery = query(registeredRef, where("userId", "==", userId));
+      const userSnapshot = await getDocs(userQuery);
+      userSnapshot.forEach((doc) => {
+        setUserInfo(doc.data());
+      });
+    };
+
+    const fetchUserProducts = async () => {
+      const db = getFirestore();
+      const productsRef = collection(db, "products");
+      const productsQuery = query(productsRef, where("userUid", "==", userId));
+      const productsSnapshot = await getDocs(productsQuery);
+      const productsData = [];
+      productsSnapshot.forEach((doc) => {
+        productsData.push(doc.data());
+      });
+      setUserProducts(productsData);
+    };
+
+    const fetchUserRecipes = async () => {
+      const db = getFirestore();
+      const recipesRef = collection(db, "recipes");
+      const recipesQuery = query(recipesRef, where("userUid", "==", userId));
+      const recipesSnapshot = await getDocs(recipesQuery);
+      const recipesData = [];
+      recipesSnapshot.forEach((doc) => {
+        recipesData.push(doc.data());
+      });
+      setUserRecipes(recipesData);
+    };
+
+    fetchUserInfo();
+    fetchUserProducts();
+    fetchUserRecipes();
+  }, [userId]);
+
+  const goBack = () => {
+    navigate("/admin/delete/info");
+  };
+
+  const handleToggle = () => {
+    setShowProducts((prev) => !prev);
+  };
+
+  return (
+    <div className="container mx-auto py-6 h-full flex flex-col justify-center">
+      <div>
+        <button
+          className="btn btn-xs md:btn-sm btn-error text-white btn-primary mb-4"
+          onClick={goBack}
+        >
+          Go Back <IoReturnDownBackOutline className="md:hidden" size={15} />
+          <IoReturnDownBackOutline className="hidden md:block" size={20} />
+        </button>{" "}
+      </div>
+      {userInfo && (
+        <div className="flex flex-col items-center">
+          <div className="w-full flex items-center justify-center mb-4">
+            <div>
+              <img
+                src={userInfo.profilePhotoUrl}
+                alt="Profile"
+                className="rounded-full mx-auto w-52 h-52 object-cover border border-full"
+              />
+              <h2 className="text-2xl text-center font-semibold mt-4">
+                {userInfo.firstName} {userInfo.lastName}
+              </h2>
+              <p>
+                <strong>Email:</strong> {userInfo.email}
+              </p>
+              <p>
+                <strong>Contact:</strong> {userInfo.contact}
+              </p>
+              <p>
+                <strong>Address:</strong> {userInfo.address}
+              </p>
+            </div>
+          </div>
+          <div className="w-full flex justify-center mb-4">
+            <button
+              className={`btn btn-xs md:btn-sm  ${
+                showProducts ? "btn-primary" : ""
+              } mr-2`}
+              onClick={handleToggle}
+            >
+              Products
+            </button>
+            <button
+              className={`btn btn-xs md:btn-sm  ${
+                !showProducts ? "btn-primary" : ""
+              }`}
+              onClick={handleToggle}
+            >
+              Recipes
+            </button>
+          </div>
+          <div className="w-full">
+            {showProducts ? (
+              <div className="p-4">
+                <h2 className="text-2xl font-semibold mb-4">Products</h2>
+                <div className="overflow-y-auto max-h-96">
+                  {userProducts.map((product, index) => (
+                    <div
+                      key={index}
+                      className="border-b border-gray-300 mb-4 pb-4"
+                    >
+                      <h3 className="text-lg font-semibold">
+                        {product.caption}
+                      </h3>
+                      <p>{product.description}</p>
+                      <p>
+                        <strong>Address:</strong> {product.address}
+                      </p>
+                      <p>
+                        <strong>Price:</strong> {product.price}
+                      </p>
+                      <p>
+                        <strong>Timestamp:</strong> {product.timestamp}
+                      </p>
+                      <div>
+                        <strong>Photos:</strong>
+                        <ul className="grid grid-cols-2 gap-4">
+                          {product.photos.map((photo, idx) => (
+                            <li key={idx}>
+                              <img
+                                src={photo}
+                                alt={`Product ${idx + 1}`}
+                                className="w-full h-auto"
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-4">
+                <h2 className="text-2xl font-semibold mb-4">Recipes</h2>
+                <div className="overflow-y-auto max-h-96">
+                  {userRecipes.map((recipe, index) => (
+                    <div
+                      key={index}
+                      className="border-b border-gray-300 mb-4 pb-4"
+                    >
+                      <h3 className="text-lg font-semibold">
+                        {recipe.caption}
+                      </h3>
+                      <p>
+                        <strong>Timestamp:</strong> {recipe.timestamp}
+                      </p>
+                      <div>
+                        <strong>Ingredients:</strong>
+                        <ul>
+                          {recipe.ingredients.map((ingredient, idx) => (
+                            <li key={idx}>{ingredient}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <strong>Instructions:</strong>
+                        <ul>
+                          {recipe.instructions.map((instruction, idx) => (
+                            <li key={idx}>{instruction}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <strong>Photos:</strong>
+                        <ul className="grid grid-cols-2 gap-4">
+                          {recipe.photos.map((photo, idx) => (
+                            <li key={idx}>
+                              <img
+                                src={photo}
+                                alt={`Recipe ${idx + 1}`}
+                                className="w-full h-auto"
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AdminInfo;
