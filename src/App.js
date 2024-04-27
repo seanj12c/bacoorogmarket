@@ -46,6 +46,8 @@ import Deactivated from "./components/authentication/Deactivated";
 import SearchAUser from "./components/logged/SearchAUser";
 import AccountDeleted from "./components/authentication/AccountDeleted";
 import ReportAUser from "./components/logged/ReportAUser";
+import AdminDeletedAccountInfo from "./components/admin/AdminDeletedAccountInfo";
+import AdminInfo from "./components/admin/AdminInfo";
 
 function AppRoutes() {
   const location = useLocation();
@@ -145,6 +147,7 @@ function AppRoutes() {
 
   const navbarHiddenRoutes = [
     "/",
+    "/home",
     "/login",
     "/register,",
     "/fillup",
@@ -374,6 +377,7 @@ function AppRoutes() {
         <Route path="/product/info/:productId" element={<ProductInfo />} />
         <Route path="/recipe/info/:recipeId" element={<RecipeInfo />} />
         <Route path="/chat/:chatId" element={<Chat />} />
+        <Route path="/admin/delete/info/:userId" element={<AdminInfo />} />
         <Route
           path="/post_product"
           element={
@@ -433,6 +437,12 @@ function AppRoutes() {
         <Route
           path="/admin/users"
           element={admin ? <AdminUsers /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/delete/info"
+          element={
+            admin ? <AdminDeletedAccountInfo /> : <Navigate to="/login" />
+          }
         />
         <Route
           path="/admin/products"
