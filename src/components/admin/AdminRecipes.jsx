@@ -14,7 +14,11 @@ import uploadload from "../../assets/loading.gif";
 import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
-import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
+import {
+  MdNoAccounts,
+  MdOutlineReport,
+  MdOutlineRestaurantMenu,
+} from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
@@ -234,6 +238,7 @@ const AdminRecipes = () => {
               appeals="bg-white text-primary"
               reports="bg-white text-primary"
               deletions="bg-white text-primary"
+              accinfos="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">
@@ -284,6 +289,12 @@ const AdminRecipes = () => {
                   <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
                     <RiDeleteBin6Line size={25} />
                     Deletion Requests
+                  </li>
+                </Link>
+                <Link to="/admin/delete/info">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <MdNoAccounts size={25} />
+                    Deleted Acc Info
                   </li>
                 </Link>
                 <li

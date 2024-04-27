@@ -8,7 +8,11 @@ import Swal from "sweetalert2";
 import { FaArrowAltCircleUp, FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
-import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
+import {
+  MdNoAccounts,
+  MdOutlineReport,
+  MdOutlineRestaurantMenu,
+} from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
@@ -20,6 +24,7 @@ export const NavbarAdmin = ({
   appeals,
   reports,
   deletions,
+  accinfos,
 }) => {
   const user = `${users}`;
   const location = `${locations}`;
@@ -28,6 +33,7 @@ export const NavbarAdmin = ({
   const appeal = `${appeals}`;
   const report = `${reports}`;
   const deletionRequest = `${deletions}`;
+  const accinfo = `${accinfos}`;
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
 
@@ -176,6 +182,12 @@ export const NavbarAdmin = ({
                 >
                   <RiDeleteBin6Line size={30} />
                   Deletion Requests
+                </li>
+              </Link>
+              <Link to="/admin/delete/info">
+                <li className={`${accinfo} p-4 flex gap-2 items-center`}>
+                  <MdNoAccounts size={30} />
+                  Deleted Acc Info
                 </li>
               </Link>
             </ul>

@@ -10,10 +10,14 @@ import {
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import uploadload from "../../assets/loading.gif";
-import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
+import { FaFile, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
-import { MdOutlineReport, MdOutlineRestaurantMenu } from "react-icons/md";
+import {
+  MdNoAccounts,
+  MdOutlineReport,
+  MdOutlineRestaurantMenu,
+} from "react-icons/md";
 import logo from "../../assets/logo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineLogout } from "react-icons/ai";
@@ -24,7 +28,6 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -42,11 +45,7 @@ const AdminProducts = () => {
         productsData.push({
           id: doc.id,
           productId: data.productId,
-          userUid: data.userUid,
           caption: data.caption,
-          address: data.address,
-          description: data.description,
-          timestamp: data.timestamp,
           photos: data.photos,
           price: data.price, // Added price field
           firstName: data.firstName,
@@ -61,27 +60,6 @@ const AdminProducts = () => {
 
     return () => {
       unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
-    const registeredCollection = collection(firestore, "registered");
-    const unregister = onSnapshot(registeredCollection, (querySnapshot) => {
-      const usersData = [];
-      querySnapshot.forEach((doc) => {
-        const userData = doc.data();
-        usersData.push({
-          id: doc.id,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          // Add more fields if needed
-        });
-      });
-      setUsers(usersData);
-    });
-
-    return () => {
-      unregister();
     };
   }, []);
 
@@ -173,12 +151,9 @@ const AdminProducts = () => {
       product.productId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.price.toString().includes(searchQuery.toLowerCase()) || // Added price field to search
-      (users.find((user) => user.id === product.userUid) &&
-        `${users.find((user) => user.id === product.userUid).firstName} ${
-          users.find((user) => user.id === product.userUid).lastName
-        }`
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()))
+      (product.firstName + " " + product.lastName)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
     );
   });
 
@@ -209,16 +184,6 @@ const AdminProducts = () => {
     }
   };
 
-  const openModal = (productId) => {
-    const modal = document.getElementById(`view_product_${productId}`);
-    modal.showModal();
-  };
-
-  const closeModal = (productId) => {
-    const modal = document.getElementById(`view_product_${productId}`);
-    modal.close();
-  };
-
   return (
     <div>
       {loading ? (
@@ -240,6 +205,7 @@ const AdminProducts = () => {
               appeals="bg-white text-primary"
               reports="bg-white text-primary"
               deletions="bg-white text-primary"
+              accinfos="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">
@@ -292,6 +258,12 @@ const AdminProducts = () => {
                     Deletion Requests
                   </li>
                 </Link>
+                <Link to="/admin/delete/info">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <MdNoAccounts size={25} />
+                    Deleted Acc Info
+                  </li>
+                </Link>
                 <li
                   onClick={handleLogoutConfirmation}
                   className="hover:bg-red-600 hover:text-white text-black p-4 text-xs flex gap-2 items-center"
@@ -306,22 +278,18 @@ const AdminProducts = () => {
               <h1 className="text-2xl font-bold my-4 text-center">
                 Product Management
               </h1>
-              <div className="border-primary  border w-full  px-2 flex items-center gap-2 rounded-md ">
-                <FaSearch size={20} className="text-primary" />
+              <div className="py-5">
                 <input
                   type="text"
                   placeholder="Search for Caption/Price/Name..."
-                  className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <div>
                 <h1 className="text-center pb-2 text-primary underline text-xs lg:hidden">
-                  Swipe to view other data
-                </h1>
-                <h1 className="text-center pb-2 text-primary underline text-xs hidden lg:block">
-                  Scroll to view other data
+                  Swipe left & right to view other data
                 </h1>
               </div>
 
@@ -363,7 +331,7 @@ const AdminProducts = () => {
                               <img
                                 src={product.photos[0]}
                                 alt={product.caption}
-                                className="h-12 w-12 mx-auto object-cover rounded-md"
+                                className="h-12 w-12 object-cover rounded-md"
                               />
                             ) : (
                               <span>No photo available</span>
@@ -372,25 +340,12 @@ const AdminProducts = () => {
                           <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center text-xs">
                             ₱{product.price}.00
                           </td>
-                          <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
-                            {users.find((user) => user.id === product.userUid)
-                              ? `${
-                                  users.find(
-                                    (user) => user.id === product.userUid
-                                  ).firstName
-                                } ${
-                                  users.find(
-                                    (user) => user.id === product.userUid
-                                  ).lastName
-                                }`
-                              : "User Not Found"}
+                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center text-xs">
+                            {product.firstName} {product.lastName}
                           </td>
-
-                          <td className="border flex flex-col gap-2 border-gray-300 bg-gray-200  px-4 py-2 text-center">
+                          <td className="border border-gray-300 bg-gray-200  px-4 py-2 text-center">
                             <button
-                              className={`block w-full font-normal btn-sm btn ${
-                                product.isHidden ? "btn-success" : "btn-error"
-                              } text-white mt-2`}
+                              className="block w-full font-normal btn-sm btn btn-error text-white mt-2"
                               onClick={() =>
                                 toggleProductVisibility(
                                   product.id,
@@ -400,77 +355,6 @@ const AdminProducts = () => {
                             >
                               {product.isHidden ? "Show" : "Hide"}
                             </button>
-
-                            <button
-                              className="btn btn-primary btn-sm w-full"
-                              onClick={() => openModal(product.id)}
-                            >
-                              Other Details
-                            </button>
-                            <dialog
-                              id={`view_product_${product.id}`}
-                              className="modal"
-                            >
-                              <div className="modal-box">
-                                <form method="dialog">
-                                  {/* if there is a button in form, it will close the modal */}
-                                  <button
-                                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-                                    onClick={() => closeModal(product.id)}
-                                  >
-                                    ✕
-                                  </button>
-                                </form>
-                                <h3 className="font-bold text-lg">
-                                  {product.caption}
-                                </h3>
-                                <div className="text-start">
-                                  <p className="">
-                                    <span className="font-bold">
-                                      Posted by:
-                                    </span>{" "}
-                                    {product.firstName} {product.lastName}
-                                  </p>
-                                  <p className="">
-                                    <span className="font-bold">Address:</span>{" "}
-                                    {product.address}
-                                  </p>
-                                  <p className="">
-                                    <span className="font-bold">
-                                      Description:
-                                    </span>{" "}
-                                    {product.description}
-                                  </p>
-                                  <p className="">
-                                    <span className="font-bold">Date:</span>{" "}
-                                    {product.timestamp}
-                                  </p>
-                                  <p className="">
-                                    <span className="font-bold">Price:</span> ₱
-                                    {product.price}.00
-                                  </p>
-                                  <p className="">
-                                    <span className="font-bold">
-                                      Other Information:
-                                    </span>{" "}
-                                    {product.otherInformation ||
-                                      "No other information provided"}
-                                  </p>
-                                </div>
-                                <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 xl:grid-cols-3">
-                                  {/* Display photos */}
-                                  {product.photos &&
-                                    product.photos.map((photo, index) => (
-                                      <img
-                                        key={index}
-                                        src={photo}
-                                        alt={`Products ${index + 1}`}
-                                        className="h-40 w-full object-cover rounded-md"
-                                      />
-                                    ))}
-                                </div>
-                              </div>
-                            </dialog>
                           </td>
                         </tr>
                       ))}
