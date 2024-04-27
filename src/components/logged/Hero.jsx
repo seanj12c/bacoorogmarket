@@ -1,65 +1,30 @@
 import React from "react";
-import bacoor from "../../assets/oystermussel.jpg";
+import appealbg from "../../assets/appealbg.png";
 
 import { AiFillCheckCircle } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import About from "./About";
+import HeroNav from "./HeroNav";
 const Hero = () => {
   return (
     <div>
-      <div className="h-screen gap-2 items-center w-full pt-24 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse">
-        <div className="md:w-1/2 flex justify-center rounded-md">
-          <img
-            className="h-72 md:h-96 lg:h-[450px] md:ml-auto rounded-md object-cover"
-            src={bacoor}
-            alt=""
-          />
-        </div>
-        <div className="md:w-1/2">
-          <h1 className="text-center md:text-left md:text-3xl lg:text-5xl font-semibold">
-            A <span className="text-primary">Marketplace</span> that you are
-            looking for
-          </h1>
-          <p className="text-xs text-gray-900 xl:text-base py-2 text-justify">
-            Embark on a journey through the flavors of the sea with a delightful
-            array of fresh mussels and oysters, thoughtfully sourced for your
-            culinary explorations. Experience the convenience of easy access to
-            these oceanic treasures, bringing the taste of the sea right to your
-            table in Bacoor City, Cavite, Philippines.
-          </p>
-          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
-            <div>
-              <AiFillCheckCircle className="text-primary" size={17} />
-            </div>
-            <div>
-              <span className="font-bold">Pinned Location</span> - easily locate
-              seller with the use of google map pinned location.
-            </div>
-          </div>
-          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
-            <div>
-              <AiFillCheckCircle className="text-primary" size={17} />
-            </div>
-            <div>
-              <span className="font-bold">Chat With Seller</span> - anytime,
-              anywhere you can easily contact sellers.
-            </div>
-          </div>
-          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
-            <div>
-              <AiFillCheckCircle className="text-primary" size={17} />
-            </div>
-            <div>
-              <span className="font-bold">Fresh Products</span> - guaranteeing
-              you the finest and freshest harvest oysters and mussels.
-            </div>
-          </div>
-          <div className="flex justify-center md:justify-start py-1">
-            <Link to="/marketplace">
-              <button className="btn btn-primary">Go to Marketplace</button>
-            </Link>
-          </div>
-        </div>
+      <HeroNav />
+      <div className="absolute z-[-10]">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+          <path
+            fill="#00FFFF"
+            fill-opacity="1"
+            d="M0,128L21.8,128C43.6,128,87,128,131,149.3C174.5,171,218,213,262,234.7C305.5,256,349,256,393,224C436.4,192,480,128,524,112C567.3,96,611,128,655,122.7C698.2,117,742,75,785,85.3C829.1,96,873,160,916,192C960,224,1004,224,1047,197.3C1090.9,171,1135,117,1178,101.3C1221.8,85,1265,107,1309,144C1352.7,181,1396,235,1418,261.3L1440,288L1440,0L1418.2,0C1396.4,0,1353,0,1309,0C1265.5,0,1222,0,1178,0C1134.5,0,1091,0,1047,0C1003.6,0,960,0,916,0C872.7,0,829,0,785,0C741.8,0,698,0,655,0C610.9,0,567,0,524,0C480,0,436,0,393,0C349.1,0,305,0,262,0C218.2,0,175,0,131,0C87.3,0,44,0,22,0L0,0Z"
+          ></path>
+        </svg>
+      </div>
+      <div className="h-screen flex justify-center px-3 md:px-0 items-center bg-transparent">
+        <img
+          className="z-[-1] absolute h-screen w-screen mx-auto object-cover pointer-events-none select-none"
+          src={appealbg}
+          alt=""
+        />
+        <div></div>
       </div>
       <div>
         <About />
