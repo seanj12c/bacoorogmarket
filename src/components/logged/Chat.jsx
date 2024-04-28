@@ -517,7 +517,7 @@ const Chat = () => {
           />
         </div>
       ) : (
-        <div className="px-4 md:pb-0 pb-20 pt-5 sm:px-6 md:px-8 lg:px-10">
+        <div className="px-4 md:pb-0 pb-24 pt-5 sm:px-6 md:px-8 lg:px-10">
           <h2 className="text-2xl text-center font-bold text-primary pt-24 mb-1">
             Chat
           </h2>
