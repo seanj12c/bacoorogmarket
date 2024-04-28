@@ -161,7 +161,7 @@ const Sellers = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="overflow-auto">
+              <div className="overflow-auto max-h-[450px]">
                 {filteredLocations.length === 0 ? (
                   <p className="text-center">No locations found.</p>
                 ) : (
