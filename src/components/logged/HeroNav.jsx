@@ -300,7 +300,7 @@ export const NavbarLogged = () => {
               Search a User
             </Link>
           </div>
-          <div className="md:dropdown bg-white md:flex px-3 py-1 rounded-lg shadow-primary shadow-sm  items-center hidden  dropdown-bottom dropdown-end dropdown-hover">
+          <div className="md:dropdown bg-primary md:flex px-3 py-1 rounded-lg shadow-primary shadow-sm  items-center hidden  dropdown-bottom dropdown-end dropdown-hover">
             <div tabIndex={0} role="button">
               {profilePicture ? (
                 <img
@@ -339,7 +339,7 @@ export const NavbarLogged = () => {
               </button>
             </div>
             <div>
-              <MdOutlineManageAccounts className="text-primary" size={30} />
+              <MdOutlineManageAccounts className="text-white" size={30} />
             </div>
           </div>
         </div>
