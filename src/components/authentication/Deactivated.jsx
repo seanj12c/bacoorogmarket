@@ -51,7 +51,6 @@ const Deactivate = () => {
   }, [userId]);
 
   const handleActivateAccount = async () => {
-    // Show confirmation dialog
     Swal.fire({
       title: "Activate Account",
       text: "Are you sure you want to activate your account?",
@@ -63,7 +62,6 @@ const Deactivate = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Hide recipes
           const recipesQuery = query(
             collection(firestore, "recipes"),
             where("userUid", "==", userId)
@@ -73,7 +71,6 @@ const Deactivate = () => {
             await updateDoc(doc.ref, { accountDeactivated: false });
           });
 
-          // Hide products
           const productsQuery = query(
             collection(firestore, "products"),
             where("userUid", "==", userId)
@@ -83,7 +80,6 @@ const Deactivate = () => {
             await updateDoc(doc.ref, { accountDeactivated: false });
           });
 
-          // Hide chats
           const chatsQuery = query(
             collection(firestore, "chats"),
             where("messages", "array-contains", { senderId: userId })
@@ -93,11 +89,9 @@ const Deactivate = () => {
             await updateDoc(doc.ref, { accountDeactivated: false });
           });
 
-          // Update user's isDeactivated status
           const userRef = doc(firestore, "registered", userId);
           await updateDoc(userRef, { isDeactivated: false });
 
-          // Inform the user and navigate them to the homepage
           Swal.fire({
             title: "Account Activated",
             text: "Your account has been successfully activated. Welcome back!",

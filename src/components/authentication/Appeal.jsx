@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import appealbg from "../../assets/appealbg.png";
-import { firestore, auth } from "../../firebase"; // Import firestore and auth
-import { setDoc, doc, getDoc } from "firebase/firestore"; // Import setDoc, doc, and getDoc
-import Swal from "sweetalert2"; // Import SweetAlert
-import ReCAPTCHA from "react-google-recaptcha"; // Import ReCAPTCHA
+import { firestore, auth } from "../../firebase";
+import { setDoc, doc, getDoc } from "firebase/firestore";
+import Swal from "sweetalert2";
+import ReCAPTCHA from "react-google-recaptcha";
 import { CiLogout } from "react-icons/ci";
 
 const Appeal = () => {
-  const [email, setEmail] = useState(""); // State for email
+  const [email, setEmail] = useState("");
   const [reason, setReason] = useState("");
   const [recaptchaCompleted, setRecaptchaCompleted] = useState(false);
-  const [existingAppeal, setExistingAppeal] = useState(null); // State to hold existing appeal data
-  const [disabledReason, setDisabledReason] = useState(null); // State to hold disabled reason
-  const [disabledExplanation, setDisabledExplanation] = useState(null); // State to hold disabled reason
+  const [existingAppeal, setExistingAppeal] = useState(null);
+  const [disabledReason, setDisabledReason] = useState(null);
+  const [disabledExplanation, setDisabledExplanation] = useState(null);
 
   useEffect(() => {
-    // Fetch the currently authenticated user's email and set it as the initial value for email state
     const fetchUserEmail = async () => {
       try {
         const user = auth.currentUser;
@@ -28,7 +27,6 @@ const Appeal = () => {
     };
     fetchUserEmail();
 
-    // Fetch existing appeal if it exists
     const fetchExistingAppeal = async () => {
       try {
         const user = auth.currentUser;
@@ -38,8 +36,8 @@ const Appeal = () => {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setExistingAppeal(data.reason); // Set existing appeal reason
-            setReason(data.reason); // Set reason in state for editing
+            setExistingAppeal(data.reason);
+            setReason(data.reason);
           }
         }
       } catch (error) {
@@ -53,13 +51,13 @@ const Appeal = () => {
         const user = auth.currentUser;
         if (user) {
           const userId = user.uid;
-          // Fetch disabled reason
+
           const disabledReasonDocRef = doc(firestore, "disabledReason", userId);
           const disabledReasonDocSnap = await getDoc(disabledReasonDocRef);
           if (disabledReasonDocSnap.exists()) {
             const data = disabledReasonDocSnap.data();
             setDisabledReason(data.reason);
-            setDisabledExplanation(data.explanation); // Set disabled reason
+            setDisabledExplanation(data.explanation);
           }
         }
       } catch (error) {
@@ -67,12 +65,11 @@ const Appeal = () => {
       }
     };
     fetchDisabledReason();
-  }, []); // Run this effect only once after the component mounts
+  }, []);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     if (!recaptchaCompleted) {
-      // Show error message using SweetAlert
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -81,47 +78,43 @@ const Appeal = () => {
       return;
     }
     try {
-      // Get the current user's ID
       const currentUser = auth.currentUser;
       if (!currentUser) {
-        // Handle case where user is not authenticated
         console.error("User not authenticated");
         return;
       }
       const userId = currentUser.uid;
 
       if (existingAppeal) {
-        // If existing appeal exists, update the document
         await setDoc(doc(firestore, "userAppeal", userId), {
           email,
           reason,
           userId,
         });
-        // Show success message using SweetAlert
+
         await Swal.fire({
           icon: "success",
           title: "Appeal Updated",
           text: "Your appeal has been successfully updated.",
         });
       } else {
-        // Otherwise, submit a new appeal
         await setDoc(doc(firestore, "userAppeal", userId), {
           email,
           reason,
           userId,
         });
-        // Show success message using SweetAlert
+
         await Swal.fire({
           icon: "success",
           title: "Appeal Submitted",
           text: "Your appeal has been successfully submitted. Please wait for the admin to review it.",
         });
       }
-      // Reset the form fields after submission
+
       setRecaptchaCompleted(false);
     } catch (error) {
       console.error("Error submitting appeal:", error);
-      // Show error message using SweetAlert
+
       await Swal.fire({
         icon: "error",
         title: "Error",
@@ -135,7 +128,6 @@ const Appeal = () => {
   };
 
   const handleLogout = async () => {
-    // Show confirmation dialog using SweetAlert
     Swal.fire({
       title: "Logout",
       text: "Are you sure you want to logout?",
@@ -147,12 +139,11 @@ const Appeal = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await auth.signOut(); // Sign out the user
-          // You can redirect the user to the login page or any other page if needed
+          await auth.signOut();
+
           console.log("User logged out successfully");
         } catch (error) {
           console.error("Error logging out:", error);
-          // Handle error
         }
       }
     });

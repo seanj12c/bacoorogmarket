@@ -107,7 +107,6 @@ const AdminDeletedAccountInfo = () => {
             />
           </div>
           <div className="md:flex md:flex-row">
-            {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />

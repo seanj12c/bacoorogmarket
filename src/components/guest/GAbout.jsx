@@ -20,7 +20,6 @@ const About = () => {
       </div>
       <div className="md:w-1/2">
         <div className="grid sm:grid-cols-2 justify-center gap-5 max-w-xs mx-auto sm:mx-0 sm:max-w-none">
-          {/* box1 */}
           <div className="md:p-2 text-center md:text-left">
             <AiFillMessage className="text-primary mx-auto md:mx-0" size={25} />
             <h1 className="text-lg md:text-xl lg:text-2xl font-bold">
@@ -32,7 +31,6 @@ const About = () => {
             </p>
           </div>
 
-          {/* box2 */}
           <div className="md:p-2 text-center md:text-left">
             <PiCookingPotFill
               className="text-primary mx-auto md:mx-0"
@@ -46,7 +44,7 @@ const About = () => {
               Recipe
             </p>
           </div>
-          {/* box3 */}
+
           <div className="md:p-2 text-center md:text-left">
             <FaQuestion className="text-primary mx-auto md:mx-0" size={25} />
             <h1 className="text-lg md:text-xl lg:text-2xl font-bold">
@@ -56,7 +54,7 @@ const About = () => {
               FAQs knows more information about oysters and mussels
             </p>
           </div>
-          {/* box4 */}
+
           <div className="md:p-2 text-center md:text-left">
             <BsFillShieldLockFill
               className="text-primary mx-auto md:mx-0"

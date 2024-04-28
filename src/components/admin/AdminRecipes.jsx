@@ -53,8 +53,7 @@ const AdminRecipes = () => {
           instructions: data.instructions,
           timestamp: data.timestamp,
 
-          isHidden: data.isHidden || false, // Initialize isHidden property
-          // Add more fields if needed
+          isHidden: data.isHidden || false,
         });
       });
       setRecipes(recipesData);
@@ -76,7 +75,6 @@ const AdminRecipes = () => {
           id: doc.id,
           firstName: userData.firstName,
           lastName: userData.lastName,
-          // Add more fields if needed
         });
       });
       setUsers(usersData);
@@ -104,7 +102,7 @@ const AdminRecipes = () => {
           const recipeDocRef = doc(firestore, "recipes", recipeId);
           await updateDoc(recipeDocRef, {
             isHidden: false,
-            hideReason: null, // Clear the hide reason when showing the recipe
+            hideReason: null,
           });
           setRecipes((prevRecipes) =>
             prevRecipes.map((recipe) =>
@@ -145,7 +143,7 @@ const AdminRecipes = () => {
         const recipeDocRef = doc(firestore, "recipes", recipeId);
         await updateDoc(recipeDocRef, {
           isHidden: true,
-          hideReason: reason, // Store the hide reason in Firestore
+          hideReason: reason,
         });
         setRecipes((prevRecipes) =>
           prevRecipes.map((recipe) =>
@@ -166,7 +164,6 @@ const AdminRecipes = () => {
     }
   };
 
-  // Filter recipes based on search query
   const filteredRecipes = recipes.filter((recipe) => {
     return (
       recipe.recipeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -242,7 +239,6 @@ const AdminRecipes = () => {
             />
           </div>
           <div className="md:flex md:flex-row">
-            {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />
@@ -306,7 +302,7 @@ const AdminRecipes = () => {
                 </li>
               </ul>
             </div>
-            {/* Recipe Management Table */}
+
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <h1 className="text-2xl font-bold my-4 text-center">
                 Recipe Management
@@ -401,7 +397,7 @@ const AdminRecipes = () => {
                             >
                               {recipe.isHidden ? "Show" : "Hide"}
                             </button>
-                            {/* You can open the modal using document.getElementById('ID').showModal() method */}
+
                             <button
                               className="btn btn-primary btn-sm w-full"
                               onClick={() => openModal(recipe.id)}
@@ -415,7 +411,6 @@ const AdminRecipes = () => {
                             >
                               <div className="modal-box">
                                 <form method="dialog">
-                                  {/* if there is a button in form, it will close the modal */}
                                   <button
                                     className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
                                     onClick={() => closeModal(recipe.id)}
@@ -472,7 +467,6 @@ const AdminRecipes = () => {
                                   </p>
                                 </div>
                                 <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-2 xl:grid-cols-3">
-                                  {/* Display photos */}
                                   {recipe.photos &&
                                     recipe.photos.map((photo, index) => (
                                       <img

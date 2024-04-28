@@ -30,7 +30,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 const AdminDelete = () => {
   const [loading, setLoading] = useState(true);
   const [deletionRequests, setDeletionRequests] = useState([]);
-  const [showRequests, setShowRequests] = useState(true); // State to manage which data to show
+  const [showRequests, setShowRequests] = useState(true);
   const navigate = useNavigate();
   const [deletionHistory, setDeletionHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -49,7 +49,7 @@ const AdminDelete = () => {
               return {
                 id: doc.id,
                 explanation: doc.data().explanation,
-                reason: doc.data().reason, // Ensure this field exists in your documents
+                reason: doc.data().reason,
                 userHistoryData: userHistoryData,
               };
             }
@@ -176,7 +176,6 @@ const AdminDelete = () => {
       );
       const { explanation, reason } = accountDeleteReasonsSnapshot.data();
 
-      // Generate random document ID for deleteSurveys collection
       const deleteSurveysCollectionRef = collection(db, "deleteSurveys");
       const newDeleteSurveyDocRef = doc(deleteSurveysCollectionRef);
       await setDoc(newDeleteSurveyDocRef, { userId, explanation, reason });
@@ -196,7 +195,6 @@ const AdminDelete = () => {
       await deleteDoc(reasonRef);
     } catch (error) {
       console.error("Error deleting reason:", error);
-      // Handle error
     }
   };
 
@@ -240,7 +238,6 @@ const AdminDelete = () => {
             />
           </div>
           <div className="md:flex md:flex-row">
-            {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />
@@ -304,7 +301,7 @@ const AdminDelete = () => {
                 </li>
               </ul>
             </div>
-            {/* Appeals List */}
+
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <div className="flex justify-center md:justify-end items-center gap-2 pt-1 mb-4">
                 <h1 className="text-xs">Reasons and Explanations</h1>
@@ -337,7 +334,6 @@ const AdminDelete = () => {
               <ul className="mt-4">
                 {showRequests ? (
                   filteredRequests.length === 0 ? (
-                    // No deletionRequests message
                     <div className="flex w-full items-center flex-col justify-center mt-4">
                       <p className="text-xl md:text-2xl ml-4">
                         There are no account deletion requests

@@ -7,7 +7,7 @@ import {
   doc,
   getDoc,
   setDoc,
-} from "firebase/firestore"; // Import Firestore
+} from "firebase/firestore";
 import loginbg from "../../assets/loginbg.png";
 
 import PrivacyPolicy from "./PrivacyPolicy";
@@ -17,7 +17,7 @@ import { FcGoogle } from "react-icons/fc";
 
 const Register = () => {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
-  const [error, setError] = useState(null); // State variable for holding error
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleGoogleSignUp = async () => {
@@ -28,7 +28,6 @@ const Register = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Store user's email, userId, and doneFillup status in Firestore
       const db = getFirestore();
       const userRef = doc(collection(db, "registered"), user.uid);
       const userDoc = await getDoc(userRef);
@@ -45,7 +44,6 @@ const Register = () => {
     } catch (error) {
       let errorMessage = error.message;
 
-      // Map Firebase error messages to custom messages
       if (errorMessage.includes("auth/popup-closed-by-user")) {
         errorMessage = "Pop-up was closed by the user";
       } else if (errorMessage.includes("auth/user-disabled")) {

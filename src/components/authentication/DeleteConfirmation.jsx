@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import check from "../../assets/check.gif";
 import loginbg from "../../assets/loginbg.png";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase"; // Assuming you have firestore exported from firebase.js
+import { auth } from "../../firebase";
 import {
   doc,
   getDoc,
@@ -54,7 +54,6 @@ const DeletionConfirmation = () => {
   }, []);
 
   const handleCancel = async () => {
-    // Show confirmation dialog
     const { isConfirmed } = await Swal.fire({
       title: "Are you sure?",
       text: "You are about to cancel the deletion of your account.",
@@ -67,7 +66,6 @@ const DeletionConfirmation = () => {
       reverseButtons: true,
     });
 
-    // Proceed with cancellation if confirmed
     if (isConfirmed) {
       if (auth.currentUser) {
         const userId = auth.currentUser.uid;
@@ -120,7 +118,6 @@ const DeletionConfirmation = () => {
 
       if (confirmation === "Delete") {
         try {
-          // Update recipes
           const recipesQuery = query(
             collection(db, "recipes"),
             where("userUid", "==", userId)
@@ -130,7 +127,6 @@ const DeletionConfirmation = () => {
             await updateDoc(doc.ref, { isDeleted: true });
           });
 
-          // Update products
           const productsQuery = query(
             collection(db, "products"),
             where("userUid", "==", userId)
@@ -140,7 +136,6 @@ const DeletionConfirmation = () => {
             await updateDoc(doc.ref, { isDeleted: true });
           });
 
-          // Delete user appeals
           const appealsQuery = query(
             collection(db, "userAppeal"),
             where("userId", "==", userId)
@@ -150,7 +145,6 @@ const DeletionConfirmation = () => {
             await deleteDoc(doc.ref);
           });
 
-          // Delete post appeals
           const appealsPostQuery = query(
             collection(db, "postAppeal"),
             where("userId", "==", userId)
@@ -160,7 +154,6 @@ const DeletionConfirmation = () => {
             await deleteDoc(doc.ref);
           });
 
-          // Update account information from "registered" collection
           const registeredDocRef = doc(db, "registered", userId);
           await updateDoc(registeredDocRef, {
             isDeleted: true,
@@ -170,19 +163,17 @@ const DeletionConfirmation = () => {
             "Data associated with the user marked as deleted successfully."
           );
 
-          // Show sweet alert
           Swal.fire({
             title: "Account Deleted",
             text: "Your account has been deleted. Thank you for using our app.",
             icon: "success",
             confirmButtonText: "OK",
           }).then(() => {
-            // Log out the user
             auth
               .signOut()
               .then(() => {
                 console.log("User logged out.");
-                navigate("/"); // Redirect to homepage or login page
+                navigate("/");
               })
               .catch((error) => {
                 console.error("Error logging out:", error);

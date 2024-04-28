@@ -42,7 +42,7 @@ const AdminUsers = () => {
       const usersData = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        // Check if the user ID and email match the specific values to be filtered out
+
         if (
           data.userId !== "z3YwfbkrJiWPGOW8U8on8kUMYlO2" &&
           data.email !== "bacoorogmarket@gmail.com"
@@ -83,7 +83,6 @@ const AdminUsers = () => {
     if (result.isConfirmed) {
       const userRef = doc(firestore, "registered", user.id);
 
-      // Remove the reason document from the disabledReason collection
       const reasonRef = doc(firestore, "disabledReason", user.userId);
       await deleteDoc(reasonRef);
 
@@ -95,7 +94,7 @@ const AdminUsers = () => {
       appealSnapshot.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
-      // Update the user's disabled status
+
       await updateDoc(userRef, {
         disabled: false,
       });
@@ -192,7 +191,6 @@ const AdminUsers = () => {
     }
   };
 
-  // Filter users based on search query
   const filteredUsers = users.filter((user) => {
     return (
       (user.userId?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
@@ -267,7 +265,6 @@ const AdminUsers = () => {
             />
           </div>
           <div className="md:flex md:flex-row">
-            {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />
@@ -331,7 +328,7 @@ const AdminUsers = () => {
                 </li>
               </ul>
             </div>
-            {/* User Management Table */}
+
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <h1 className="text-2xl font-bold my-4 text-center">
                 User Management

@@ -35,7 +35,7 @@ const AdminReports = () => {
   const [products, setProducts] = useState({});
   const [registeredUsers, setRegisteredUsers] = useState({});
   const [recipes, setRecipes] = useState({});
-  const [reportType, setReportType] = useState("product"); // Default to product reports
+  const [reportType, setReportType] = useState("product");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
@@ -153,7 +153,6 @@ const AdminReports = () => {
     if (result.isConfirmed) {
       const userRef = doc(firestore, "registered", user.userId);
 
-      // Remove the reason document from the disabledReason collection
       const reasonRef = doc(firestore, "disabledReason", user.userId);
       await deleteDoc(reasonRef);
 
@@ -167,10 +166,8 @@ const AdminReports = () => {
       });
 
       try {
-        // Update the user's disabled status
         await updateDoc(userRef, { disabled: false });
 
-        // Update local state to reflect the change in user's disabled status
         setRegisteredUsers((prevUsers) => ({
           ...prevUsers,
           [user.userId]: {
@@ -236,11 +233,9 @@ const AdminReports = () => {
           }
 
           try {
-            // Disable the account
             const userRef = doc(firestore, "registered", user.userId);
             await updateDoc(userRef, { disabled: true });
 
-            // Create a record of the disable reason
             const reasonRef = doc(firestore, "disabledReason", user.userId);
             const reportData = {
               reason,
@@ -249,7 +244,6 @@ const AdminReports = () => {
             };
             await setDoc(reasonRef, reportData);
 
-            // Update local state to reflect the change in user's disabled status
             setRegisteredUsers((prevUsers) => ({
               ...prevUsers,
               [user.userId]: {
@@ -258,7 +252,6 @@ const AdminReports = () => {
               },
             }));
 
-            // Show success message
             Swal.fire({
               title: "Report Submitted!",
               text: `${user.firstName}'s account has been disabled.`,
@@ -318,10 +311,9 @@ const AdminReports = () => {
           const recipeDocRef = doc(firestore, "recipes", report.recipeId);
           await updateDoc(recipeDocRef, {
             isHidden: false,
-            hideReason: null, // Clear the hide reason when showing the recipe
+            hideReason: null,
           });
 
-          // Update local state to reflect the change in recipe's visibility
           setRecipes((prevRecipes) => ({
             ...prevRecipes,
             [report.recipeId]: {
@@ -361,10 +353,9 @@ const AdminReports = () => {
           const recipeDocRef = doc(firestore, "recipes", report.recipeId);
           await updateDoc(recipeDocRef, {
             isHidden: true,
-            hideReason: reason, // Store the hide reason in Firestore
+            hideReason: reason,
           });
 
-          // Update local state to reflect the change in recipe's visibility
           setRecipes((prevRecipes) => ({
             ...prevRecipes,
             [report.recipeId]: {
@@ -393,7 +384,6 @@ const AdminReports = () => {
       const isHidden = products[report.productId]?.isHidden;
 
       if (isHidden) {
-        // Product is hidden, show confirm dialog to show it
         const confirmationResult = await Swal.fire({
           title: "Show Product",
           text: "Are you sure you want to show this product?",
@@ -408,9 +398,9 @@ const AdminReports = () => {
           const productDocRef = doc(firestore, "products", productId);
           await updateDoc(productDocRef, {
             isHidden: false,
-            hideReason: null, // Clear the hide reason when showing the product
+            hideReason: null,
           });
-          // Update local state to reflect the change
+
           setProducts((prevProducts) => ({
             ...prevProducts,
             [report.productId]: {
@@ -425,7 +415,6 @@ const AdminReports = () => {
         return;
       }
 
-      // Product is visible, show input options to hide it
       const { value: reason } = await Swal.fire({
         title: "Hide Product",
         input: "select",
@@ -452,9 +441,9 @@ const AdminReports = () => {
         const productDocRef = doc(firestore, "products", productId);
         await updateDoc(productDocRef, {
           isHidden: true,
-          hideReason: reason, // Store the hide reason in Firestore
+          hideReason: reason,
         });
-        // Update local state to reflect the change
+
         setProducts((prevProducts) => ({
           ...prevProducts,
           [report.productId]: {
@@ -501,7 +490,6 @@ const AdminReports = () => {
             />
           </div>
           <div className="md:flex md:flex-row">
-            {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />
@@ -565,7 +553,7 @@ const AdminReports = () => {
                 </li>
               </ul>
             </div>
-            {/* Reports List */}
+
             <div className="container z-40 lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <div className="flex justify-center md:justify-end items-center gap-2 pt-1 mb-4">
                 <h1 className="text-xs">Type of Reports</h1>
@@ -760,7 +748,7 @@ const AdminReports = () => {
                       <span className="font-bold ">Explanation: </span>{" "}
                       {report.explanation}
                     </p>
-                    {/* Conditionally render View Details button */}
+
                     <dialog
                       id={`productModal-${report.productId}`}
                       className="modal"
@@ -782,12 +770,12 @@ const AdminReports = () => {
                                   </span>
                                   : {products[report.productId].description}
                                 </p>
-                                {/* Display Address */}
+
                                 <p>
                                   <span className="font-bold">Address </span>:{" "}
                                   {products[report.productId].address}
                                 </p>
-                                {/* Display Other Information */}
+
                                 <p>
                                   <span className="font-bold">
                                     Other Information{" "}
@@ -800,7 +788,6 @@ const AdminReports = () => {
                                 <h1 className="font-bold text-lg">Photos</h1>
                               </div>
                               <div className="flex flex-col gap-2 justify-center items-center">
-                                {/* Display Photos */}
                                 {products[report.productId].photos.map(
                                   (photo, index) => (
                                     <img
@@ -834,7 +821,7 @@ const AdminReports = () => {
                               <p className="font-bold italic">
                                 {recipes[report.recipeId].caption}
                               </p>
-                              {/* Display Ingredients */}
+
                               <div className="text-left py-2">
                                 <h4 className="font-bold">Ingredients:</h4>
                                 <ul className="list-disc pl-5">
@@ -845,7 +832,7 @@ const AdminReports = () => {
                                   )}
                                 </ul>
                               </div>
-                              {/* Display Instructions */}
+
                               <div className="text-left">
                                 <h4 className="font-bold">Instructions:</h4>
                                 <ol className="list-decimal pl-5">
@@ -860,7 +847,6 @@ const AdminReports = () => {
                                 <h1 className="font-bold text-lg">Photos</h1>
                               </div>
                               <div className="flex flex-col gap-2 justify-center items-center">
-                                {/* Display Photos */}
                                 {recipes[report.recipeId].photos.map(
                                   (photo, index) => (
                                     <img

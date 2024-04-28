@@ -141,15 +141,12 @@ const AdminAppeal = () => {
       if (confirmed.isConfirmed) {
         const db = getFirestore();
 
-        // Delete document from "disabledReason" collection
         const disabledReasonRef = doc(db, "disabledReason", userId);
         await deleteDoc(disabledReasonRef);
 
-        // Delete document from "userAppeal" collection
         const userAppealRef = doc(db, "userAppeal", userId);
         await deleteDoc(userAppealRef);
 
-        // Update user document in "registered" collection to disabled: false
         const userDocRef = doc(db, "registered", userId);
         await updateDoc(userDocRef, {
           disabled: false,
@@ -157,7 +154,6 @@ const AdminAppeal = () => {
 
         console.log("User enabled successfully.");
 
-        // Fetch updated appeals data
         const updatedSnapshot = await getDocs(collection(db, "userAppeal"));
         const updatedData = await Promise.all(
           updatedSnapshot.docs.map(async (doc) => {
@@ -197,7 +193,6 @@ const AdminAppeal = () => {
     setReportType(event.target.value);
   };
 
-  // Filter appeals based on search query
   const filteredAppeals = appeals.filter((appeal) => {
     const query = searchQuery.toLowerCase();
     return (
@@ -221,23 +216,21 @@ const AdminAppeal = () => {
     if (confirmed.isConfirmed) {
       try {
         const db = getFirestore();
-        // Update isHidden to false in "recipes" collection
+
         const recipeDocRef = doc(db, "recipes", postId);
         await updateDoc(recipeDocRef, {
           isHidden: false,
         });
 
-        // Delete document from "postAppeal" collection
         const appealDocRef = doc(db, "postAppeal", id);
         await deleteDoc(appealDocRef);
 
         console.log("Recipe enabled successfully.");
 
-        // Show success message
         Swal.fire("Enabled!", "The recipe has been enabled.", "success");
       } catch (error) {
         console.error("Error enabling recipe:", error);
-        // Show error message
+
         Swal.fire(
           "Error",
           "Failed to enable the recipe. Please try again later.",
@@ -261,23 +254,21 @@ const AdminAppeal = () => {
     if (confirmed.isConfirmed) {
       try {
         const db = getFirestore();
-        // Update isHidden to false in "products" collection
+
         const productDocRef = doc(db, "products", postId);
         await updateDoc(productDocRef, {
           isHidden: false,
         });
 
-        // Delete document from "postAppeal" collection
         const appealDocRef = doc(db, "postAppeal", id);
         await deleteDoc(appealDocRef);
 
         console.log("Product enabled successfully.");
 
-        // Show success message
         Swal.fire("Enabled!", "The product has been enabled.", "success");
       } catch (error) {
         console.error("Error enabling product:", error);
-        // Show error message
+
         Swal.fire(
           "Error",
           "Failed to enable the product. Please try again later.",
@@ -365,7 +356,6 @@ const AdminAppeal = () => {
         }
       }
 
-      // Update modal content and show the modal
       document.getElementById("modalContent").innerHTML = modalContent;
       document.getElementById("modal").showModal();
     } catch (error) {
@@ -398,7 +388,6 @@ const AdminAppeal = () => {
             />
           </div>
           <div className="md:flex md:flex-row">
-            {/* Sidebar */}
             <div className="md:w-1/5 fixed lg:w-1/5 hidden md:block h-screen bg-gray-200">
               <div className="pt-4 flex flex-col justify-center items-center gap-3">
                 <img className="h-20 mx-auto" src={logo} alt="" />
@@ -462,7 +451,7 @@ const AdminAppeal = () => {
                 </li>
               </ul>
             </div>
-            {/* Appeals List */}
+
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
               <h2 className="text-2xl text-center font-bold mt-8">Appeals</h2>
               <div className="w-full flex gap-2 items-center justify-end mt-4">
@@ -489,7 +478,6 @@ const AdminAppeal = () => {
               </div>
               <ul className="mt-4">
                 {filteredAppeals.length === 0 ? (
-                  // No appeals message
                   <div className="flex w-full items-center flex-col justify-center mt-4">
                     <p className="text-xl md:text-2xl ml-4">
                       There are no Appeals
@@ -575,14 +563,14 @@ const AdminAppeal = () => {
                                   ✕
                                 </button>
                               </form>
-                              {/* Render details based on the type of appeal */}
+
                               <h3 className="font-bold text-lg">
                                 Appeal Details
                               </h3>
                               <p className="py-4">
                                 Press ESC key or click on ✕ button to close
                               </p>
-                              {/* Example: Render recipe details */}
+
                               {selectedAppeal && selectedAppeal.userData && (
                                 <div>
                                   <p>
