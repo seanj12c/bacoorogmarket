@@ -59,7 +59,7 @@ const PostARecipe = () => {
   const [photoPreviews, setPhotoPreviews] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPhotoRequired, setIsPhotoRequired] = useState(false);
-  const [recipeType, setRecipeType] = useState(""); // Define recipeType state variable
+  const [recipeType, setRecipeType] = useState("");
   const [errors, setErrors] = useState({
     recipeName: "",
     ingredients: [],
@@ -123,7 +123,7 @@ const PostARecipe = () => {
   const generateRandomName = () => {
     const characters =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const length = 10; // Adjust the length of the random string as needed
+    const length = 10;
     let result = "";
     for (let i = 0; i < length; i++) {
       result += characters.charAt(
@@ -143,13 +143,11 @@ const PostARecipe = () => {
         `recipe_photos/${userUid}/${randomName}.${fileExtension}`
       );
 
-      // Set the loading image as the initial preview
       setPhotoPreviews((prevPreviews) => [...prevPreviews, uploadload]);
 
       await uploadBytes(storageRef, photo);
       const downloadURL = await getDownloadURL(storageRef);
 
-      // Replace the loading image with the uploaded photo when it's done
       setPhotos((prevPhotos) => [...prevPhotos, downloadURL]);
       setPhotoPreviews((prevPreviews) => [
         ...prevPreviews.slice(0, prevPreviews.length - 1),
@@ -225,9 +223,8 @@ const PostARecipe = () => {
     return valid;
   };
 
-  // Function to handle recipe type change
   const handleRecipeTypeChange = (e) => {
-    setRecipeType(e.target.value); // Update recipeType state
+    setRecipeType(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -244,9 +241,9 @@ const PostARecipe = () => {
       instructions,
       photos,
       userUid,
-      profilePhotoUrl, // Include user profile photo URL
-      firstName, // Include user first name
-      lastName, // Include user last name
+      profilePhotoUrl,
+      firstName,
+      lastName,
       timestamp: formattedTimestamp,
       recipeType,
     };
@@ -255,9 +252,9 @@ const PostARecipe = () => {
 
     try {
       setIsSubmitting(true);
-      await addDoc(recipesRef, recipeData); // Use addDoc to add a new recipe document
+      await addDoc(recipesRef, recipeData);
       setIsSubmitting(false);
-      // Show SweetAlert for success
+
       Swal.fire({
         icon: "success",
         title: "Success!",
@@ -270,7 +267,7 @@ const PostARecipe = () => {
     } catch (error) {
       setIsSubmitting(false);
       console.error("Error adding recipe: ", error);
-      // Show SweetAlert for error
+
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -281,14 +278,14 @@ const PostARecipe = () => {
   };
 
   const generateRecipeId = () => {
-    const timestamp = new Date().getTime(); // Get current timestamp
-    const randomString = Math.random().toString(36).substring(7); // Generate random string
-    return `${timestamp}_${randomString}`; // Combine timestamp and random string
+    const timestamp = new Date().getTime();
+    const randomString = Math.random().toString(36).substring(7);
+    return `${timestamp}_${randomString}`;
   };
 
   const navigate = useNavigate();
   const goBack = () => {
-    navigate(-1); // This will navigate back in the history stack
+    navigate(-1);
   };
 
   const recipeTypeOptions = (
@@ -296,9 +293,8 @@ const PostARecipe = () => {
       value={recipeType}
       onChange={handleRecipeTypeChange}
       className="w-full border rounded p-2 mb-4"
-      required // Add the required attribute here
+      required
     >
-      {/* Disable the "Select Recipe Type" option */}
       <option value="" disabled>
         -Select Type-
       </option>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { firestore } from "../../firebase"; // Import your Firebase instance
+import { firestore } from "../../firebase";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   GoogleMap,
@@ -143,7 +143,7 @@ const EditProduct = () => {
   };
   const navigate = useNavigate();
   const goBack = () => {
-    navigate(-1); // This will navigate back in the history stack
+    navigate(-1);
   };
 
   return (

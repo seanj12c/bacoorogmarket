@@ -101,13 +101,12 @@ export const NavbarLogged = () => {
     );
 
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let hasUnreadMessages = false; // Flag to track if there are unread messages
+      let hasUnreadMessages = false;
 
       querySnapshot.forEach((doc) => {
         const chatData = doc.data();
         console.log("Chat Data:", chatData);
 
-        // Access and check if there are unread messages
         if (chatData.messages) {
           const unreadMessages = chatData.messages.filter(
             (message) =>
@@ -115,22 +114,20 @@ export const NavbarLogged = () => {
           );
 
           if (unreadMessages.length > 0) {
-            hasUnreadMessages = true; // Set flag to true if there are unread messages
+            hasUnreadMessages = true;
           }
         }
       });
 
-      // Set the state based on the flag value
       setUnreadMessages(hasUnreadMessages);
 
-      // If there are no unread messages, set unreadMessages to false
       if (!hasUnreadMessages) {
         setUnreadMessages(false);
       }
     });
 
     return () => {
-      unsubscribe(); // Unsubscribe from the snapshot listener when the component unmounts
+      unsubscribe();
     };
   }, [auth]);
 
@@ -175,8 +172,7 @@ export const NavbarLogged = () => {
       console.error("Error fetching profile picture:", error);
     }
 
-    // Return a default image URL or handle error cases accordingly
-    return ""; // Provide a default URL or handle error cases
+    return "";
   };
 
   return (

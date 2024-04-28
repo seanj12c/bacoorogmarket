@@ -162,22 +162,19 @@ const Chat = () => {
       showConfirmButton: false,
       customClass: {
         image: "custom-class-name",
-        closeButton: "btn btn-error btn-circle text-white", // Add Tailwind CSS class for the background color
+        closeButton: "btn btn-error btn-circle text-white",
       },
-      onClose: () => {
-        // Add any actions you want to perform when the modal is closed
-      },
+      onClose: () => {},
     });
   };
 
   const handleUserSelect = async (user) => {
     try {
-      // Show loading state
       Swal.fire({
         title: "Loading...",
-        timer: 2000, // Auto close after 2 seconds
+        timer: 2000,
         allowOutsideClick: false,
-        showConfirmButton: false, // Remove OK button
+        showConfirmButton: false,
         onBeforeOpen: () => {
           Swal.showLoading();
         },
@@ -195,7 +192,6 @@ const Chat = () => {
           messages: [],
         });
       } else {
-        // Mark messages as read in the database
         const messages = chatDocSnap.data().messages || [];
         messages.forEach((message) => {
           if (message.senderId === user.id && !message.read) {
@@ -203,13 +199,11 @@ const Chat = () => {
           }
         });
 
-        // Update the messages in the database
         await updateDoc(chatDocRef, { messages });
       }
 
       navigate(`/chat/${chatId}`);
 
-      // Wait for 2 seconds before navigating to /chat
       setTimeout(() => {
         navigate("/chat");
         Swal.close();
@@ -228,7 +222,7 @@ const Chat = () => {
       user.email !== "bacoorogmarket@gmail.com" &&
       user.firstName &&
       user.lastName &&
-      user.email && // Check if these properties are defined
+      user.email &&
       (user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -288,14 +282,14 @@ const Chat = () => {
   const deleteConversation = async () => {
     try {
       if (selectedUser) {
-        setIsDeleting(true); // Set isDeleting to true when deletion starts
+        setIsDeleting(true);
         const chatId = [currentUser.uid, selectedUser.id].sort().join("");
         await addDeleteFlag(currentUser.uid, chatId);
         setSelectedUser(null);
         updateLastMessage(selectedUser.id);
-        // Close the modal
+
         document.getElementById("deleteconvo").close();
-        // Display success message
+
         Swal.fire({
           icon: "success",
           title: "Deleted",
@@ -306,22 +300,21 @@ const Chat = () => {
     } catch (error) {
       console.error("Error deleting conversation:", error);
     } finally {
-      setIsDeleting(false); // Set isDeleting back to false after deletion completes
+      setIsDeleting(false);
     }
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setIsUploading(true); // Start uploading
-      // Display a preview of the selected photo
+      setIsUploading(true);
+
       const reader = new FileReader();
       reader.onload = () => {
         setPhotoPreview(reader.result);
       };
       reader.readAsDataURL(file);
 
-      // Generate a random filename
       const randomChars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
       let randomFilename = "";
@@ -333,22 +326,21 @@ const Chat = () => {
       const timestamp = new Date().getTime();
       const filename = `${randomFilename}_${timestamp}`;
 
-      // Upload the photo to Firebase Storage
       const storage = getStorage();
       const storageRef = ref(storage, `photos/${filename}`);
 
       uploadBytes(storageRef, file).then((snapshot) => {
         console.log("Uploaded a file:", snapshot);
-        // Get the download URL of the uploaded photo and pass it to sendMessage
+
         getDownloadURL(snapshot.ref)
           .then((downloadURL) => {
             sendMessage(messageText, downloadURL);
             setPhotoPreview(null);
-            setIsUploading(false); // Finish uploading
+            setIsUploading(false);
           })
           .catch((error) => {
             console.error("Error getting download URL:", error);
-            setIsUploading(false); // Finish uploading
+            setIsUploading(false);
           });
       });
     }
@@ -370,9 +362,9 @@ const Chat = () => {
               senderId: currentUser.uid,
               recipientId: selectedUser.id,
               content: messageContent,
-              photo: photoUrl, // Add the photo URL to the message
+              photo: photoUrl,
               timestamp: new Date(),
-              read: false, // Set the read field to false
+              read: false,
             },
           ],
         });
@@ -384,9 +376,9 @@ const Chat = () => {
               senderId: currentUser.uid,
               recipientId: selectedUser.id,
               content: messageContent,
-              photo: photoUrl, // Add the photo URL to the message
+              photo: photoUrl,
               timestamp: new Date(),
-              read: false, // Set the read field to false
+              read: false,
             },
           ],
         });
@@ -405,7 +397,7 @@ const Chat = () => {
     }
     sendMessage(messageText, photoPreview);
     setMessageText("");
-    setPhotoPreview(null); // Clear the photo preview after sending message
+    setPhotoPreview(null);
   };
 
   const handleMessageChange = (e) => {
@@ -622,10 +614,9 @@ const Chat = () => {
                 ))}
 
                 {searchQuery === ""
-                  ? // Display only the first three users without last messages
-                    usersWithoutLastMessages
+                  ? usersWithoutLastMessages
                       .slice(0, 3)
-                      .filter((user) => !user.isDeactivated || !user.isDeleted) // Filter out deactivated users
+                      .filter((user) => !user.isDeactivated || !user.isDeleted)
                       .map((user) => (
                         <div
                           key={user.id}
@@ -653,8 +644,7 @@ const Chat = () => {
                           </div>
                         </div>
                       ))
-                  : // Display all filtered users
-                    usersWithoutLastMessages
+                  : usersWithoutLastMessages
                       .filter(
                         (user) =>
                           user.firstName
@@ -738,7 +728,7 @@ const Chat = () => {
                         Report
                       </button>
                     )}
-                    {messages.length > 0 && ( // Conditionally render the button
+                    {messages.length > 0 && (
                       <button
                         className="btn  md:btn-md btn-xs btn-error text-white"
                         onClick={() =>
@@ -777,7 +767,6 @@ const Chat = () => {
                             )}
                           </button>
                           <form method="dialog">
-                            {/* if there is a button in form, it will close the modal */}
                             <button className="btn">Close</button>
                           </form>
                         </div>
@@ -795,7 +784,6 @@ const Chat = () => {
                         (message) =>
                           !message.isDelete?.includes(currentUser.uid)
                       ) ? (
-                        // If there are messages without the user's ID in isDelete array
                         messages
                           .filter(
                             (message) =>
@@ -873,7 +861,6 @@ const Chat = () => {
                             </div>
                           ))
                       ) : (
-                        // If all messages have the user's ID in isDelete array
                         <p className="text-gray-500 text-center">
                           You recently deleted your conversation with{" "}
                           {selectedUser.firstName}.

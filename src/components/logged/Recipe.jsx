@@ -29,7 +29,7 @@ const Recipe = () => {
       const recipesData = [];
       for (const doc of querySnapshot.docs) {
         const data = doc.data();
-        // Check if the recipe is not hidden and not deactivated
+
         if (!data.isDeleted && !data.isHidden && !data.accountDeactivated) {
           const userData = await getUserData(data.userUid);
           recipesData.push({
@@ -44,12 +44,12 @@ const Recipe = () => {
             photos: data.photos,
             recipeId: data.recipeId,
             userUid: data.userUid,
-            likers: data.likers ? data.likers.length : 0, // Assuming likers is an array
+            likers: data.likers ? data.likers.length : 0,
             recipeType: data.recipeType,
           });
         }
       }
-      // Sort recipes based on number of likers in descending order
+
       recipesData.sort((a, b) => b.likers - a.likers);
       setRecipes(recipesData);
       setLoading(false);

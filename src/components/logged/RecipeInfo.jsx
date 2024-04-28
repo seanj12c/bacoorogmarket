@@ -27,8 +27,8 @@ const RecipeInfo = () => {
   const { recipeId } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [slideshowIndex, setSlideshowIndex] = useState(0);
-  const [isLiked, setIsLiked] = useState(false); // State to track whether the current user has liked the recipe
-  const [likeCount, setLikeCount] = useState(0); // State to hold the like count
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   const auth = useAuth();
 
   const hasIngredients =
@@ -47,10 +47,10 @@ const RecipeInfo = () => {
             getDoc(userDocRef).then((userDoc) => {
               if (userDoc.exists()) {
                 const userData = userDoc.data();
-                setRecipe({ id: snapshot.id, ...recipeData, ...userData }); // Fix here
-                // Update like count
+                setRecipe({ id: snapshot.id, ...recipeData, ...userData });
+
                 setLikeCount(recipeData.likers ? recipeData.likers.length : 0);
-                // Check if the current user has already liked the recipe
+
                 setIsLiked(
                   recipeData.likers &&
                     recipeData.likers.includes(auth.currentUser.uid)
@@ -88,22 +88,20 @@ const RecipeInfo = () => {
   const handleLikeRecipe = async () => {
     const recipeDocRef = doc(firestore, "recipes", recipe.id);
     if (!isLiked) {
-      // Add the current user's ID to the likers array
       try {
         await updateDoc(recipeDocRef, {
           likers: arrayUnion(auth.currentUser.uid),
         });
-        setIsLiked(true); // Set the like state to true
+        setIsLiked(true);
       } catch (error) {
         console.error("Error liking recipe:", error);
       }
     } else {
-      // Remove the current user's ID from the likers array
       try {
         await updateDoc(recipeDocRef, {
           likers: arrayRemove(auth.currentUser.uid),
         });
-        setIsLiked(false); // Set the like state to false
+        setIsLiked(false);
       } catch (error) {
         console.error("Error unliking recipe:", error);
       }
@@ -111,7 +109,6 @@ const RecipeInfo = () => {
   };
 
   const handleDeleteRecipe = async () => {
-    // Using SweetAlert for confirmation
     Swal.fire({
       title: "Are you sure?",
       text: "You will not be able to recover this recipe!",
@@ -125,7 +122,7 @@ const RecipeInfo = () => {
         try {
           await deleteDoc(doc(firestore, "recipes", recipe.id));
           Swal.fire("Deleted!", "Your recipe has been deleted.", "success");
-          navigate("/recipe"); // Navigate back to previous page after deletion
+          navigate("/recipe");
         } catch (error) {
           console.error("Error deleting recipe:", error);
           Swal.fire(
@@ -153,7 +150,7 @@ const RecipeInfo = () => {
 
   const navigate = useNavigate();
   const goBack = () => {
-    navigate(-1); // This will navigate back in the history stack
+    navigate(-1);
   };
 
   const handleReportPost = async () => {
@@ -179,7 +176,7 @@ const RecipeInfo = () => {
         inputPlaceholder: "Select a reason",
         inputAttributes: {
           autocapitalize: "off",
-          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;",
         },
         showCancelButton: true,
         cancelButtonText: "Cancel",
@@ -195,12 +192,12 @@ const RecipeInfo = () => {
           } else {
             const reasonValue =
               Swal.getPopup().querySelector(".swal2-select").value;
-            // Add your logic to submit the report here
+
             const reportData = {
               reason: reasonValue,
               explanation: explanationValue,
               recipeId: recipeId,
-              userId: recipe.userUid, // Store the ID of the user who posted the product
+              userId: recipe.userUid,
               timestamp: serverTimestamp(),
             };
             addDoc(collection(firestore, "recipeReports"), reportData);
@@ -226,7 +223,7 @@ const RecipeInfo = () => {
   };
 
   if (!recipe) {
-    return null; // Recipe data is not loaded yet
+    return null;
   }
 
   const isSeller = auth.currentUser && auth.currentUser.uid === recipe.userUid;
@@ -235,7 +232,6 @@ const RecipeInfo = () => {
     <div className="fixed h-screen pb-10 md:pb-5 bg-white inset-0 z-50 flex items-center justify-center overflow-x-hidden outline-none focus:outline-none">
       <div className="relative w-full mx-auto overflow-y-auto">
         <div className="h-screen border-0 rounded-lg overflow-y-auto shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-          {/* Header */}
           <div className="flex pt-10 items-center justify-between p-5 border-b  rounded-t">
             <div className="flex items-center">
               <img
@@ -303,7 +299,7 @@ const RecipeInfo = () => {
               </button>
             </div>
           </div>
-          {/* Body */}
+
           <div className="px-6 md:flex">
             <div className="py-4 px-2">
               <div className="flex justify-between px-2 items-center">

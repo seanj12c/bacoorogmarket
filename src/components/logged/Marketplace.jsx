@@ -6,7 +6,7 @@ import {
   orderBy,
   doc,
   getDoc,
-} from "firebase/firestore"; // Import orderBy here
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 
 import uploadload from "../../assets/loading.gif";
@@ -29,14 +29,12 @@ const Marketplace = () => {
         const productsData = [];
         for (const docSnap of snapshot.docs) {
           const data = docSnap.data();
-          const typeOfProduct = data.typeOfProduct || {}; // Ensure typeOfProduct exists
+          const typeOfProduct = data.typeOfProduct || {};
 
-          // Fetch user details from "registered" collection
           const userDocRef = doc(firestore, "registered", data.userUid);
           const userDocSnap = await getDoc(userDocRef);
           const userData = userDocSnap.data();
 
-          // Check if the product is not hidden and not deactivated
           if (
             !data.isDeleted &&
             !data.isHidden &&
@@ -268,14 +266,13 @@ const Marketplace = () => {
 
                       {product.photos.length > 3 && (
                         <div className="w-full shadow-primary shadow-sm h-36 object-cover rounded-lg mb-2 flex items-center justify-center cursor-pointer relative">
-                          {/* Blurred background */}
                           <img
                             className="absolute inset-0 w-full h-full object-cover rounded-lg"
                             src={product.photos[3]}
                             alt="Blurry background"
                             style={{ filter: "blur(5px)" }}
                           />
-                          {/* Click to see more text */}
+
                           <p className="text-white text-center font-semibold z-10">
                             Click to see more
                           </p>

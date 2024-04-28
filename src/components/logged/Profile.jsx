@@ -11,7 +11,7 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { firestore, storage } from "../../firebase"; // Import your Firebase instance
+import { firestore, storage } from "../../firebase";
 import { useParams, useNavigate } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
 import { MdOutlineAttachEmail } from "react-icons/md";
@@ -59,7 +59,7 @@ const Profile = () => {
   }, [userId]);
 
   useEffect(() => {
-    if (!user) return; // Exit if user is not loaded yet
+    if (!user) return;
 
     const fetchUserPosts = async () => {
       try {
@@ -115,14 +115,12 @@ const Profile = () => {
       const chatId = [auth.currentUser.uid, user.userId].sort().join("");
       const chatDocRef = doc(firestore, "chats", chatId);
 
-      // Check if the chat document exists
       const chatDocSnap = await getDoc(chatDocRef);
 
       if (!chatDocSnap.exists()) {
-        // If the document doesn't exist, create it
         await setDoc(chatDocRef, {
           users: [auth.currentUser.uid, user.userId],
-          messages: [], // Initialize with an empty array of messages
+          messages: [],
         });
       }
 
@@ -153,7 +151,7 @@ const Profile = () => {
         inputPlaceholder: "Select a reason",
         inputAttributes: {
           autocapitalize: "off",
-          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;",
         },
         showCancelButton: true,
         cancelButtonText: "Cancel",
@@ -177,7 +175,6 @@ const Profile = () => {
           }
 
           try {
-            // Generate a random file name
             const randomFileName = Math.random().toString(36).substring(2);
             const storageRef = ref(
               storage,
@@ -236,7 +233,7 @@ const Profile = () => {
       imageAlt: "Profile",
       customClass: {
         image: "custom-profile-photo-class",
-        closeButton: "btn btn-error btn-circle text-white", // Apply custom styles to the image
+        closeButton: "btn btn-error btn-circle text-white",
       },
       showCloseButton: true,
       showConfirmButton: false,
@@ -353,7 +350,6 @@ const Profile = () => {
               </div>
               <div className="md:pt-24">
                 {displayProducts ? (
-                  // Render products
                   <div className="">
                     {userPosts.filter(
                       (post) => post.type === "product" && !post.isHidden
@@ -364,7 +360,6 @@ const Profile = () => {
                         )
                         .sort((a, b) => b.productId - a.productId)
                         .map((product, index) => (
-                          // Render product item
                           <div
                             onClick={() => handleProductClick(product.id)}
                             key={index}
@@ -441,7 +436,6 @@ const Profile = () => {
                     )}
                   </div>
                 ) : (
-                  // Render recipes
                   <div className="">
                     {userPosts.filter(
                       (post) => post.type === "recipe" && !post.isHidden
@@ -452,7 +446,6 @@ const Profile = () => {
                         )
                         .sort((a, b) => b.recipeId - a.recipeId)
                         .map((recipe, index) => (
-                          // Render recipe item
                           <div
                             onClick={() => handleRecipeClick(recipe.id)}
                             key={index}

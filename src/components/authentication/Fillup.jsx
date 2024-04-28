@@ -8,7 +8,7 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import uploadload from "../../assets/loading.gif";
 import loginbg from "../../assets/loginbg.png";
 import ReCAPTCHA from "react-google-recaptcha";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 
 const Fillup = () => {
   const [firstName, setFirstName] = useState("");
@@ -250,7 +250,7 @@ const Fillup = () => {
                     className="w-full px-3 py-2 border rounded-lg focus:outline-none"
                     value={contact}
                     onChange={(e) => {
-                      const regex = /^[0-9]*$/; // Regular expression to match only numbers
+                      const regex = /^[0-9]*$/;
                       if (regex.test(e.target.value) || e.target.value === "") {
                         setContact(e.target.value);
                       }

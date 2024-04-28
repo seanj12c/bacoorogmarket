@@ -1,5 +1,3 @@
-// Inside the Sellers component
-
 import React, { useEffect, useState } from "react";
 import { collection, query, onSnapshot } from "firebase/firestore";
 import { firestore, auth } from "../../firebase";
@@ -19,7 +17,7 @@ const Sellers = () => {
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [currentUserID, setCurrentUserID] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // State to hold search query
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
@@ -45,7 +43,7 @@ const Sellers = () => {
           product.lastName &&
           product.address &&
           product.userUid &&
-          !product.isHidden // Only add location if isHidden is false
+          !product.isHidden
         ) {
           locationsData.push({
             id: doc.id,
@@ -73,7 +71,6 @@ const Sellers = () => {
     lng: 120.9429,
   };
 
-  // Filter locations based on search query or selectedLocation
   const filteredLocations = selectedLocation
     ? [selectedLocation]
     : locations.filter((location) => {
@@ -116,7 +113,6 @@ const Sellers = () => {
                     borderRadius: "8px",
                   }}
                 >
-                  {/* Render markers for filtered locations */}
                   {filteredLocations.map((location) => (
                     <Marker
                       key={location.id}
@@ -129,7 +125,7 @@ const Sellers = () => {
                       }}
                     />
                   ))}
-                  {/* Render selected location info window */}
+
                   {selectedLocation && (
                     <InfoWindow
                       position={{
@@ -148,7 +144,7 @@ const Sellers = () => {
                 </GoogleMap>
               </LoadScript>
             </div>
-            {/* Render location details table */}
+
             <div>
               <h1 className="text-lg md:text-2xl font-bold my-4 text-center">
                 {selectedLocation

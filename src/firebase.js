@@ -3,7 +3,7 @@ import { doc, getDoc, getFirestore } from "firebase/firestore";
 import {
   getAuth,
   setPersistence,
-  browserLocalPersistence, // Change this to browserLocalPersistence
+  browserLocalPersistence,
 } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
@@ -21,12 +21,12 @@ const firebaseConfig = {
 
 const getUserProfile = async (userId) => {
   try {
-    const userRef = doc(firestore, "registered", userId); // Assuming your collection is named "users"
+    const userRef = doc(firestore, "registered", userId);
     const userSnap = await getDoc(userRef);
     if (userSnap.exists()) {
-      return userSnap.data(); // Return user profile data if user exists
+      return userSnap.data();
     } else {
-      return null; // Return null if user doesn't exist
+      return null;
     }
   } catch (error) {
     console.error("Error fetching user profile:", error);
@@ -39,14 +39,11 @@ const firestore = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// Set persistence to LOCAL for maintaining the user's login state even after closing the browser
 setPersistence(auth, browserLocalPersistence)
   .then(() => {
-    // Data will be persisted locally in the browser
     console.log("Auth persistence set successfully");
   })
   .catch((error) => {
-    // Handle errors
     console.error("Error setting auth persistence:", error);
   });
 

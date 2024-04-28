@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { useAuth } from "../../authContext";
 import { firestore } from "../../firebase";
-import { useNavigate } from "react-router-dom"; // Import useHistory hook
+import { useNavigate } from "react-router-dom";
 
 const SearchAUser = () => {
   const { currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate(); // Initialize useHistory hook
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -39,15 +39,14 @@ const SearchAUser = () => {
     );
   });
 
-  const limitedUsers = filteredUsers.slice(0, 4); // Limit to the first three users
+  const limitedUsers = filteredUsers.slice(0, 4);
 
-  // Function to handle click on user div
   const handleUserClick = (userId) => {
-    navigate(`/profile/${userId}`); // Navigate to /profile/userId
+    navigate(`/profile/${userId}`);
   };
 
   return (
-    <div className="container py-32 mx-auto px-4">
+    <div className="container py-28 mx-auto px-4">
       <h2 className="text-2xl font-bold mb-4">Search A Users</h2>
       <input
         type="text"
@@ -61,7 +60,7 @@ const SearchAUser = () => {
           <div
             key={user.id}
             className="border p-4 rounded-sm cursor-pointer hover:shadow-md transition duration-300 ease-in-out"
-            onClick={() => handleUserClick(user.id)} // Call handleUserClick on click
+            onClick={() => handleUserClick(user.id)}
           >
             <img
               src={user.profilePhotoUrl}

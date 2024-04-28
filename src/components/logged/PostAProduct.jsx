@@ -149,7 +149,7 @@ const PostAProduct = () => {
   const generateRandomName = () => {
     const characters =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const length = 10; // Adjust the length of the random string as needed
+    const length = 10;
     let result = "";
     for (let i = 0; i < length; i++) {
       result += characters.charAt(
@@ -163,7 +163,7 @@ const PostAProduct = () => {
     try {
       const storage = getStorage();
       const randomName = generateRandomName();
-      const fileExtension = photo.name.split(".").pop(); // Get the file extension
+      const fileExtension = photo.name.split(".").pop();
       const storageRef = ref(
         storage,
         `product_photos/${userUid}/${randomName}.${fileExtension}`
@@ -249,15 +249,15 @@ const PostAProduct = () => {
     }
 
     const generateProductId = () => {
-      const timestamp = new Date().getTime(); // Get current timestamp
-      const randomString = Math.random().toString(36).substring(7); // Generate random string
-      return `${timestamp}_${randomString}`; // Combine timestamp and random string
+      const timestamp = new Date().getTime();
+      const randomString = Math.random().toString(36).substring(7);
+      return `${timestamp}_${randomString}`;
     };
 
-    const productId = generateProductId(); // Assuming this function generates a unique product ID
+    const productId = generateProductId();
 
     const productData = {
-      productId, // Set productId explicitly
+      productId,
       caption,
       description,
       photos,
@@ -280,7 +280,7 @@ const PostAProduct = () => {
 
     try {
       setIsSubmitting(true);
-      await addDoc(productsRef, productData); // Firebase will generate the document ID
+      await addDoc(productsRef, productData);
 
       Swal.fire({
         icon: "success",
@@ -293,7 +293,7 @@ const PostAProduct = () => {
     } catch (error) {
       setIsSubmitting(false);
       console.error("Error adding recipe: ", error);
-      // Show SweetAlert for error
+
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -311,7 +311,7 @@ const PostAProduct = () => {
 
   const navigate = useNavigate();
   const goBack = () => {
-    navigate(-1); // This will navigate back in the history stack
+    navigate(-1);
   };
 
   return (

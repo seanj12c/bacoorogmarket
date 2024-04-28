@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getDoc, doc, updateDoc } from "firebase/firestore";
-import { firestore } from "../../firebase"; // Import your Firebase instance
+import { firestore } from "../../firebase";
 import { useNavigate, useParams } from "react-router-dom";
 import uploadload from "../../assets/loading.gif";
 
@@ -17,7 +17,7 @@ const EditRecipe = () => {
   const [recipeData, setRecipeData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
   const [slideshowIndex, setSlideshowIndex] = useState(0);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const EditRecipe = () => {
     } catch (error) {
       setIsSubmitting(false);
       console.error("Error adding recipe: ", error);
-      // Show SweetAlert for error
+
       Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -119,7 +119,7 @@ const EditRecipe = () => {
 
   const navigate = useNavigate();
   const goBack = () => {
-    navigate(-1); // This will navigate back in the history stack
+    navigate(-1);
   };
 
   return (
@@ -205,7 +205,7 @@ const EditRecipe = () => {
               onChange={handleChange}
               required
             />
-            {/* Ingredients */}
+
             <div className="mb-4">
               <h3 className="text-lg text-primary">Ingredients</h3>
               {recipeData.ingredients.map((ingredient, index) => (
@@ -242,7 +242,7 @@ const EditRecipe = () => {
                 Add Ingredient
               </button>
             </div>
-            {/* Instructions */}
+
             <div className="mb-4">
               <h3 className="text-lg text-primary">Instructions</h3>
               {recipeData.instructions.map((instruction, index) => (

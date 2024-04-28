@@ -179,7 +179,6 @@ const MyAccount = () => {
       const userDocSnapshot = await getDoc(userDocRef);
       const userData = userDocSnapshot.data();
 
-      // Check if last edit was made more than 14 days ago
       const lastEditTimestamp = userData.lastEditTimestamp || 0;
       const currentTime = Date.now();
       const timeDiffInDays = Math.ceil(
@@ -210,7 +209,6 @@ const MyAccount = () => {
         return;
       }
 
-      // Show confirmation dialog using SweetAlert
       const { value: confirmed } = await Swal.fire({
         title: "Are you sure on your details?",
         html: `
@@ -229,13 +227,13 @@ const MyAccount = () => {
       if (confirmed) {
         await updateDoc(userDocRef, {
           ...formData,
-          lastEditTimestamp: currentTime, // Update the last edit timestamp
+          lastEditTimestamp: currentTime,
         });
         Swal.fire({
           title: "Profile Updated!",
           text: "Your profile has been successfully updated.",
           icon: "success",
-          timer: 3000, // Show for 3 seconds
+          timer: 3000,
           timerProgressBar: true,
 
           showConfirmButton: false,
@@ -287,8 +285,8 @@ const MyAccount = () => {
       icon: "success",
       title: "Deleted",
       text: "The post has been deleted.",
-      timer: 2000, // Set the notification to automatically close after 2 seconds
-      showConfirmButton: false, // Hide the "OK" button
+      timer: 2000,
+      showConfirmButton: false,
     });
   };
 
@@ -314,12 +312,11 @@ const MyAccount = () => {
     const existingAppeal = await checkExistingAppeal(post.id, userId);
 
     if (existingAppeal) {
-      // User already has an appeal, provide option to edit
       Swal.fire({
         title: "Wait for admin's approval",
         text: "You have already submitted an appeal. Do you want to edit your explanation?",
         input: "text",
-        inputValue: existingAppeal.explanation, // Prefill the existing explanation
+        inputValue: existingAppeal.explanation,
         inputPlaceholder: "Enter your updated explanation...",
         showCancelButton: true,
         confirmButtonText: "Submit",
@@ -332,12 +329,10 @@ const MyAccount = () => {
         },
       }).then((result) => {
         if (result.isConfirmed) {
-          // Update the existing appeal in the Firebase Firestore database
           updateAppealInDatabase(existingAppeal.id, result.value);
         }
       });
     } else {
-      // User doesn't have an existing appeal, allow to submit a new one
       Swal.fire({
         title: "Appeal Post",
         text: "Please provide an explanation for appealing this post:",
@@ -354,14 +349,12 @@ const MyAccount = () => {
         },
       }).then((result) => {
         if (result.isConfirmed) {
-          // Save the new appeal to the Firebase Firestore database
           saveNewAppealToDatabase(post, typeOfPost, result.value);
         }
       });
     }
   };
 
-  // Function to check if the user has already submitted an appeal for the given post
   const checkExistingAppeal = async (postId, userId) => {
     const db = getFirestore();
     const querySnapshot = await getDocs(
@@ -372,13 +365,11 @@ const MyAccount = () => {
       )
     );
     if (!querySnapshot.empty) {
-      // User has already submitted an appeal, return the first appeal found
       return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
     }
-    return null; // User hasn't submitted an appeal for this post
+    return null;
   };
 
-  // Function to save a new appeal to the Firebase Firestore database
   const saveNewAppealToDatabase = (post, typeOfPost, explanation) => {
     const userId = auth.currentUser.uid;
     const postId = post.id;
@@ -388,7 +379,7 @@ const MyAccount = () => {
     addDoc(collection(db, "postAppeal"), {
       userId: userId,
       postId: postId,
-      typeOfPost: typeOfPost, // Save the type of post
+      typeOfPost: typeOfPost,
       explanation: explanation,
       timestamp: new Date(),
     })
@@ -406,7 +397,6 @@ const MyAccount = () => {
       });
   };
 
-  // Function to update an existing appeal in the Firebase Firestore database
   const updateAppealInDatabase = (appealId, explanation) => {
     const db = getFirestore();
 
@@ -511,7 +501,7 @@ const MyAccount = () => {
           inputPlaceholder: "Select a reason",
           inputAttributes: {
             autocapitalize: "off",
-            style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+            style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;",
           },
           showCancelButton: true,
           cancelButtonText: "Cancel",
@@ -536,7 +526,6 @@ const MyAccount = () => {
                 userId: userId,
               };
 
-              // Show a confirmation dialog before submitting the deletion request
               const confirmResult = await Swal.fire({
                 title: "Are you sure?",
                 text: "This action cannot be undone.",
@@ -557,7 +546,6 @@ const MyAccount = () => {
               });
 
               if (confirmResult.isConfirmed) {
-                // Proceed with deletion
                 try {
                   await setDoc(docRef, deletionData);
                   Swal.fire({
@@ -581,11 +569,9 @@ const MyAccount = () => {
         });
 
         if (reason && explanation) {
-          // Any additional logic after account deletion request
         }
       } else {
         console.log("User not authenticated");
-        // Handle if user is not authenticated
       }
     } catch (error) {
       console.error("Error deleting account:", error);
@@ -596,7 +582,7 @@ const MyAccount = () => {
       );
     }
   };
-  // Function for account deactivation confirmation
+
   const deactivateAccount = async () => {
     const inputOptions = {
       "Discouraged negative feedback": "Discouraged negative feedback",
@@ -675,15 +661,11 @@ const MyAccount = () => {
         return;
       }
 
-      // Perform account deactivation logic here
-      // Add code here to update the user's account status to deactivated
-
       const userId = auth.currentUser.uid;
       const docRef = doc(firestore, "accountDeactivateReasons", userId);
 
       await setDoc(docRef, { reason, explanation, userId });
 
-      // Hide recipes
       const recipesQuery = query(
         collection(firestore, "recipes"),
         where("userUid", "==", userId)
@@ -693,7 +675,6 @@ const MyAccount = () => {
         await updateDoc(doc.ref, { accountDeactivated: true });
       });
 
-      // Hide products
       const productsQuery = query(
         collection(firestore, "products"),
         where("userUid", "==", userId)
@@ -703,7 +684,6 @@ const MyAccount = () => {
         await updateDoc(doc.ref, { accountDeactivated: true });
       });
 
-      // Hide chats
       const chatsQuery = query(
         collection(firestore, "chats"),
         where("messages", "array-contains", { senderId: userId })
@@ -721,7 +701,6 @@ const MyAccount = () => {
 
       navigate("/");
 
-      // Update user status to deactivated
       const userRef = doc(firestore, "registered", userId);
       await updateDoc(userRef, { isDeactivated: true });
     } catch (error) {
@@ -740,7 +719,7 @@ const MyAccount = () => {
       imageAlt: "Profile",
       customClass: {
         image: "custom-profile-photo-class",
-        closeButton: "btn btn-error btn-circle text-white", // Apply custom styles to the image
+        closeButton: "btn btn-error btn-circle text-white",
       },
       showCloseButton: true,
       showConfirmButton: false,
@@ -1026,7 +1005,6 @@ const MyAccount = () => {
               </div>
 
               {displayProducts ? (
-                // Render products
                 <div className="md:pt-24">
                   {userPosts.filter((post) => post.type === "product").length >
                   0 ? (
@@ -1034,7 +1012,6 @@ const MyAccount = () => {
                       .filter((post) => post.type === "product")
                       .sort((a, b) => b.productId - a.productId)
                       .map((product, index) => (
-                        // Render product item
                         <div
                           key={index}
                           className={`${
@@ -1185,7 +1162,6 @@ const MyAccount = () => {
                   )}
                 </div>
               ) : (
-                // Render recipes
                 <div className="md:pt-24">
                   {userPosts.filter((post) => post.type === "recipe").length >
                   0 ? (
@@ -1193,7 +1169,6 @@ const MyAccount = () => {
                       .filter((post) => post.type === "recipe")
                       .sort((a, b) => b.recipeId - a.recipeId)
                       .map((recipe, index) => (
-                        // Render recipe item
                         <div
                           key={index}
                           className={`${

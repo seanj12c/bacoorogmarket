@@ -31,10 +31,9 @@ const ProductInfo = () => {
         const productSnapshot = await getDoc(productRef);
         if (productSnapshot.exists()) {
           const fetchedProduct = productSnapshot.data();
-          // Extract the document ID and set it in the product data
+
           fetchedProduct.id = productSnapshot.id;
 
-          // Fetch user details from "registered" collection
           const userDocRef = doc(
             firestore,
             "registered",
@@ -43,7 +42,6 @@ const ProductInfo = () => {
           const userDocSnap = await getDoc(userDocRef);
           const userData = userDocSnap.data();
 
-          // Update product data with user details
           fetchedProduct.firstName = userData.firstName;
           fetchedProduct.lastName = userData.lastName;
           fetchedProduct.profilePhotoUrl = userData.profilePhotoUrl;
@@ -61,7 +59,7 @@ const ProductInfo = () => {
   }, [productId]);
 
   const goBack = () => {
-    navigate(-1); // This will navigate back in the history stack
+    navigate(-1);
   };
 
   const handleSlideshowChange = (direction) => {
@@ -96,14 +94,12 @@ const ProductInfo = () => {
       const chatId = [auth.currentUser.uid, product.userUid].sort().join("");
       const chatDocRef = doc(firestore, "chats", chatId);
 
-      // Check if the chat document exists
       const chatDocSnap = await getDoc(chatDocRef);
 
       if (!chatDocSnap.exists()) {
-        // If the document doesn't exist, create it
         await setDoc(chatDocRef, {
           users: [auth.currentUser.uid, product.userUid],
-          messages: [], // Initialize with an empty array of messages
+          messages: [],
         });
       }
 
@@ -127,7 +123,6 @@ const ProductInfo = () => {
   };
   const handleDeleteProduct = async () => {
     try {
-      // Using SweetAlert for confirmation
       const { isConfirmed } = await Swal.fire({
         title: "Are you sure?",
         text: "You will not be able to recover this product!",
@@ -141,14 +136,14 @@ const ProductInfo = () => {
       if (isConfirmed) {
         const productRef = doc(firestore, "products", productId);
         await deleteDoc(productRef);
-        // Show success message using SweetAlert
+
         Swal.fire("Deleted!", "Your product has been deleted.", "success");
-        // Redirect to the marketplace after deletion
+
         navigate("/marketplace");
       }
     } catch (error) {
       console.error("Error deleting product:", error);
-      // Show error message using SweetAlert
+
       Swal.fire(
         "Error!",
         "An error occurred while deleting the product.",
@@ -179,7 +174,7 @@ const ProductInfo = () => {
         inputPlaceholder: "Select a reason",
         inputAttributes: {
           autocapitalize: "off",
-          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;", // CSS styles for the select input
+          style: "border: 1px solid #ccc; border-radius: 5px; padding: 5px;",
         },
         showCancelButton: true,
         cancelButtonText: "Cancel",
@@ -195,12 +190,12 @@ const ProductInfo = () => {
           } else {
             const reasonValue =
               Swal.getPopup().querySelector(".swal2-select").value;
-            // Add your logic to submit the report here
+
             const reportData = {
               reason: reasonValue,
               explanation: explanationValue,
               productId: productId,
-              userId: product.userUid, // Store the ID of the user who posted the product
+              userId: product.userUid,
               timestamp: serverTimestamp(),
             };
             addDoc(collection(firestore, "productReports"), reportData);
@@ -230,7 +225,7 @@ const ProductInfo = () => {
       <div className="flex items-center justify-center h-screen">
         <img
           className="lg:h-32 h-20 md:h-28 object-contain mx-auto"
-          src={uploadload} // Use the loading GIF
+          src={uploadload}
           alt="Loading..."
         />
       </div>

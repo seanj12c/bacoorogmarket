@@ -66,7 +66,7 @@ function AppRoutes() {
         } else {
           setAdmin(null);
         }
-        // Check if user is disabled
+
         const db = getFirestore();
         const userRef = doc(collection(db, "registered"), authUser.uid);
 
@@ -80,11 +80,9 @@ function AppRoutes() {
             setLoading(false);
             navigate("/deletion/confirmation");
           } else if (userData.isDeleted) {
-            // Check if account is deleted
             setLoading(false);
             navigate("/account/deleted");
           } else if (userData.disabled) {
-            // Fetch reason from "disabledReason" collection based on user's UID
             const reasonRef = doc(
               collection(db, "disabledReason"),
               authUser.uid
@@ -130,8 +128,6 @@ function AppRoutes() {
 
     return () => unsubscribe();
   }, [navigate, disableReason]);
-
-  // Function to handle account deletion
 
   if (loading) {
     return (

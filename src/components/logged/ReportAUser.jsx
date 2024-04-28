@@ -46,10 +46,8 @@ const ReportAUser = () => {
     setSearchTerm(value);
 
     if (value === "") {
-      // If search term is empty, display the first 6 users
       setDisplayedUsers(registeredUsers.slice(0, 6));
     } else {
-      // If search term is not empty, filter users based on the search term
       const filteredUsers = registeredUsers.filter((user) => {
         const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
         return (
@@ -113,16 +111,14 @@ const ReportAUser = () => {
             await uploadBytes(storageRef, file);
             const fileUrl = await getDownloadURL(storageRef);
 
-            // Check if the selectedUser is deleted
             if (selectedUser.isDeleted) {
-              // If the selectedUser is deleted, set isDeleted to true in the report data
               const reportData = {
                 reason,
                 explanation,
                 userId: selectedUser.userId,
                 timestamp: serverTimestamp(),
                 photoUrl: fileUrl,
-                isDeleted: true, // Set isDeleted to true
+                isDeleted: true,
               };
 
               await addDoc(collection(firestore, "profileReports"), reportData);
