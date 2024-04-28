@@ -333,7 +333,7 @@ export const NavbarLogged = () => {
               </button>
             </div>
             <div>
-              <MdOutlineManageAccounts className="text-primary" size={30} />
+              <MdOutlineManageAccounts className="text-white" size={30} />
             </div>
           </div>
         </div>
