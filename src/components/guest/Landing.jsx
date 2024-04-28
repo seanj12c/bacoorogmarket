@@ -2,10 +2,10 @@ import React from "react";
 import NavbarNotLogged from "./NavbarNotLogged";
 import GAbout from "./GAbout";
 import GFaq from "./GFaq";
-import { Link } from "react-router-dom";
+
 import herobg from "../../assets/herobg.png";
 import heroimg from "../../assets/heroimg.png";
-import blob from "../../assets/blob.png";
+import blobblank from "../../assets/blobblank.png";
 const Landing = () => {
   return (
     <div>
@@ -20,8 +20,8 @@ const Landing = () => {
           alt=""
         />
         <img
-          src={blob}
-          className="absolute md:block hidden bottom-0 left-[-5px] w-44 h-44 object-contain"
+          src={blobblank}
+          className="absolute md:block hidden bottom-0 left-[-5px]  h-44 object-contain"
           alt=""
         />
         <div className="flex flex-col-reverse md:flex-row items-center w-full md:justify-around justify-center lg:gap-10">
@@ -36,9 +36,11 @@ const Landing = () => {
             <h1 className="text-[#00FFFF] md:hidden text-2xl font-linden">
               YOUR OYSTERS & MUSSELS
             </h1>
-            <h1 className="font-linden text- md:text-2xl">
-              <span className="underline font-linden">CONN</span>ECTION
+            <h1 className="font-linden md:text-2xl hidden md:block">
+              <span className="underline font-linden ">CONN</span>
+              ECTION
             </h1>
+            <h1 className="font-linden md:hidden md:text-2xl">CONNECTION</h1>
           </div>
           <div className="">
             <img
