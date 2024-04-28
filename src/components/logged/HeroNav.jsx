@@ -185,7 +185,7 @@ export const NavbarLogged = () => {
       <div
         className={`${
           fix
-            ? "bg-white opacity-95 shadow-md text-primary transition-all ease-in-out duration-100"
+            ? "bg-white opacity-95 shadow-md text-black transition-all ease-in-out duration-100"
             : "bg-transparent opacity-100 transition-all shadow-none text-white ease-in-out duration-100"
         } flex  md:justify-around justify-between items-center h-24  mx-auto px-6 md:px-2 fixed top-0 w-full md:w-full z-50`}
       >
@@ -377,7 +377,11 @@ export const NavbarLogged = () => {
         </div>
       </div>
 
-      <div className="btm-nav md:hidden text-xs border-t border-gray-300 text-black z-40">
+      <div
+        className={`btm-nav md:hidden text-xs border-t ${
+          fix ? "text-black" : "glass text-white"
+        } border-gray-300 z-40`}
+      >
         <Link to="/marketplace" className="">
           <CiShop size={15} />
           <span className="btm-nav-label">Marketplace</span>

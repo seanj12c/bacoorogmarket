@@ -12,6 +12,7 @@ import {
   CiForkAndKnife,
 } from "react-icons/ci";
 import { LiaSearchLocationSolid } from "react-icons/lia";
+import logowhite from "../../assets/logowhite.png";
 
 export const NavbarNotLogged = () => {
   const [fix, setFix] = useState(false);
@@ -65,9 +66,9 @@ export const NavbarNotLogged = () => {
       <div
         className={`${
           fix
-            ? "bg-white opacity-95 transition-all ease-in-out duration-700"
-            : "bg-transparent opacity-100"
-        } flex lg:justify-around justify-between ease-linear duration-500 items-center h-24 shadow-md mx-auto px-6 lg:px-2 text-primary fixed top-0 w-full lg:w-full z-50`}
+            ? "bg-white opacity-95 shadow-md text-black transition-all ease-in-out duration-100"
+            : "bg-transparent opacity-100 transition-all shadow-none text-white ease-in-out duration-100"
+        } flex  md:justify-around justify-between items-center h-24  mx-auto px-6 md:px-2 fixed top-0 w-full md:w-full z-50`}
       >
         <div className="lg:flex lg:w-full justify-between lg:justify-around  items-center">
           <div className="lg:flex items-center lg:gap-2">
@@ -75,7 +76,7 @@ export const NavbarNotLogged = () => {
               <div className="lg:flex items-center gap-3 hidden">
                 <img
                   className="object-contain lg:w-20 w-16 select-none pointer-events-none"
-                  src={logo}
+                  src={fix ? logo : logowhite}
                   alt=""
                 />
                 <h1 className="sm:text-xs hidden sm:block md:text-lg font-bold text-black lg:hidden">
@@ -123,11 +124,13 @@ export const NavbarNotLogged = () => {
               </ul>
             </div>
 
-            <div className="text-black">
+            <div className="">
               <ul className="hidden text-base gap-5 lg:flex">
                 <button
                   onClick={toggleOverlay}
-                  className="border-r border-black pr-4"
+                  className={`${
+                    fix ? "border-black border-r" : "border-white border-r"
+                  } pr-4`}
                 >
                   <li className="p-4 hover:text-primary hover:-translate-y-1 duration-300 ease-in-out transition-all">
                     Marketplace
@@ -164,7 +167,7 @@ export const NavbarNotLogged = () => {
           {showOverlay && (
             <div className="fixed inset-0 flex items-center justify-center z-50 ease-linear duration-500 bg-black bg-opacity-50">
               <div className="bg-white p-8 rounded-lg shadow-lg transform scale-100 transition-transform duration-300">
-                <p className="text-center text-lg font-semibold mb-4">
+                <p className="text-center text-primary text-lg font-semibold mb-4">
                   Please log in to continue....
                 </p>
                 <div className="flex justify-center p-3">

@@ -1,31 +1,52 @@
 import React from "react";
-import appealbg from "../../assets/appealbg.png";
-
-import { AiFillCheckCircle } from "react-icons/ai";
+import herobg from "../../assets/herobg.png";
+import heroimg from "../../assets/heroimg.png";
 import { Link } from "react-router-dom";
 import About from "./About";
 import HeroNav from "./HeroNav";
+import blob from "../../assets/blob.png";
 const Hero = () => {
   return (
     <div>
       <HeroNav />
-      <div className="absolute z-[-10]">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-          <path
-            fill="#00FFFF"
-            fill-opacity="1"
-            d="M0,128L21.8,128C43.6,128,87,128,131,149.3C174.5,171,218,213,262,234.7C305.5,256,349,256,393,224C436.4,192,480,128,524,112C567.3,96,611,128,655,122.7C698.2,117,742,75,785,85.3C829.1,96,873,160,916,192C960,224,1004,224,1047,197.3C1090.9,171,1135,117,1178,101.3C1221.8,85,1265,107,1309,144C1352.7,181,1396,235,1418,261.3L1440,288L1440,0L1418.2,0C1396.4,0,1353,0,1309,0C1265.5,0,1222,0,1178,0C1134.5,0,1091,0,1047,0C1003.6,0,960,0,916,0C872.7,0,829,0,785,0C741.8,0,698,0,655,0C610.9,0,567,0,524,0C480,0,436,0,393,0C349.1,0,305,0,262,0C218.2,0,175,0,131,0C87.3,0,44,0,22,0L0,0Z"
-          ></path>
-        </svg>
-      </div>
+
       <div className="h-screen flex justify-center px-3 md:px-0 items-center bg-transparent">
         <img
           className="z-[-1] absolute h-screen w-screen mx-auto object-cover pointer-events-none select-none"
-          src={appealbg}
+          src={herobg}
           alt=""
         />
-        <div></div>
+        <img
+          src={blob}
+          className="absolute md:block hidden bottom-0 left-[-5px] w-44 h-44 object-contain"
+          alt=""
+        />
+        <div className="flex flex-col-reverse md:flex-row items-center w-full md:justify-around justify-center lg:gap-10">
+          <div className="text-white text-center md:text-start space-y-2">
+            <h1 className="font-linden text- md:text-xl underline">
+              BACOOR OCEAN GEM MARKET
+            </h1>
+            <h1 className="text-[#00FFFF] hidden md:block md:text-4xl lg:text-5xl xl:text-6xl font-linden">
+              YOUR OYSTERS
+              <br />& MUSSELS
+            </h1>
+            <h1 className="text-[#00FFFF] md:hidden text-2xl font-linden">
+              YOUR OYSTERS & MUSSELS
+            </h1>
+            <h1 className="font-linden text- md:text-2xl">
+              <span className="underline font-linden">CONN</span>ECTION
+            </h1>
+          </div>
+          <div className="">
+            <img
+              src={heroimg}
+              className="max-w-xs sm:max-w-sm lg:max-w-lg w-full"
+              alt=""
+            />
+          </div>
+        </div>
       </div>
+
       <div>
         <About />
       </div>
