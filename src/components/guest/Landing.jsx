@@ -1,68 +1,51 @@
 import React from "react";
-import bacoor from "../../assets/oystermussel.jpg";
-import { AiFillCheckCircle } from "react-icons/ai";
 import NavbarNotLogged from "./NavbarNotLogged";
 import GAbout from "./GAbout";
 import GFaq from "./GFaq";
 import { Link } from "react-router-dom";
+import herobg from "../../assets/herobg.png";
+import heroimg from "../../assets/heroimg.png";
+import blob from "../../assets/blob.png";
 const Landing = () => {
   return (
     <div>
       <NavbarNotLogged />
       <div
         id="home"
-        className="h-screen gap-2 items-center w-full pt-24 px-2 md:px-6 lg:px-20 md:flex flex-row-reverse"
+        className="h-screen flex justify-center px-3 md:px-0 items-center bg-transparent"
       >
-        <div className="md:w-1/2 flex justify-center rounded-md">
-          <img
-            className="h-72 md:h-96 lg:h-[450px] md:ml-auto rounded-md object-cover"
-            src={bacoor}
-            alt=""
-          />
-        </div>
-        <div className="md:w-1/2">
-          <h1 className="text-center md:text-left md:text-3xl lg:text-5xl font-semibold">
-            A <span className="text-primary">Marketplace</span> that you are
-            looking for
-          </h1>
-          <p className="text-xs text-gray-900 xl:text-base py-2 text-justify">
-            Embark on a journey through the flavors of the sea with a delightful
-            array of fresh mussels and oysters, thoughtfully sourced for your
-            culinary explorations. Experience the convenience of easy access to
-            these oceanic treasures, bringing the taste of the sea right to your
-            table in Bacoor City, Cavite, Philippines.
-          </p>
-          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
-            <div>
-              <AiFillCheckCircle className="text-primary" size={17} />
-            </div>
-            <div>
-              <span className="font-bold">Pinned Location</span> - easily locate
-              seller with the use of google map pinned location.
-            </div>
+        <img
+          className="z-[-1] absolute h-screen w-screen mx-auto object-cover pointer-events-none select-none"
+          src={herobg}
+          alt=""
+        />
+        <img
+          src={blob}
+          className="absolute md:block hidden bottom-0 left-[-5px] w-44 h-44 object-contain"
+          alt=""
+        />
+        <div className="flex flex-col-reverse md:flex-row items-center w-full md:justify-around justify-center lg:gap-10">
+          <div className="text-white text-center md:text-start space-y-2">
+            <h1 className="font-linden text- md:text-xl underline">
+              BACOOR OCEAN GEM MARKET
+            </h1>
+            <h1 className="text-[#00FFFF] hidden md:block md:text-4xl lg:text-5xl xl:text-6xl font-linden">
+              YOUR OYSTERS
+              <br />& MUSSELS
+            </h1>
+            <h1 className="text-[#00FFFF] md:hidden text-2xl font-linden">
+              YOUR OYSTERS & MUSSELS
+            </h1>
+            <h1 className="font-linden text- md:text-2xl">
+              <span className="underline font-linden">CONN</span>ECTION
+            </h1>
           </div>
-          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
-            <div>
-              <AiFillCheckCircle className="text-primary" size={17} />
-            </div>
-            <div>
-              <span className="font-bold">Chat With Seller</span> - anytime,
-              anywhere you can easily contact sellers.
-            </div>
-          </div>
-          <div className="flex gap-2 items-center text-xs md:text-base xl:text-lg">
-            <div>
-              <AiFillCheckCircle className="text-primary" size={17} />
-            </div>
-            <div>
-              <span className="font-bold">Fresh Products</span> - guaranteeing
-              you the finest and freshest harvest oysters and mussels.
-            </div>
-          </div>
-          <div className="flex justify-center md:justify-start py-1">
-            <Link to="/login">
-              <button className="btn btn-primary">Log-in now!</button>
-            </Link>
+          <div className="">
+            <img
+              src={heroimg}
+              className="max-w-xs sm:max-w-sm lg:max-w-lg w-full"
+              alt=""
+            />
           </div>
         </div>
       </div>
