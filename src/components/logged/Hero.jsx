@@ -1,11 +1,12 @@
 import React from "react";
 import herobg from "../../assets/herobg.png";
 import heroimg from "../../assets/heroimg.png";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import About from "./About";
 import HeroNav from "./HeroNav";
 import blob from "../../assets/blob.png";
 const Hero = () => {
+  const navigate = useNavigate();
   return (
     <div>
       <HeroNav />
@@ -18,8 +19,9 @@ const Hero = () => {
         />
         <img
           src={blob}
-          className="absolute md:block hidden bottom-0 left-[-5px] w-44 h-44 object-contain"
+          className="absolute select-all pointer-events-auto md:block hidden bottom-0 left-[-5px] w-72 object-contain"
           alt=""
+          onClick={() => navigate("/marketplace")}
         />
         <div className="flex flex-col-reverse md:flex-row items-center w-full md:justify-around justify-center lg:gap-10">
           <div className="text-white text-center md:text-start space-y-2">
@@ -33,9 +35,11 @@ const Hero = () => {
             <h1 className="text-[#00FFFF] md:hidden text-2xl font-linden">
               YOUR OYSTERS & MUSSELS
             </h1>
-            <h1 className="font-linden text- md:text-2xl">
-              <span className="underline font-linden">CONN</span>ECTION
+            <h1 className="font-linden md:text-2xl hidden md:block">
+              <span className="underline font-linden ">CONN</span>
+              ECTION
             </h1>
+            <h1 className="font-linden md:hidden md:text-2xl">CONNECTION</h1>
           </div>
           <div className="">
             <img
