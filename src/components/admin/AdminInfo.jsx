@@ -142,96 +142,112 @@ const AdminInfo = () => {
             {showProducts ? (
               <div className="p-4">
                 <h2 className="text-2xl font-semibold mb-4">Products</h2>
-                <h1 className="text-xs italic text-primary">
-                  Tap specific product to see all photos from that post in full
-                  screen
-                </h1>
-                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {userProducts.map((product, index) => (
-                    <div
-                      key={index}
-                      className="border flex flex-col justify-around glass border-gray-300 p-4"
-                      onClick={() => displayAllPhotos(product.photos)}
-                    >
-                      <div>
-                        {" "}
-                        <h3 className="text-lg font-semibold">
-                          {product.caption}
-                        </h3>
-                        <p>{product.description}</p>
-                        <div>
-                          <img
-                            src={product.photos[0]}
-                            alt={`Product 1`}
-                            className="w-full h-auto"
-                          />
+                {userProducts.length === 0 ? (
+                  <p className="text-center text-gray-500">
+                    We couldn't find any products.
+                  </p>
+                ) : (
+                  <>
+                    <h1 className="text-xs italic text-primary">
+                      Tap specific product to see all photos from that post in
+                      full screen
+                    </h1>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {userProducts.map((product, index) => (
+                        <div
+                          key={index}
+                          className="border flex flex-col justify-around glass border-gray-300 p-4"
+                          onClick={() => displayAllPhotos(product.photos)}
+                        >
+                          <div>
+                            {" "}
+                            <h3 className="text-lg font-semibold">
+                              {product.caption}
+                            </h3>
+                            <p>{product.description}</p>
+                            <div>
+                              <img
+                                src={product.photos[0]}
+                                alt={`Product 1`}
+                                className="w-full h-auto"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <p>
+                              <strong>Address:</strong> {product.address}
+                            </p>
+                            <p>
+                              <strong>Price:</strong> {product.price}
+                            </p>
+                            <p>
+                              <strong>Timestamp:</strong> {product.timestamp}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <p>
-                          <strong>Address:</strong> {product.address}
-                        </p>
-                        <p>
-                          <strong>Price:</strong> {product.price}
-                        </p>
-                        <p>
-                          <strong>Timestamp:</strong> {product.timestamp}
-                        </p>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
               </div>
             ) : (
               <div className="p-4">
                 <h2 className="text-2xl font-semibold mb-4">Recipes</h2>
-                <h1 className="text-xs italic text-primary">
-                  Tap specific recipes to see all photos from that post in full
-                  screen
-                </h1>
-                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {userRecipes.map((recipe, index) => (
-                    <div
-                      key={index}
-                      className="border flex flex-col justify-around glass border-gray-300 p-4"
-                      onClick={() => displayAllPhotos(recipe.photos)}
-                    >
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {recipe.caption}
-                        </h3>
-                        <div>
-                          <img
-                            src={recipe.photos[0]}
-                            alt={`Recipe 1`}
-                            className="w-full h-auto"
-                          />
+                {userRecipes.length === 0 ? (
+                  <p className="text-center text-gray-500">
+                    We couldn't find any recipes.
+                  </p>
+                ) : (
+                  <>
+                    <h1 className="text-xs italic text-primary">
+                      Tap specific recipes to see all photos from that post in
+                      full screen
+                    </h1>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {userRecipes.map((recipe, index) => (
+                        <div
+                          key={index}
+                          className="border flex flex-col justify-around glass border-gray-300 p-4"
+                          onClick={() => displayAllPhotos(recipe.photos)}
+                        >
+                          <div>
+                            <h3 className="text-lg font-semibold">
+                              {recipe.caption}
+                            </h3>
+                            <div>
+                              <img
+                                src={recipe.photos[0]}
+                                alt={`Recipe 1`}
+                                className="w-full h-auto"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <p>
+                              <strong>Timestamp:</strong> {recipe.timestamp}
+                            </p>
+                            <div>
+                              <strong>Ingredients:</strong>
+                              <ul>
+                                {recipe.ingredients.map((ingredient, idx) => (
+                                  <li key={idx}>{ingredient}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <strong>Instructions:</strong>
+                              <ul>
+                                {recipe.instructions.map((instruction, idx) => (
+                                  <li key={idx}>{instruction}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <p>
-                          <strong>Timestamp:</strong> {recipe.timestamp}
-                        </p>
-                        <div>
-                          <strong>Ingredients:</strong>
-                          <ul>
-                            {recipe.ingredients.map((ingredient, idx) => (
-                              <li key={idx}>{ingredient}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <strong>Instructions:</strong>
-                          <ul>
-                            {recipe.instructions.map((instruction, idx) => (
-                              <li key={idx}>{instruction}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
               </div>
             )}
           </div>
