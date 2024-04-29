@@ -31,6 +31,9 @@ const AdminProducts = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const productsPerPage = 10;
 
   useEffect(() => {
     const productsCollection = collection(firestore, "products");
@@ -167,19 +170,29 @@ const AdminProducts = () => {
     }
   };
 
-  const filteredProducts = products.filter((product) => {
-    return (
-      product.productId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.price.toString().includes(searchQuery.toLowerCase()) ||
-      (users.find((user) => user.id === product.userUid) &&
-        `${users.find((user) => user.id === product.userUid).firstName} ${
-          users.find((user) => user.id === product.userUid).lastName
-        }`
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()))
-    );
-  });
+  useEffect(() => {
+    // Reset currentPage to 1 whenever searchQuery changes
+    setCurrentPage(1);
+
+    const filteredProducts = products.filter((product) => {
+      return (
+        (product.userUid?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (product.caption?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (product.price?.toString()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (users.find((user) => user.id === product.userUid) &&
+          `${users.find((user) => user.id === product.userUid).firstName} ${
+            users.find((user) => user.id === product.userUid).lastName
+          }`
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()))
+      );
+    });
+
+    setFilteredProducts(filteredProducts);
+  }, [searchQuery, products, users]);
 
   const navigate = useNavigate();
 
@@ -217,6 +230,17 @@ const AdminProducts = () => {
     const modal = document.getElementById(`view_product_${productId}`);
     modal.close();
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
 
   return (
     <div>
@@ -330,7 +354,7 @@ const AdminProducts = () => {
                 </h1>
               </div>
 
-              <div className="overflow-y-auto max-h-[450px]">
+              <div>
                 {filteredProducts.length === 0 ? (
                   <p className="text-center text-gray-500">
                     No products found for "{searchQuery}". Please try a
@@ -358,7 +382,7 @@ const AdminProducts = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredProducts.map((product) => (
+                      {currentProducts.map((product) => (
                         <tr key={product.id}>
                           <td className="border border-gray-300 bg-gray-200 px-4 py-2 text-center text-xs">
                             {product.caption}
@@ -480,6 +504,33 @@ const AdminProducts = () => {
                     </tbody>
                   </table>
                 )}
+                <div className="flex justify-center mt-4">
+                  <nav>
+                    <ul className="pagination flex gap-1">
+                      {Array.from(
+                        {
+                          length: Math.ceil(
+                            filteredProducts.length / productsPerPage
+                          ),
+                        },
+                        (_, i) => (
+                          <li key={i} className="page-item">
+                            <button
+                              onClick={() => handlePageChange(i + 1)}
+                              className={`${
+                                i + 1 === currentPage
+                                  ? "bg-primary text-white"
+                                  : ""
+                              } text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded-l hover:shadow-lg  focus:outline-none`}
+                            >
+                              {i + 1}
+                            </button>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </nav>
+                </div>
               </div>
             </div>
           </div>

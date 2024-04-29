@@ -37,6 +37,9 @@ const AdminLocations = () => {
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+  const usersPerPage = 5;
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -49,6 +52,7 @@ const AdminLocations = () => {
           ...doc.data(),
         }));
         setLocations(locationsData);
+        setFilteredLocations(locationsData);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching locations:", error);
@@ -183,11 +187,6 @@ const AdminLocations = () => {
 
   console.log("Locations:", locations);
 
-  console.log(
-    "Locations Latitude:",
-    locations.map((location) => location.location.latitude)
-  );
-
   const openModal = (location) => {
     const modal = document.getElementById("my_modal_3");
     const title = modal.querySelector(".modal-box h3");
@@ -232,19 +231,43 @@ const AdminLocations = () => {
     modal.close();
   };
 
-  const filteredLocations = locations.filter((location) => {
-    const fullName = `${location.firstName} ${location.lastName}`;
-    return (
-      location.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      location.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      location.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      fullName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  });
+  useEffect(() => {
+    // Reset currentPage to 1 whenever searchQuery changes
+    setCurrentPage(1);
+
+    const filteredLocations = locations.filter((location) => {
+      return (
+        (location.userId?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (location.firstName
+          ?.toLowerCase()
+          ?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (location.lastName
+          ?.toLowerCase()
+          ?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (location.email?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false)
+      );
+    });
+    setFilteredLocations(filteredLocations);
+  }, [searchQuery, locations]);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredLocations.slice(
+    indexOfFirstUser,
+    indexOfLastUser
+  );
 
   return (
     <div>
@@ -406,7 +429,7 @@ const AdminLocations = () => {
                     className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
                   />
                 </div>
-                <div className="overflow-auto max-h-[450px]">
+                <div>
                   <table className="w-full  table table-xs text-xs text-center bg-gray-200 border border-gray-300">
                     <thead>
                       <tr className="bg-primary text-white">
@@ -483,7 +506,7 @@ const AdminLocations = () => {
                           </td>
                         </tr>
                       ) : (
-                        filteredLocations.map((location) => (
+                        currentUsers.map((location) => (
                           <tr key={location.id}>
                             <td className="p-1 border border-gray-300">
                               {location.firstName} {location.lastName}
@@ -524,6 +547,33 @@ const AdminLocations = () => {
                       )}
                     </tbody>
                   </table>
+                  <div className="flex justify-center mt-4">
+                    <nav>
+                      <ul className="pagination flex gap-1">
+                        {Array.from(
+                          {
+                            length: Math.ceil(
+                              filteredLocations.length / usersPerPage
+                            ),
+                          },
+                          (_, i) => (
+                            <li key={i} className="page-item">
+                              <button
+                                onClick={() => handlePageChange(i + 1)}
+                                className={`${
+                                  i + 1 === currentPage
+                                    ? "bg-primary text-white"
+                                    : ""
+                                } text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded-l hover:shadow-lg  focus:outline-none`}
+                              >
+                                {i + 1}
+                              </button>
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </nav>
+                  </div>
                 </div>
               </div>
             </div>

@@ -31,8 +31,11 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
 
   useEffect(() => {
     const usersCollection = collection(firestore, "registered");
@@ -60,6 +63,7 @@ const AdminUsers = () => {
           });
         }
       });
+
       setUsers(usersData);
       setLoading(false);
     });
@@ -68,6 +72,26 @@ const AdminUsers = () => {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    // Reset currentPage to 1 whenever searchQuery changes
+    setCurrentPage(1);
+
+    const filteredUsers = users.filter((user) => {
+      return (
+        (user.userId?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (user.firstName?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (user.lastName?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (user.email?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false)
+      );
+    });
+
+    setFilteredUsers(filteredUsers);
+  }, [searchQuery, users]);
 
   const enableAccount = async (user) => {
     const result = await Swal.fire({
@@ -191,18 +215,6 @@ const AdminUsers = () => {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
-    return (
-      (user.userId?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
-        false) ||
-      (user.firstName?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
-        false) ||
-      (user.lastName?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
-        false) ||
-      (user.email?.toLowerCase()?.includes(searchQuery.toLowerCase()) ?? false)
-    );
-  });
-
   const navigate = useNavigate();
 
   const handleLogoutConfirmation = () => {
@@ -229,6 +241,9 @@ const AdminUsers = () => {
       console.log("Error logging out:", error);
     }
   };
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   const openModal = (userId) => {
     const modal = document.getElementById(`view_profile_${userId}`);
@@ -239,6 +254,10 @@ const AdminUsers = () => {
     const modal = document.getElementById(`view_profile_${userId}`);
     modal.close();
   };
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   return (
     <div>
@@ -352,8 +371,8 @@ const AdminUsers = () => {
                 </h1>
               </div>
 
-              <div className="overflow-y-auto max-h-[450px]">
-                {filteredUsers.length === 0 ? (
+              <div>
+                {users.length === 0 ? (
                   <p className="text-center text-gray-500">
                     No users found for "{searchQuery}". Please try a different
                     search.
@@ -377,7 +396,7 @@ const AdminUsers = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredUsers
+                      {currentUsers
                         .filter((user) => user.firstName && user.lastName)
                         .map((user) => (
                           <tr key={user.id}>
@@ -467,6 +486,31 @@ const AdminUsers = () => {
                     </tbody>
                   </table>
                 )}
+                <div className="flex justify-center mt-4">
+                  <nav>
+                    <ul className="pagination flex gap-1">
+                      {Array.from(
+                        {
+                          length: Math.ceil(users.length / usersPerPage),
+                        },
+                        (_, i) => (
+                          <li key={i} className="page-item">
+                            <button
+                              onClick={() => handlePageChange(i + 1)}
+                              className={`${
+                                i + 1 === currentPage
+                                  ? "bg-primary text-white"
+                                  : ""
+                              } text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded-l hover:shadow-lg  focus:outline-none`}
+                            >
+                              {i + 1}
+                            </button>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </nav>
+                </div>
               </div>
             </div>
           </div>

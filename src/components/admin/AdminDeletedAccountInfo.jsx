@@ -83,10 +83,6 @@ const AdminDeletedAccountInfo = () => {
     navigate(`/admin/info/user/${userId}`);
   };
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
   const filteredAccounts = accounts.filter((account) =>
     `${account.firstName} ${account.lastName}`
       .toLowerCase()

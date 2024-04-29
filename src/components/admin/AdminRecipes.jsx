@@ -32,6 +32,9 @@ const AdminRecipes = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filteredRecipes, setFilteredRecipes] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const recipesPerPage = 10;
 
   useEffect(() => {
     const recipesCollection = collection(firestore, "recipes");
@@ -164,18 +167,29 @@ const AdminRecipes = () => {
     }
   };
 
-  const filteredRecipes = recipes.filter((recipe) => {
-    return (
-      recipe.recipeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      recipe.caption.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (users.find((user) => user.id === recipe.userUid) &&
-        `${users.find((user) => user.id === recipe.userUid).firstName} ${
-          users.find((user) => user.id === recipe.userUid).lastName
-        }`
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()))
-    );
-  });
+  useEffect(() => {
+    // Reset currentPage to 1 whenever searchQuery changes
+    setCurrentPage(1);
+
+    const filteredRecipes = recipes.filter((recipe) => {
+      return (
+        (recipe.userUid?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (recipe.caption?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (recipe.recipeId?.toLowerCase()?.includes(searchQuery.toLowerCase()) ??
+          false) ||
+        (users.find((user) => user.id === recipe.userUid) &&
+          `${users.find((user) => user.id === recipe.userUid).firstName} ${
+            users.find((user) => user.id === recipe.userUid).lastName
+          }`
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()))
+      );
+    });
+
+    setFilteredRecipes(filteredRecipes);
+  }, [searchQuery, recipes, users]);
 
   const navigate = useNavigate();
 
@@ -213,6 +227,17 @@ const AdminRecipes = () => {
     const modal = document.getElementById(`view_recipe_${recipeId}`);
     modal.close();
   };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastRecipe = currentPage * recipesPerPage;
+  const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
+  const currentRecipes = filteredRecipes.slice(
+    indexOfFirstRecipe,
+    indexOfLastRecipe
+  );
 
   return (
     <div>
@@ -327,8 +352,8 @@ const AdminRecipes = () => {
                 </h1>
               </div>
 
-              <div className="overflow-y-auto max-h-[450px]">
-                {filteredRecipes.length === 0 ? (
+              <div>
+                {currentRecipes.length === 0 ? (
                   <p className="text-center text-gray-500">
                     No recipes found for "{searchQuery}". Please try a different
                     search.
@@ -352,7 +377,7 @@ const AdminRecipes = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredRecipes.map((recipe) => (
+                      {currentRecipes.map((recipe) => (
                         <tr key={recipe.id}>
                           <td className="border bg-gray-200 border-gray-300 px-4 py-2 text-center text-xs">
                             {recipe.caption}
@@ -485,6 +510,33 @@ const AdminRecipes = () => {
                     </tbody>
                   </table>
                 )}
+                <div className="flex justify-center mt-4">
+                  <nav>
+                    <ul className="pagination flex gap-1">
+                      {Array.from(
+                        {
+                          length: Math.ceil(
+                            filteredRecipes.length / recipesPerPage
+                          ),
+                        },
+                        (_, i) => (
+                          <li key={i} className="page-item">
+                            <button
+                              onClick={() => handlePageChange(i + 1)}
+                              className={`${
+                                i + 1 === currentPage
+                                  ? "bg-primary text-white"
+                                  : ""
+                              } text-gray-800 font-semibold py-2 px-4 border border-gray-300 rounded-l hover:shadow-lg focus:outline-none`}
+                            >
+                              {i + 1}
+                            </button>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </nav>
+                </div>
               </div>
             </div>
           </div>
