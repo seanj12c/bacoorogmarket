@@ -412,7 +412,12 @@ const Chat = () => {
   const handleReportProfile = async () => {
     try {
       const { value: reason } = await Swal.fire({
-        title: `Why do you want to report ${selectedUser.firstName}?`,
+        title: `Why do you want to report ${
+          selectedUser.isDeactivated || selectedUser.isDeleted
+            ? "this user"
+            : selectedUser.firstName
+        }?`,
+
         input: "select",
         inputOptions: {
           Spam: "Spam",
@@ -624,21 +629,35 @@ const Chat = () => {
                             selectedUser && selectedUser.id === user.id
                               ? "bg-gray-200"
                               : ""
+                          }${
+                            user.isDeactivated || user.isDeleted ? "hidden" : ""
                           }`}
                           onClick={() => handleUserSelect(user)}
                         >
                           <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
                             <img
-                              src={user.profilePhotoUrl}
-                              alt={`${user.firstName} ${user.lastName}`}
+                              src={
+                                user.isDeactivated || user.isDeleted
+                                  ? "https://firebasestorage.googleapis.com/v0/b/bacoorogmarket.appspot.com/o/default_person.jpg?alt=media&token=c6e5a6ed-68a9-44c0-abf4-ddfaed152a1b"
+                                  : user.profilePhotoUrl
+                              }
+                              alt={
+                                user.isDeactivated || user.isDeleted
+                                  ? "User"
+                                  : `${user.firstName} ${user.lastName}`
+                              }
                               className="w-9 h-9 object-cover rounded-full"
                             />
                             <div>
                               <h3 className="text-xs lg:text-lg font-bold text-center lg:text-start">
-                                {user.firstName} {user.lastName}
+                                {user.isDeactivated || user.isDeleted
+                                  ? "User"
+                                  : `${user.firstName} ${user.lastName}`}
                               </h3>
                               <p className="text-xs md:text-sm text-center md:text-start italic text-primary">
-                                Suggested User
+                                {user.isDeactivated || user.isDeleted
+                                  ? ""
+                                  : "Suggested User"}
                               </p>
                             </div>
                           </div>
