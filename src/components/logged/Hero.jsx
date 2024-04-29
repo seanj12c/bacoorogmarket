@@ -19,7 +19,7 @@ const Hero = () => {
         />
         <img
           src={blob}
-          className="absolute select-all pointer-events-auto md:block hidden bottom-0 left-[-5px] w-72 object-contain"
+          className="absolute cursor-pointer select-all pointer-events-auto md:block hidden bottom-0 left-[-5px] w-72 object-contain"
           alt=""
           onClick={() => navigate("/marketplace")}
         />
