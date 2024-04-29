@@ -429,7 +429,7 @@ const AdminLocations = () => {
                     className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
                   />
                 </div>
-                <div>
+                <div className="overflow-x-auto">
                   <table className="w-full  table table-xs text-xs text-center bg-gray-200 border border-gray-300">
                     <thead>
                       <tr className="bg-primary text-white">

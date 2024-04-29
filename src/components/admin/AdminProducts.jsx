@@ -354,7 +354,7 @@ const AdminProducts = () => {
                 </h1>
               </div>
 
-              <div>
+              <div className="overflow-x-auto">
                 {filteredProducts.length === 0 ? (
                   <p className="text-center text-gray-500">
                     No products found for "{searchQuery}". Please try a

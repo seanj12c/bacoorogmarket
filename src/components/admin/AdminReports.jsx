@@ -465,6 +465,48 @@ const AdminReports = () => {
     }
   };
 
+  const deleteReport = async (report) => {
+    // Show confirmation dialog using SweetAlert
+    Swal.fire({
+      title: "Delete Report",
+      text: "Are you sure you want to delete this report?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const db = getFirestore();
+          let reportCollection;
+
+          if (reportType === "product") {
+            reportCollection = collection(db, "productReports");
+          } else if (reportType === "recipe") {
+            reportCollection = collection(db, "recipeReports");
+          } else if (reportType === "profile") {
+            reportCollection = collection(db, "profileReports");
+          } else {
+            // Handle unknown report type
+            return;
+          }
+
+          await deleteDoc(doc(reportCollection, report.id));
+          // Optionally, you can update the state to reflect the deletion
+          Swal.fire("Deleted!", "The report has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting report:", error);
+          Swal.fire(
+            "Error!",
+            "An error occurred while deleting the report.",
+            "error"
+          );
+        }
+      }
+    });
+  };
+
   return (
     <div>
       {loading ? (
@@ -748,6 +790,12 @@ const AdminReports = () => {
                       <span className="font-bold ">Explanation: </span>{" "}
                       {report.explanation}
                     </p>
+                    <button
+                      className="btn btn-error mx-auto btn-xs md:bts-sm text-white"
+                      onClick={() => deleteReport(report)}
+                    >
+                      Delete Report
+                    </button>
 
                     <dialog
                       id={`productModal-${report.productId}`}

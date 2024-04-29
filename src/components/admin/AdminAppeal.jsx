@@ -85,6 +85,10 @@ const AdminAppeal = () => {
     fetchAppeals();
   }, [reportType]);
 
+  const reloadWindow = () => {
+    window.location.reload();
+  };
+
   const getUserData = async (userId) => {
     try {
       const db = getFirestore();
@@ -173,6 +177,7 @@ const AdminAppeal = () => {
 
         // Show success message
         Swal.fire("Enabled!", "The user has been enabled.", "success");
+        reloadWindow();
       }
     } catch (error) {
       console.error("Error enabling user:", error);
@@ -228,6 +233,7 @@ const AdminAppeal = () => {
         console.log("Recipe enabled successfully.");
 
         Swal.fire("Enabled!", "The recipe has been enabled.", "success");
+        reloadWindow();
       } catch (error) {
         console.error("Error enabling recipe:", error);
 
@@ -266,6 +272,7 @@ const AdminAppeal = () => {
         console.log("Product enabled successfully.");
 
         Swal.fire("Enabled!", "The product has been enabled.", "success");
+        reloadWindow();
       } catch (error) {
         console.error("Error enabling product:", error);
 
