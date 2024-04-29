@@ -373,7 +373,7 @@ function AppRoutes() {
         <Route path="/product/info/:productId" element={<ProductInfo />} />
         <Route path="/recipe/info/:recipeId" element={<RecipeInfo />} />
         <Route path="/chat/:chatId" element={<Chat />} />
-        <Route path="/admin/delete/info/:userId" element={<AdminInfo />} />
+        <Route path="/admin/info/user/:userId" element={<AdminInfo />} />
         <Route
           path="/post_product"
           element={

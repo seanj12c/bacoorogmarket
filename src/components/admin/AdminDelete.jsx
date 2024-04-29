@@ -213,6 +213,10 @@ const AdminDelete = () => {
     return fullName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
+  const goToInfo = (userId) => {
+    navigate(`/admin/info/user/${userId}`);
+  };
+
   return (
     <div>
       {loading ? (
@@ -358,17 +362,27 @@ const AdminDelete = () => {
                                 {deletionRequest.userData.lastName}
                               </div>
                             )}
-                            <button
-                              onClick={() =>
-                                handleDeleteConfirmation(
-                                  deletionRequest.userData.userId,
-                                  deletionRequest.userData.firstName
-                                )
-                              }
-                              className="btn btn-error btn-xs md:btn-md text-white"
-                            >
-                              Give Access
-                            </button>
+                            <div className="flex flex-col gap-2">
+                              <button
+                                className="btn btn-primary btn-xs text-white"
+                                onClick={() =>
+                                  goToInfo(deletionRequest.userData.userId)
+                                }
+                              >
+                                View Profile
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDeleteConfirmation(
+                                    deletionRequest.userData.userId,
+                                    deletionRequest.userData.firstName
+                                  )
+                                }
+                                className="btn btn-error btn-xs text-white"
+                              >
+                                Give Access
+                              </button>
+                            </div>
                           </div>
                           <div className="text-xs sm:text-sm md:text-base">
                             <div>

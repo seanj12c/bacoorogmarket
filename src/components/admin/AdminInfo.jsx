@@ -60,7 +60,7 @@ const AdminInfo = () => {
   }, [userId]);
 
   const goBack = () => {
-    navigate("/admin/delete/info");
+    navigate(-1);
   };
 
   const handleToggle = () => {

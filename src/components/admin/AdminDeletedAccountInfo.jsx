@@ -14,7 +14,7 @@ import {
   MdOutlineReport,
   MdOutlineRestaurantMenu,
 } from "react-icons/md";
-import { FaFile, FaUsers } from "react-icons/fa";
+import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
 import { GiMussel } from "react-icons/gi";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { Link, useNavigate } from "react-router-dom";
@@ -26,6 +26,7 @@ import logo from "../../assets/logo.png";
 const AdminDeletedAccountInfo = () => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -79,8 +80,18 @@ const AdminDeletedAccountInfo = () => {
   };
 
   const goToInfo = (userId) => {
-    navigate(`/admin/delete/info/${userId}`);
+    navigate(`/admin/info/user/${userId}`);
   };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredAccounts = accounts.filter((account) =>
+    `${account.firstName} ${account.lastName}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div>
@@ -178,37 +189,43 @@ const AdminDeletedAccountInfo = () => {
               <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <div className="bg-white overflow-hidden  sm:rounded-lg">
                   <div className="p-6 bg-white">
-                    {loading ? (
-                      <img src={uploadload} alt="loading" className="mx-auto" />
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {accounts.map((account, index) => (
-                          <div
-                            key={index}
-                            onClick={() => goToInfo(account.userId)}
-                            className="p-6 bg-white border border-gray-200 rounded-md shadow-md"
-                          >
-                            <img
-                              src={account.profilePhotoUrl}
-                              alt="Profile"
-                              className="w-20 h-20 object-cover border border-primary rounded-full mx-auto"
-                            />
-                            <h2 className="text-lg text-center font-semibold mb-2">
-                              {account.firstName} {account.lastName}
-                            </h2>
-                            <p className="text-xs text-gray-500 mb-2">
-                              Address: {account.address}
-                            </p>
-                            <p className="text-xs text-gray-500 mb-2">
-                              Contact: {account.contact}
-                            </p>
-                            <p className="text-xs text-gray-500 mb-2">
-                              Email: {account.email}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div className="border-primary mb-2 border w-full  px-2 flex items-center gap-2 rounded-md ">
+                      <FaSearch size={20} className="text-primary" />
+                      <input
+                        type="text"
+                        placeholder="Search for Caption/Name..."
+                        className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filteredAccounts.map((account, index) => (
+                        <div
+                          key={index}
+                          onClick={() => goToInfo(account.userId)}
+                          className="p-6 bg-white border border-gray-200 rounded-md shadow-md"
+                        >
+                          <img
+                            src={account.profilePhotoUrl}
+                            alt="Profile"
+                            className="w-20 h-20 object-cover border border-primary rounded-full mx-auto"
+                          />
+                          <h2 className="text-lg text-center font-semibold mb-2">
+                            {account.firstName} {account.lastName}
+                          </h2>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Address: {account.address}
+                          </p>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Contact: {account.contact}
+                          </p>
+                          <p className="text-xs text-gray-500 mb-2">
+                            Email: {account.email}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
