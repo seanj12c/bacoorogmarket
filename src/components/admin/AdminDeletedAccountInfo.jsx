@@ -200,7 +200,7 @@ const AdminDeletedAccountInfo = () => {
                         <div
                           key={index}
                           onClick={() => goToInfo(account.userId)}
-                          className="p-6 bg-white border border-gray-200 rounded-md shadow-md"
+                          className="p-6 bg-white border cursor-pointer border-gray-200 rounded-md shadow-md"
                         >
                           <img
                             src={account.profilePhotoUrl}
