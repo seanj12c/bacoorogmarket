@@ -370,6 +370,10 @@ const AdminAppeal = () => {
     }
   };
 
+  const goToInfo = (userId) => {
+    navigate(`/admin/info/user/${userId}`);
+  };
+
   return (
     <div>
       {loading ? (
@@ -512,9 +516,17 @@ const AdminAppeal = () => {
                           {reportType === "" && (
                             <button
                               onClick={() => enableUser(appeal.userData.userId)}
-                              className="btn btn-primary btn-xs md:btn-md text-white"
+                              className="btn btn-success btn-xs md:btn-md text-white"
                             >
                               Enable User
+                            </button>
+                          )}
+                          {reportType === "" && (
+                            <button
+                              onClick={() => goToInfo(appeal.userData.userId)}
+                              className="btn btn-primary btn-xs md:btn-md text-white"
+                            >
+                              View Profile
                             </button>
                           )}
                           {reportType === "recipe" ? (
