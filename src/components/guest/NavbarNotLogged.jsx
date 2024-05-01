@@ -96,13 +96,13 @@ export const NavbarNotLogged = () => {
                 <li className="py-1">
                   <a href="/#home">
                     <CiHome className="text-primary" size={15} />
-                    <span className="hover:text-primary ">Home</span>
+                    <span className="text-primary ">Home</span>
                   </a>
                 </li>
                 <li className="py-1">
                   <a href="/#faqs">
                     <CiCircleQuestion className="text-primary" size={15} />
-                    <span className="hover:text-primary ">FAQs</span>
+                    <span className="text-primary ">FAQs</span>
                   </a>
                 </li>
                 <li className="py-1">
@@ -205,7 +205,7 @@ export const NavbarNotLogged = () => {
         <div className="block lg:hidden">
           <img
             className="object-contain lg:w-20 w-16 select-none pointer-events-none"
-            src={logo}
+            src={fix ? logo : logowhite}
             alt=""
           />
         </div>
@@ -217,7 +217,11 @@ export const NavbarNotLogged = () => {
           </div>
         </div>
       </div>
-      <div className="btm-nav md:hidden text-xs border-t border-gray-300 text-black z-40">
+      <div
+        className={`btm-nav md:hidden text-xs border-t ${
+          fix ? "text-black" : "glass text-white"
+        } border-gray-300 z-40`}
+      >
         <li onClick={toggleOverlay} to="/marketplace" className="">
           <CiShop size={15} />
           <span className="btm-nav-label">Marketplace</span>
