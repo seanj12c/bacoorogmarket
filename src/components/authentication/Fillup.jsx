@@ -9,6 +9,8 @@ import uploadload from "../../assets/loading.gif";
 import loginbg from "../../assets/loginbg.png";
 import ReCAPTCHA from "react-google-recaptcha";
 import Swal from "sweetalert2";
+import { CiLogout } from "react-icons/ci";
+import { getAuth, signOut } from "firebase/auth";
 
 const Fillup = () => {
   const [firstName, setFirstName] = useState("");
@@ -139,6 +141,30 @@ const Fillup = () => {
     setRecaptchaCompleted(true);
   };
 
+  const handleLogoutConfirmation = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, logout",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleLogout();
+      }
+    });
+  };
+
+  const handleLogout = async () => {
+    const authInstance = getAuth();
+    try {
+      await signOut(authInstance);
+      navigate("/");
+    } catch (error) {
+      console.log("Error logging out:", error);
+    }
+  };
   return (
     <div>
       {!loading && (
@@ -149,8 +175,18 @@ const Fillup = () => {
             alt=""
           />
           <div className="w-full text-xs md:text-base md:max-w-lg bg-white mx-auto md:pt-5 pt-16 md:m-5 p-5 border rounded-lg shadow-lg">
+            <div className="flex items-center w-full justify-end">
+              <button
+                onClick={handleLogoutConfirmation}
+                className="btn btn-xs btn-error flex items-center text-white"
+              >
+                Logout <CiLogout />
+              </button>
+            </div>{" "}
             <h1 className="text-xl text-center font-bold mb-5">
               Fill this up to Continue
+              <br />
+              <span className="italic text-xs">(Required)</span>
             </h1>
             <form className="text-xs" onSubmit={handleSubmit}>
               <div className="mb-2 w-full">
