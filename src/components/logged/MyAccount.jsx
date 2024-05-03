@@ -1015,7 +1015,7 @@ const MyAccount = () => {
                         <div
                           key={index}
                           className={`${
-                            product.isHidden ? "relative" : ""
+                            product.isHidden ? "relative -z-50" : ""
                           } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
                         >
                           {product.isHidden && (
@@ -1172,7 +1172,7 @@ const MyAccount = () => {
                         <div
                           key={index}
                           className={`${
-                            recipe.isHidden ? "relative" : ""
+                            recipe.isHidden ? "relative -z-50" : ""
                           } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
                         >
                           {recipe.isHidden && (
