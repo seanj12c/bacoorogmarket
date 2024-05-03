@@ -20,6 +20,7 @@ const Recipe = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
+  const [displayedRecipes, setDisplayedRecipes] = useState(6);
 
   useEffect(() => {
     const recipesCollection = collection(firestore, "recipes");
@@ -86,6 +87,10 @@ const Recipe = () => {
         recipe.recipeType.toLowerCase() === selectedSort.toLowerCase())
     );
   });
+
+  const handleShowMore = () => {
+    setDisplayedRecipes(displayedRecipes + 6);
+  };
 
   return (
     <div>
@@ -178,7 +183,7 @@ const Recipe = () => {
             </p>
           ) : (
             <div className="grid grid-cols-1 px-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredRecipes.map((recipe) => (
+              {filteredRecipes.slice(0, displayedRecipes).map((recipe) => (
                 <Link key={recipe.id} to={`/recipe/info/${recipe.id}`}>
                   <div
                     key={recipe.id}
@@ -225,6 +230,22 @@ const Recipe = () => {
                 </Link>
               ))}
             </div>
+          )}
+
+          {/* Show More Button */}
+          {displayedRecipes < filteredRecipes.length ? (
+            <div className="flex justify-center">
+              <button
+                onClick={handleShowMore}
+                className="btn btn-primary btn-sm sm:btn-md mt-4 mx-auto"
+              >
+                Show More
+              </button>
+            </div>
+          ) : (
+            <p className="text-center italic text-xs md:text-base text-gray-500 mt-4">
+              No more other recipe to show
+            </p>
           )}
         </div>
       )}

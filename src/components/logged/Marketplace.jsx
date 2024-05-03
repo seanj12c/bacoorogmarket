@@ -21,6 +21,7 @@ const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [freshnessFilter, setFreshnessFilter] = useState("None");
   const [productFilter, setProductFilter] = useState("None");
+  const [displayedPosts, setDisplayedPosts] = useState(6);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -94,6 +95,10 @@ const Marketplace = () => {
 
   const handleProductFilter = (event) => {
     setProductFilter(event.target.value);
+  };
+
+  const handleShowMore = () => {
+    setDisplayedPosts(displayedPosts + 6);
   };
 
   return (
@@ -209,7 +214,7 @@ const Marketplace = () => {
             </p>
           ) : (
             <div className=" grid grid-cols-1 px-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {products.map((product) => (
+              {products.slice(0, displayedPosts).map((product) => (
                 <Link
                   className=" glass rounded-lg shadow p-4 cursor-pointer"
                   key={product.id}
@@ -283,6 +288,21 @@ const Marketplace = () => {
                 </Link>
               ))}
             </div>
+          )}
+
+          {displayedPosts < products.length ? (
+            <div className="flex justify-center">
+              <button
+                onClick={handleShowMore}
+                className="btn btn-primary btn-sm sm:btn-md mt-4 mx-auto"
+              >
+                Show More
+              </button>
+            </div>
+          ) : (
+            <p className="text-center italic text-xs md:text-base text-gray-500 mt-4">
+              No more other product to show
+            </p>
           )}
         </div>
       )}
