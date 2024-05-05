@@ -936,7 +936,7 @@ const MyAccount = () => {
                       onClick={deleteAccount}
                     >
                       <CiWarning className="text-xl font-bold" />
-                      Acount Deletion
+                      Account Deletion
                     </button>
                   </div>
                   <div className="flex justify-center pt-2">
