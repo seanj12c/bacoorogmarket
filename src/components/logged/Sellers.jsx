@@ -43,7 +43,8 @@ const Sellers = () => {
           product.lastName &&
           product.address &&
           product.userUid &&
-          !product.isHidden
+          !product.isHidden &&
+          product.caption
         ) {
           locationsData.push({
             id: doc.id,
@@ -53,6 +54,7 @@ const Sellers = () => {
             lastName: product.lastName,
             address: product.address,
             userId: product.userUid,
+            caption: product.caption,
           });
         }
       });
@@ -169,6 +171,7 @@ const Sellers = () => {
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="p-1">Name</th>
+                        <th className="p-1">Product Name</th>
                         <th className="p-1">Address</th>
                         <th className="p-1">Action</th>
                       </tr>
@@ -179,6 +182,7 @@ const Sellers = () => {
                           <td className="p-1">
                             {location.firstName} {location.lastName}
                           </td>
+                          <td className="p-1">{location.caption}</td>
                           <td className="p-1">{location.address}</td>
                           <td className="flex justify-center flex-col md:flex-row w-full gap-2">
                             {currentUserID !== location.userId && (

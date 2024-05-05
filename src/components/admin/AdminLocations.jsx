@@ -434,6 +434,9 @@ const AdminLocations = () => {
                     <thead>
                       <tr className="bg-primary text-white">
                         <th className="p-1 border border-gray-300">Name</th>
+                        <th className="p-1 border border-gray-300">
+                          Product Name
+                        </th>
                         <th className="p-1 border border-gray-300">Address</th>
                         <th className="p-1 border border-gray-300">Action</th>
                       </tr>
@@ -462,6 +465,9 @@ const AdminLocations = () => {
                           <td className="p-1 border border-gray-300">
                             {selectedLocation.firstName}{" "}
                             {selectedLocation.lastName}
+                          </td>
+                          <td className="p-1 border border-gray-300">
+                            {selectedLocation.caption}
                           </td>
                           <td className="p-1 border border-gray-300">
                             {selectedLocation.address}
@@ -510,6 +516,9 @@ const AdminLocations = () => {
                           <tr key={location.id}>
                             <td className="p-1 border border-gray-300">
                               {location.firstName} {location.lastName}
+                            </td>
+                            <td className="p-1 border border-gray-300">
+                              {location.caption}
                             </td>
                             <td className="p-1 border border-gray-300">
                               {location.address}
