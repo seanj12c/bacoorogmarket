@@ -974,7 +974,7 @@ const MyAccount = () => {
             </div>
 
             <div className="md:w-2/3 md:px-5 md:ml-auto">
-              <div className="md:fixed md:flex justify-center  bg-bgray md:bg-transparent md:w-2/3 md:px-5 mx-auto  py-2 rounded-lg my-2">
+              <div className=" md:flex justify-center  bg-bgray md:bg-transparent md:w-2/3 md:px-5 mx-auto  py-2 rounded-lg my-2">
                 <div className="md:glass md:w-full md:max-w-3xl md:h-20 rounded-lg p-2">
                   <h1 className="text-center font-bold text-black mb-2">
                     You posts here
@@ -1005,7 +1005,7 @@ const MyAccount = () => {
               </div>
 
               {displayProducts ? (
-                <div className="md:pt-24">
+                <div className="">
                   {userPosts.filter((post) => post.type === "product").length >
                   0 ? (
                     userPosts
@@ -1015,7 +1015,7 @@ const MyAccount = () => {
                         <div
                           key={index}
                           className={`${
-                            product.isHidden ? "relative -z-50" : ""
+                            product.isHidden ? "relative" : ""
                           } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
                         >
                           {product.isHidden && (
@@ -1162,7 +1162,7 @@ const MyAccount = () => {
                   )}
                 </div>
               ) : (
-                <div className="md:pt-24">
+                <div className="">
                   {userPosts.filter((post) => post.type === "recipe").length >
                   0 ? (
                     userPosts
@@ -1172,7 +1172,7 @@ const MyAccount = () => {
                         <div
                           key={index}
                           className={`${
-                            recipe.isHidden ? "relative -z-50" : ""
+                            recipe.isHidden ? "relative" : ""
                           } bg-bgray rounded-lg mt-2 shadow p-4 cursor-pointer`}
                         >
                           {recipe.isHidden && (
