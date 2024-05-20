@@ -62,6 +62,12 @@ const SearchAUser = () => {
             className="border p-4 rounded-sm cursor-pointer hover:shadow-md transition duration-300 ease-in-out"
             onClick={() => handleUserClick(user.id)}
           >
+            <div className="flex justify-end pb-2">
+              <span className="indicator-item badge badge-primary">
+                <p className=" text-xs">{user.role}</p>
+              </span>
+            </div>
+
             <img
               src={user.profilePhotoUrl}
               alt={`${user.firstName} ${user.lastName}`}
@@ -69,6 +75,7 @@ const SearchAUser = () => {
             />
             <p className="font-bold">{`${user.firstName} ${user.lastName}`}</p>
             <p className="text-gray-500 text-xs">{user.address}</p>
+
             {!searchQuery && (
               <p className="text-primary font-semibold">People you may know</p>
             )}

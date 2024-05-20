@@ -8,12 +8,12 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
-
 import uploadload from "../../assets/loading.gif";
 import banner from "../../assets/banner.jpg";
 import { FaSearch } from "react-icons/fa";
 import { MdOutlinePostAdd, MdOutlineSort } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../authContext";
 
 const Marketplace = () => {
   const [products, setProducts] = useState([]);
@@ -22,6 +22,22 @@ const Marketplace = () => {
   const [freshnessFilter, setFreshnessFilter] = useState("None");
   const [productFilter, setProductFilter] = useState("None");
   const [displayedPosts, setDisplayedPosts] = useState(6);
+  const [userRole, setUserRole] = useState(null);
+  const auth = useAuth();
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (auth.currentUser) {
+        const userDocRef = doc(firestore, "registered", auth.currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          setUserRole(userDocSnap.data().role);
+        }
+      }
+    };
+
+    fetchUserRole();
+  }, [auth.currentUser]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -122,14 +138,16 @@ const Marketplace = () => {
           </div>
           <div className="flex py-2 w-full justify-center items-center gap-2 px-4">
             <div className="md:flex gap-1 hidden">
-              <Link to="/post_product">
-                <div className="flex flex-col items-center border w-28 md:w-36 border-primary bg-primary rounded-lg">
-                  <MdOutlinePostAdd className="text-white" size={18} />
-                  <p className="text-center text-xs md:text-base text-white">
-                    Post a Product
-                  </p>
-                </div>
-              </Link>
+              {userRole !== "Buyer" && (
+                <Link to="/post_product">
+                  <div className="flex flex-col items-center border w-28 md:w-36 border-primary bg-primary rounded-lg">
+                    <MdOutlinePostAdd className="text-white" size={18} />
+                    <p className="text-center text-xs md:text-base text-white">
+                      Post a Product
+                    </p>
+                  </div>
+                </Link>
+              )}
               <div className="flex justify-between px-2 items-center border p-1 border-primary bg-primary rounded-lg">
                 <div className="flex items-center pr-3 gap-2">
                   <MdOutlineSort className="text-white text-3xl" />
@@ -157,6 +175,7 @@ const Marketplace = () => {
                 </div>
               </div>
             </div>
+
             <div className="border-primary border w-full bg-[#FFFFFF] px-2 flex items-center gap-2 rounded-md ">
               <FaSearch size={20} className="text-primary" />
               <input
@@ -194,17 +213,19 @@ const Marketplace = () => {
                 </select>
               </div>
             </div>
-            <Link
-              className="btn btn-primary btn-sm sm:btn-md"
-              to="/post_product"
-            >
-              <div className="flex justify-center items-center border w-full border-primary bg-primary rounded-lg">
-                <MdOutlinePostAdd className="text-white" size={18} />
-                <p className="text-center text-xs md:text-base text-white">
-                  Post a Product
-                </p>
-              </div>
-            </Link>
+            {userRole !== "Buyer" && (
+              <Link
+                className="btn btn-primary btn-sm sm:btn-md"
+                to="/post_product"
+              >
+                <div className="flex justify-center items-center border w-full border-primary bg-primary rounded-lg">
+                  <MdOutlinePostAdd className="text-white" size={18} />
+                  <p className="text-center text-xs md:text-base text-white">
+                    Post a Product
+                  </p>
+                </div>
+              </Link>
+            )}
           </div>
 
           {products.length === 0 ? (

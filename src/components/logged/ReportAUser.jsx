@@ -201,8 +201,11 @@ const ReportAUser = () => {
               alt={`${user.firstName} ${user.lastName}`}
               className="w-20 h-20 object-cover md:w-24 md:h-24 lg:w-32 lg:h-32 mx-auto rounded-full mb-4"
             />
-            <p className="text-lg font-semibold text-center mb-2">
+            <p className="text-lg font-semibold text-center ">
               {`${user.firstName} ${user.lastName}`}
+            </p>
+            <p className="text-white bg-primary text-xs rounded-md w-20 mx-auto text-center mb-2">
+              {user.role}
             </p>
             <p className="text-gray-600 text-center">{user.email}</p>
             <div className="flex justify-center">

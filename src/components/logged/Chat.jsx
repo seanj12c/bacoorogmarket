@@ -544,14 +544,19 @@ const Chat = () => {
                 {usersWithLastMessages.map((user) => (
                   <div
                     key={user.id}
-                    className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
+                    className={`border object-cover rounded-lg cursor-pointer hover:bg-gray-200 ${
                       selectedUser && selectedUser.id === user.id
                         ? "bg-gray-200"
                         : ""
                     }`}
                     onClick={() => handleUserSelect(user)}
                   >
-                    <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
+                    <div className="flex justify-end ">
+                      <span className="indicator-item badge badge-primary">
+                        <p className=" text-xs">{user.role}</p>
+                      </span>
+                    </div>
+                    <div className="flex w-28  pb-4 px-4 lg:w-full lg:flex-row flex-col gap-2 items-center">
                       <img
                         src={
                           user.isDeactivated || user.isDeleted
@@ -565,6 +570,7 @@ const Chat = () => {
                         }
                         className="w-9 h-9 object-cover rounded-full"
                       />
+
                       <div className="flex flex-col gap-1 items-start">
                         <h3 className="text-xs lg:text-lg font-bold lg:text-start">
                           {user.isDeactivated || user.isDeleted
@@ -625,7 +631,7 @@ const Chat = () => {
                       .map((user) => (
                         <div
                           key={user.id}
-                          className={`border object-cover p-4 rounded-lg cursor-pointer hover:bg-gray-200 ${
+                          className={`border object-cover rounded-lg cursor-pointer hover:bg-gray-200 ${
                             selectedUser && selectedUser.id === user.id
                               ? "bg-gray-200"
                               : ""
@@ -634,7 +640,13 @@ const Chat = () => {
                           }`}
                           onClick={() => handleUserSelect(user)}
                         >
-                          <div className="flex w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
+                          <div className="flex justify-end ">
+                            <span className="indicator-item badge badge-primary">
+                              <p className=" text-xs">{user.role}</p>
+                            </span>
+                          </div>
+
+                          <div className="flex pb-4 px-4 w-28 lg:w-full lg:flex-row flex-col gap-2 items-center">
                             <img
                               src={
                                 user.isDeactivated || user.isDeleted
@@ -729,14 +741,19 @@ const Chat = () => {
                       }
                       alt=""
                     />
-                    <h2 className="font-bold">
-                      {selectedUser.isDeactivated || selectedUser.isDeleted
-                        ? " "
-                        : selectedUser.firstName}{" "}
-                      {selectedUser.isDeactivated || selectedUser.isDeleted
-                        ? "User"
-                        : selectedUser.lastName}
-                    </h2>
+                    <div>
+                      <h2 className="font-bold">
+                        {selectedUser.isDeactivated || selectedUser.isDeleted
+                          ? " "
+                          : selectedUser.firstName}{" "}
+                        {selectedUser.isDeactivated || selectedUser.isDeleted
+                          ? "User"
+                          : selectedUser.lastName}
+                      </h2>
+                      <h1 className="text-primary  text-xs">
+                        {selectedUser.role}
+                      </h1>
+                    </div>
                   </div>
                   <div className="flex flex-col md:flex-row gap-2">
                     {messages.length > 0 && (

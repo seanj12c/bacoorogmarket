@@ -35,7 +35,8 @@ const MyAccount = () => {
   const [selectedPost, setSelectedPost] = useState(null);
   const [isEditing] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [displayProducts, setDisplayProducts] = useState(true);
+  const [displayProducts, setDisplayProducts] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -43,6 +44,20 @@ const MyAccount = () => {
     address: "",
     contact: "",
   });
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (auth.currentUser) {
+        const userDocRef = doc(firestore, "registered", auth.currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          setUserRole(userDocSnap.data().role);
+        }
+      }
+    };
+
+    fetchUserRole();
+  }, [auth.currentUser]);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -914,6 +929,9 @@ const MyAccount = () => {
                     {userData.firstName} {userData.lastName}
                   </strong>
                 </p>
+                <p className="text-center text-primary text-xs lg:text-base">
+                  {userData.role}
+                </p>
                 <a
                   href={`mailto:${userData.email}`}
                   className="text-xs flex items-center hover:text-primary hover:translate-x-1 transition-all ease-in-out duration-300 py-1  gap-2"
@@ -957,12 +975,14 @@ const MyAccount = () => {
                 </h1>
 
                 <div className="flex justify-center gap-2">
-                  <Link
-                    to="/post_product"
-                    className="btn-sm md:btn-xs lg:btn-sm btn btn-primary"
-                  >
-                    Post a Product
-                  </Link>
+                  {userRole !== "Buyer" && (
+                    <Link
+                      to="/post_product"
+                      className="btn-sm md:btn-xs lg:btn-sm btn btn-primary"
+                    >
+                      Post a Product
+                    </Link>
+                  )}
                   <Link
                     to="/post_recipe"
                     className="btn-sm md:btn-xs lg:btn-sm btn btn-primary"
@@ -980,16 +1000,18 @@ const MyAccount = () => {
                     You posts here
                   </h1>
                   <div className="flex text-xs items-center justify-center">
-                    <button
-                      onClick={() => toggleDisplay(true)}
-                      className={`mx-2 px-4 py-2 ${
-                        displayProducts
-                          ? "bg-primary text-white"
-                          : "bg-gray-400 text-black"
-                      } rounded-md`}
-                    >
-                      Products
-                    </button>
+                    {userRole !== "Buyer" && (
+                      <button
+                        onClick={() => toggleDisplay(true)}
+                        className={`mx-2 px-4 py-2 ${
+                          displayProducts
+                            ? "bg-primary text-white"
+                            : "bg-gray-400 text-black"
+                        } rounded-md`}
+                      >
+                        Products
+                      </button>
+                    )}
                     <button
                       onClick={() => toggleDisplay(false)}
                       className={`mx-2 px-4 py-2 ${

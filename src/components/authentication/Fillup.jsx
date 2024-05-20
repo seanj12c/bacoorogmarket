@@ -17,6 +17,7 @@ const Fillup = () => {
   const [lastName, setLastName] = useState("");
   const [contact, setContact] = useState("");
   const [address, setAddress] = useState("");
+  const [role, setRole] = useState("Buyer");
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [newProfilePicture, setNewProfilePicture] = useState(null);
@@ -88,6 +89,7 @@ const Fillup = () => {
         lastName,
         contact,
         address,
+        role,
         userId: userId,
         email: auth.currentUser.email,
         profilePhotoUrl: photoURL,
@@ -165,6 +167,7 @@ const Fillup = () => {
       console.log("Error logging out:", error);
     }
   };
+
   return (
     <div>
       {!loading && (
@@ -314,6 +317,25 @@ const Fillup = () => {
                     placeholder="123 Main St, Bacoor City"
                     required
                   />
+                </label>
+              </div>
+
+              <div className="mb-2">
+                <label
+                  htmlFor="role"
+                  className="input input-bordered flex items-center gap-2"
+                >
+                  <h1 className="w-20 text-xs"> Register as</h1>
+                  <select
+                    id="role"
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    required
+                  >
+                    <option value="Buyer">Buyer</option>
+                    <option value="Seller">Seller</option>
+                  </select>
                 </label>
               </div>
 
