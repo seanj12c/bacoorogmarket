@@ -19,7 +19,7 @@ import { firestore } from "../../firebase";
 import cam from "../../assets/cam.png";
 import uploadload from "../../assets/loading.gif";
 import { MdOutlineAttachEmail } from "react-icons/md";
-import { FaPhone } from "react-icons/fa";
+import { FaPhone, FaStar } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { CiEdit, CiLocationArrow1, CiWarning } from "react-icons/ci";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -37,7 +37,8 @@ const MyAccount = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(false);
   const [userRole, setUserRole] = useState(null);
-
+  const [reviewCount, setReviewCount] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -932,6 +933,20 @@ const MyAccount = () => {
                 <p className="text-center text-primary text-xs lg:text-base">
                   {userData.role}
                 </p>
+                {userData.role !== "Buyer" && (
+                  <div className="shadow bg-white rounded-md p-1">
+                    <p className="text-center font-bold flex justify-center gap-1 items-center text-sm lg:text-base">
+                      <span className="flex gap-1 items-center">
+                        <FaStar className="text-yellow-500" />
+                        {reviewCount.toFixed(1)}
+                      </span>
+                      ratings
+                    </p>
+                    <p className="text-center text-xs italic">
+                      {totalReviews} reviews
+                    </p>
+                  </div>
+                )}
                 <a
                   href={`mailto:${userData.email}`}
                   className="text-xs flex items-center hover:text-primary hover:translate-x-1 transition-all ease-in-out duration-300 py-1  gap-2"
