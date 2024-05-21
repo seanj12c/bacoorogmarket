@@ -451,15 +451,16 @@ const Profile = () => {
                   {user.role}
                 </p>
                 {user.role !== "Buyer" && (
-                  <div className="shadow rounded-md p-1">
-                    <p className="text-center flex justify-center gap-1 items-center text-primary text-sm lg:text-base">
-                      <span className="flex items-center">
-                        {reviewCount} <IoStarSharp size={10} />
+                  <div className="shadow bg-white rounded-md p-1">
+                    <p className="text-center font-bold flex justify-center gap-1 items-center text-sm lg:text-base">
+                      <span className="flex gap-1 items-center">
+                        <FaStar className="text-yellow-500" />
+                        {reviewCount.toFixed(1)}
                       </span>
                       ratings
                     </p>
                     <p className="text-center text-xs italic">
-                      {totalReviews} users rated this profile
+                      {totalReviews} reviews
                     </p>
                   </div>
                 )}
