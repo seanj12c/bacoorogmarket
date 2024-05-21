@@ -37,8 +37,8 @@ const MyAccount = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [reviewCount, setReviewCount] = useState(0);
-  const [totalReviews, setTotalReviews] = useState(0);
+  const [reviewCount] = useState(0);
+  const [totalReviews] = useState(0);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
