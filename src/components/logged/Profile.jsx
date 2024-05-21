@@ -21,7 +21,6 @@ import { CiLocationArrow1 } from "react-icons/ci";
 import Swal from "sweetalert2";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { FaStar } from "react-icons/fa6";
-import { IoStarSharp } from "react-icons/io5";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -263,26 +262,31 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    const fetchReviewData = async () => {
+    const fetchReviewData = () => {
       try {
         const reviewQuery = query(
           collection(firestore, "reviews"),
           where("userId", "==", userId)
         );
-        const reviewSnapshot = await getDocs(reviewQuery);
 
-        let totalRating = 0;
-        let totalReviews = 0;
+        const unsubscribe = onSnapshot(reviewQuery, (reviewSnapshot) => {
+          let totalRating = 0;
+          let totalReviews = 0;
 
-        reviewSnapshot.forEach((doc) => {
-          const reviewData = doc.data();
-          totalRating += parseInt(reviewData.rating);
-          totalReviews++;
+          reviewSnapshot.forEach((doc) => {
+            const reviewData = doc.data();
+            totalRating += parseInt(reviewData.rating, 10);
+            totalReviews++;
+          });
+
+          const averageRating =
+            totalReviews > 0 ? totalRating / totalReviews : 0;
+          setReviewCount(averageRating);
+          setTotalReviews(totalReviews);
         });
 
-        const averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
-        setReviewCount(averageRating);
-        setTotalReviews(totalReviews);
+        // Cleanup function to unsubscribe from the listener when the component unmounts
+        return () => unsubscribe();
       } catch (error) {
         console.error("Error fetching review data:", error);
       }
