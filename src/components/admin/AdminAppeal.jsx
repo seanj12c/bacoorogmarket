@@ -10,7 +10,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import uploadload from "../../assets/loading.gif";
-import { FaFile, FaSearch, FaUsers } from "react-icons/fa";
+import { FaFile, FaSearch, FaStar, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import {
@@ -396,6 +396,7 @@ const AdminAppeal = () => {
               reports="bg-white text-primary"
               deletions="bg-white text-primary"
               accinfos="bg-white text-primary"
+              ratings="bg-white text-primary"
             />
           </div>
           <div className="md:flex md:flex-row">
@@ -451,6 +452,12 @@ const AdminAppeal = () => {
                   <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
                     <MdNoAccounts size={25} />
                     Deleted Acc Info
+                  </li>
+                </Link>
+                <Link to="/admin/sellers/ratings">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                    <FaStar size={25} />
+                    Sellers Ratings
                   </li>
                 </Link>
                 <li

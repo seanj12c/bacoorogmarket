@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  where,
-  query,
-} from "firebase/firestore";
+import { collection, getDocs, where, query } from "firebase/firestore";
 import uploadload from "../../assets/loading.gif";
 import { AiOutlineLogout } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -14,7 +8,7 @@ import {
   MdOutlineReport,
   MdOutlineRestaurantMenu,
 } from "react-icons/md";
-import { FaFile, FaSearch, FaStar, FaUsers } from "react-icons/fa";
+import { FaFile, FaUsers } from "react-icons/fa";
 import { GiMussel } from "react-icons/gi";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,34 +16,61 @@ import Swal from "sweetalert2";
 import { getAuth, signOut } from "firebase/auth";
 import NavbarAdmin from "./NavbarAdmin";
 import logo from "../../assets/logo.png";
+import { firestore } from "../../firebase";
+import { FaStar } from "react-icons/fa";
 
-const AdminDeletedAccountInfo = () => {
-  const [accounts, setAccounts] = useState([]);
+const AdminSellersRatings = () => {
+  const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      const db = getFirestore();
-      const accountsRef = collection(db, "registered");
-      const q = query(accountsRef, where("isDeleted", "==", true));
-      const snapshot = await getDocs(q);
-      const accountsData = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (
-          data.email !== "bacoorogmarket@gmail.com" &&
-          data.firstName &&
-          data.lastName
-        ) {
-          accountsData.push(data);
-        }
-      });
-      setAccounts(accountsData);
-      setLoading(false);
+    const fetchSellersRatings = async () => {
+      try {
+        const sellersRef = collection(firestore, "registered");
+        const reviewsRef = collection(firestore, "reviews");
+
+        const sellersSnapshot = await getDocs(
+          query(sellersRef, where("role", "==", "Seller"))
+        );
+
+        const sellersData = await Promise.all(
+          sellersSnapshot.docs.map(async (sellerDoc) => {
+            const sellerData = sellerDoc.data();
+
+            const reviewsSnapshot = await getDocs(
+              query(reviewsRef, where("userId", "==", sellerDoc.id))
+            );
+
+            const totalReviews = reviewsSnapshot.size;
+            const totalRating = reviewsSnapshot.docs.reduce(
+              (sum, reviewDoc) => sum + parseFloat(reviewDoc.data().rating),
+              0
+            );
+
+            const averageRating =
+              totalReviews > 0 ? totalRating / totalReviews : 0;
+
+            return {
+              ...sellerData,
+              averageRating,
+              totalReviews,
+            };
+          })
+        );
+
+        const sortedSellers = sellersData.sort(
+          (a, b) => b.averageRating - a.averageRating
+        );
+
+        setSellers(sortedSellers);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching sellers ratings:", error);
+        setLoading(false);
+      }
     };
 
-    fetchAccounts();
+    fetchSellersRatings();
   }, []);
 
   const navigate = useNavigate();
@@ -79,16 +100,6 @@ const AdminDeletedAccountInfo = () => {
     }
   };
 
-  const goToInfo = (userId) => {
-    navigate(`/admin/info/user/${userId}`);
-  };
-
-  const filteredAccounts = accounts.filter((account) =>
-    `${account.firstName} ${account.lastName}`
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div>
       {loading ? (
@@ -110,8 +121,8 @@ const AdminDeletedAccountInfo = () => {
               appeals="bg-white text-primary"
               reports="bg-white text-primary"
               deletions="bg-white text-primary"
-              accinfos="bg-primary text-white"
-              ratings="bg-white text-primary"
+              accinfos="bg-white text-primary"
+              ratings="bg-primary text-white"
             />
           </div>
           <div className="md:flex md:flex-row">
@@ -164,13 +175,13 @@ const AdminDeletedAccountInfo = () => {
                   </li>
                 </Link>
                 <Link to="/admin/delete/info">
-                  <li className="bg-primary p-4 text-white text-xs flex gap-2 items-center">
+                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
                     <MdNoAccounts size={25} />
                     Deleted Acc Info
                   </li>
                 </Link>
                 <Link to="/admin/sellers/ratings">
-                  <li className="hover:bg-primary hover:text-white text-primary p-4 text-xs flex gap-2 items-center">
+                  <li className="bg-primary p-4 text-white text-xs flex gap-2 items-center">
                     <FaStar size={25} />
                     Sellers Ratings
                   </li>
@@ -186,52 +197,47 @@ const AdminDeletedAccountInfo = () => {
             </div>
 
             <div className="container lg:w-4/5 md:w-4/5 md:ml-auto md:mr-0 mx-auto px-4">
-              <h1 className="text-2xl font-bold my-4 text-center">
-                Deleted Account Information
-              </h1>
-              <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                <div className="bg-white overflow-hidden  sm:rounded-lg">
-                  <div className="p-6 bg-white">
-                    <div className="border-primary mb-2 border w-full  px-2 flex items-center gap-2 rounded-md ">
-                      <FaSearch size={20} className="text-primary" />
-                      <input
-                        type="text"
-                        placeholder="Search for Caption/Name..."
-                        className=" appearance-none  rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none "
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredAccounts.map((account, index) => (
-                        <div
-                          key={index}
-                          onClick={() => goToInfo(account.userId)}
-                          className="p-6 bg-white border cursor-pointer border-gray-200 rounded-md shadow-md"
-                        >
+              <h1 className="text-2xl pt-10 font-bold mb-4">Seller Ratings</h1>
+              {loading ? (
+                <div>Loading...</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sellers
+                    .filter(
+                      (seller) =>
+                        seller.firstName &&
+                        seller.email !== "bacoorogmarket@gmail.com"
+                    )
+                    .map((seller) => (
+                      <div
+                        key={seller.userId}
+                        className="bg-white p-4 rounded shadow"
+                      >
+                        <div className="flex items-center">
                           <img
-                            src={account.profilePhotoUrl}
-                            alt="Profile"
-                            className="w-20 h-20 object-cover border border-primary rounded-full mx-auto"
+                            src={seller.profilePhotoUrl}
+                            alt={`${seller.firstName} ${seller.lastName}`}
+                            className="w-12 h-12 rounded-full object-cover"
                           />
-                          <h2 className="text-lg text-center font-semibold mb-2">
-                            {account.firstName} {account.lastName}
-                          </h2>
-                          <p className="text-xs text-gray-500 mb-2">
-                            Address: {account.address}
-                          </p>
-                          <p className="text-xs text-gray-500 mb-2">
-                            Contact: {account.contact}
-                          </p>
-                          <p className="text-xs text-gray-500 mb-2">
-                            Email: {account.email}
-                          </p>
+                          <div className="ml-4">
+                            <p className="text-lg font-semibold">
+                              {seller.firstName} {seller.lastName}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {seller.totalReviews} Reviews
+                            </p>
+                            <div className="flex items-center">
+                              <FaStar className="text-yellow-500" />
+                              <p className="ml-1">
+                                {seller.averageRating.toFixed(1)}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
+                    ))}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -240,4 +246,4 @@ const AdminDeletedAccountInfo = () => {
   );
 };
 
-export default AdminDeletedAccountInfo;
+export default AdminSellersRatings;

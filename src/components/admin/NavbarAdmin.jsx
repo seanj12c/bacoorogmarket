@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { getAuth, signOut } from "firebase/auth";
 import Swal from "sweetalert2";
-import { FaArrowAltCircleUp, FaFile, FaUsers } from "react-icons/fa";
+import { FaArrowAltCircleUp, FaFile, FaStar, FaUsers } from "react-icons/fa";
 import { LiaSearchLocationSolid } from "react-icons/lia";
 import { GiMussel } from "react-icons/gi";
 import {
@@ -25,6 +25,7 @@ export const NavbarAdmin = ({
   reports,
   deletions,
   accinfos,
+  ratings,
 }) => {
   const user = `${users}`;
   const location = `${locations}`;
@@ -34,6 +35,7 @@ export const NavbarAdmin = ({
   const report = `${reports}`;
   const deletionRequest = `${deletions}`;
   const accinfo = `${accinfos}`;
+  const rating = `${ratings}`;
   const [nav, setNav] = useState(false);
   const [fix, setFix] = useState(false);
 
@@ -188,6 +190,12 @@ export const NavbarAdmin = ({
                 <li className={`${accinfo} p-4 flex gap-2 items-center`}>
                   <MdNoAccounts size={30} />
                   Deleted Acc Info
+                </li>
+              </Link>
+              <Link to="/admin/sellers/ratings">
+                <li className={`${rating} p-4 flex gap-2 items-center`}>
+                  <FaStar size={30} />
+                  Seller Ratings
                 </li>
               </Link>
             </ul>

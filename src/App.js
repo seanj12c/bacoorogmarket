@@ -48,6 +48,7 @@ import AccountDeleted from "./components/authentication/AccountDeleted";
 import ReportAUser from "./components/logged/ReportAUser";
 import AdminDeletedAccountInfo from "./components/admin/AdminDeletedAccountInfo";
 import AdminInfo from "./components/admin/AdminInfo";
+import AdminSellersRatings from "./components/admin/AdminSellersRatings";
 
 function AppRoutes() {
   const location = useLocation();
@@ -463,6 +464,10 @@ function AppRoutes() {
         <Route
           path="/admin/delete/user"
           element={admin ? <AdminDelete /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/admin/sellers/ratings"
+          element={admin ? <AdminSellersRatings /> : <Navigate to="/login" />}
         />
       </Routes>
       <ToastContainer />

@@ -16,7 +16,7 @@ const AdminInfo = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [userProducts, setUserProducts] = useState([]);
   const [userRecipes, setUserRecipes] = useState([]);
-  const [showProducts, setShowProducts] = useState(true);
+  const [showProducts, setShowProducts] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -117,17 +117,22 @@ const AdminInfo = () => {
               <p>
                 <strong>Address:</strong> {userInfo.address}
               </p>
+              <p>
+                <strong>Role:</strong> {userInfo.role}
+              </p>
             </div>
           </div>
           <div className="w-full flex justify-center mb-4">
-            <button
-              className={`btn btn-xs md:btn-sm  ${
-                showProducts ? "btn-primary" : ""
-              } mr-2`}
-              onClick={handleToggle}
-            >
-              Products
-            </button>
+            {userInfo.role !== "Buyer" && (
+              <button
+                className={`btn btn-xs md:btn-sm  ${
+                  showProducts ? "btn-primary" : ""
+                } mr-2`}
+                onClick={handleToggle}
+              >
+                Products
+              </button>
+            )}
             <button
               className={`btn btn-xs md:btn-sm  ${
                 !showProducts ? "btn-primary" : ""
