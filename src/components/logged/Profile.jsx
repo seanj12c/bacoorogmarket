@@ -20,6 +20,8 @@ import { auth } from "../../firebase";
 import { CiLocationArrow1 } from "react-icons/ci";
 import Swal from "sweetalert2";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { FaStar } from "react-icons/fa6";
+import { IoStarSharp } from "react-icons/io5";
 
 const Profile = () => {
   const { userId } = useParams();
@@ -28,7 +30,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [userPosts, setUserPosts] = useState([]);
   const [displayProducts, setDisplayProducts] = useState(false);
-
+  const [reviewCount, setReviewCount] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
   useEffect(() => {
     const registeredCollection = collection(firestore, "registered");
     const userQuery = query(
@@ -259,6 +262,141 @@ const Profile = () => {
     });
   };
 
+  useEffect(() => {
+    const fetchReviewData = async () => {
+      try {
+        const reviewQuery = query(
+          collection(firestore, "reviews"),
+          where("userId", "==", userId)
+        );
+        const reviewSnapshot = await getDocs(reviewQuery);
+
+        let totalRating = 0;
+        let totalReviews = 0;
+
+        reviewSnapshot.forEach((doc) => {
+          const reviewData = doc.data();
+          totalRating += parseInt(reviewData.rating);
+          totalReviews++;
+        });
+
+        const averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
+        setReviewCount(averageRating);
+        setTotalReviews(totalReviews);
+      } catch (error) {
+        console.error("Error fetching review data:", error);
+      }
+    };
+
+    fetchReviewData();
+  }, [userId]);
+
+  const handleSubmitReview = async () => {
+    try {
+      const currentUserId = auth.currentUser.uid;
+
+      const reviewQuery = query(
+        collection(firestore, "reviews"),
+        where("userId", "==", user.userId),
+        where("reviewerId", "==", currentUserId)
+      );
+
+      const reviewSnapshot = await getDocs(reviewQuery);
+
+      if (!reviewSnapshot.empty) {
+        // eslint-disable-next-line no-unused-vars
+        const existingReview = reviewSnapshot.docs[0].data();
+        const { value: edit } = await Swal.fire({
+          title: "Already Reviewed",
+          text: "You recently reviewed this seller, do you want to edit your review?",
+          icon: "info",
+          showCancelButton: true,
+          confirmButtonColor: "#008080",
+          cancelButtonText: "No",
+          confirmButtonText: "Yes",
+        });
+
+        if (!edit) return;
+      }
+
+      const { value: formValues } = await Swal.fire({
+        title: "Write your review",
+        showCancelButton: true,
+        confirmButtonColor: "#008080",
+        cancelButtonText: "Cancel",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        html: `
+        <div class="rating">
+          <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" value="1" />
+          <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" value="2" />
+          <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" value="3" checked />
+          <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" value="4" />
+          <input type="radio" name="rating-2" class="mask mask-star-2 bg-orange-400" value="5" />
+        </div>
+        <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Your review here..."></textarea>
+      `,
+        focusConfirm: false,
+        preConfirm: async () => {
+          const review = document.getElementById("swal-input2").value;
+          const rating = document.querySelector(
+            'input[name="rating-2"]:checked'
+          ).value;
+
+          if (!review) {
+            Swal.showValidationMessage("Please write your review.");
+            return false;
+          }
+
+          try {
+            const reviewData = {
+              review,
+              rating,
+              userId: user.userId,
+              reviewerId: currentUserId,
+              timestamp: serverTimestamp(),
+            };
+
+            if (!reviewSnapshot.empty) {
+              const existingReviewId = reviewSnapshot.docs[0].id;
+              await setDoc(
+                doc(firestore, "reviews", existingReviewId),
+                reviewData
+              );
+            } else {
+              await addDoc(collection(firestore, "reviews"), reviewData);
+            }
+
+            return true;
+          } catch (error) {
+            console.error("Error submitting review:", error);
+            Swal.fire({
+              title: "Error",
+              text: "An error occurred while submitting your review.",
+              icon: "error",
+            });
+            return false;
+          }
+        },
+      });
+
+      if (formValues) {
+        Swal.fire({
+          title: "Review Submitted!",
+          text: "Thank you for your review.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      Swal.fire({
+        title: "Error",
+        text: "An error occurred while submitting your review.",
+        icon: "error",
+      });
+    }
+  };
+
   return (
     <div className="md:max-w-full max-w-xl mx-auto md:p-0 p-4">
       {loading ? (
@@ -275,6 +413,17 @@ const Profile = () => {
             <div className="md:fixed md:w-1/3 md:px-5">
               <div className="bg-bgray md:px-5 mt-2 w-full py-4 px-2 rounded-lg">
                 <div className="">
+                  <div className="flex justify-end">
+                    {user.role !== "Buyer" && (
+                      <button
+                        className="btn btn-primary btn-xs"
+                        onClick={handleSubmitReview}
+                      >
+                        Review this seller
+                        <FaStar />
+                      </button>
+                    )}
+                  </div>
                   <h2 className="text-2xl pb-2 md:text-base lg:text-xl text-center font-bold">
                     Viewing Profile
                   </h2>
@@ -298,9 +447,23 @@ const Profile = () => {
                     {user.firstName} {user.lastName}
                   </strong>
                 </p>
-                <p className="text-center text-primary text-xs lg:text-base">
+                <p className="text-center text-primary pb-2 font-bold text-xs lg:text-base">
                   {user.role}
                 </p>
+                {user.role !== "Buyer" && (
+                  <div className="shadow rounded-md p-1">
+                    <p className="text-center flex justify-center gap-1 items-center text-primary text-sm lg:text-base">
+                      <span className="flex items-center">
+                        {reviewCount} <IoStarSharp size={10} />
+                      </span>
+                      ratings
+                    </p>
+                    <p className="text-center text-xs italic">
+                      {totalReviews} users rated this profile
+                    </p>
+                  </div>
+                )}
+
                 <a
                   href={`mailto:${user.email}`}
                   className="text-xs flex items-center hover:text-primary hover:translate-x-1 transition-all ease-in-out duration-300 py-1  gap-2"
