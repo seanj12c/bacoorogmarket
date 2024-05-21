@@ -28,21 +28,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [userPosts, setUserPosts] = useState([]);
   const [displayProducts, setDisplayProducts] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (auth.currentUser) {
-        const userDocRef = doc(firestore, "registered", auth.currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          setUserRole(userDocSnap.data().role);
-        }
-      }
-    };
-
-    fetchUserRole();
-  }, []);
 
   useEffect(() => {
     const registeredCollection = collection(firestore, "registered");
@@ -148,6 +133,23 @@ const Profile = () => {
 
   const handleReportProfile = async () => {
     try {
+      const currentUserId = auth.currentUser.uid;
+      const reportQuery = query(
+        collection(firestore, "profileReports"),
+        where("userId", "==", user.userId),
+        where("reporterId", "==", currentUserId)
+      );
+      const reportSnapshot = await getDocs(reportQuery);
+
+      if (!reportSnapshot.empty) {
+        Swal.fire({
+          title: "Already Reported",
+          text: "You have already reported this profile.",
+          icon: "info",
+        });
+        return;
+      }
+
       const { value: reason } = await Swal.fire({
         title: `Why do you want to report ${user.firstName}?`,
         input: "select",
@@ -177,8 +179,8 @@ const Profile = () => {
         html: `
         <label for="file" class="text-sm">Upload a photo as proof (Required)</label>
         <input type="file" id="file" accept="image/*" class="file-input file-input-bordered file-input-primary w-full max-w-xs my-2"/>
-          <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
-        `,
+        <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
+      `,
         preConfirm: async () => {
           const file = document.getElementById("file").files[0];
           const reason = Swal.getPopup().querySelector(".swal2-select").value;
@@ -203,6 +205,7 @@ const Profile = () => {
               reason,
               explanation,
               userId: user.userId,
+              reporterId: currentUserId,
               timestamp: serverTimestamp(),
               photoUrl: fileUrl,
             };
@@ -344,7 +347,7 @@ const Profile = () => {
                     {user.firstName}'s posts here
                   </h1>
                   <div className="flex text-xs items-center justify-center">
-                    {userRole !== "Buyer" && (
+                    {user.role !== "Buyer" && (
                       <button
                         onClick={() => toggleDisplay(true)}
                         className={`mx-2 px-4 py-2 ${

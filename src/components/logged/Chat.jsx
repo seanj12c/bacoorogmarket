@@ -10,6 +10,8 @@ import {
   onSnapshot,
   serverTimestamp,
   addDoc,
+  where,
+  query,
 } from "firebase/firestore";
 import { firestore, storage } from "../../firebase";
 import { useAuth } from "../../authContext";
@@ -37,7 +39,7 @@ const Chat = () => {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const chatRef = useRef();
-
+  const auth = useAuth();
   useEffect(() => {
     chatRef.current?.scrollIntoView();
   }, [messages]);
@@ -411,13 +413,29 @@ const Chat = () => {
 
   const handleReportProfile = async () => {
     try {
+      const currentUserId = auth.currentUser.uid;
+      const reportQuery = query(
+        collection(firestore, "profileReports"),
+        where("userId", "==", selectedUser.userId),
+        where("reporterId", "==", currentUserId)
+      );
+      const reportSnapshot = await getDocs(reportQuery);
+
+      if (!reportSnapshot.empty) {
+        Swal.fire({
+          title: "Already Reported",
+          text: "You have already reported this profile.",
+          icon: "info",
+        });
+        return;
+      }
+
       const { value: reason } = await Swal.fire({
         title: `Why do you want to report ${
           selectedUser.isDeactivated || selectedUser.isDeleted
             ? "this user"
             : selectedUser.firstName
         }?`,
-
         input: "select",
         inputOptions: {
           Spam: "Spam",
@@ -443,10 +461,10 @@ const Chat = () => {
         confirmButtonText: "Submit",
         showLoaderOnConfirm: true,
         html: `
-          <label for="file" class="text-sm">Upload a photo as proof (Required)</label>
-          <input type="file" id="file" accept="image/*" class="file-input file-input-bordered file-input-primary w-full max-w-xs my-2"/>
-          <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
-        `,
+        <label for="file" class="text-sm">Upload a photo as proof (Required)</label>
+        <input type="file" id="file" accept="image/*" class="file-input file-input-bordered file-input-primary w-full max-w-xs my-2"/>
+        <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
+      `,
         preConfirm: async () => {
           const file = document.getElementById("file").files[0];
           const reason = Swal.getPopup().querySelector(".swal2-select").value;
@@ -471,6 +489,7 @@ const Chat = () => {
               reason,
               explanation,
               userId: selectedUser.userId,
+              reporterId: currentUserId,
               timestamp: serverTimestamp(),
               photoUrl: fileUrl,
             };

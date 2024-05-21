@@ -5,11 +5,13 @@ import {
   getDocs,
   serverTimestamp,
   addDoc,
+  where,
+  query,
 } from "firebase/firestore";
 import { useAuth } from "../../authContext";
 import Swal from "sweetalert2";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { firestore, storage } from "../../firebase";
+import { firestore, storage, auth } from "../../firebase";
 
 const ReportAUser = () => {
   const [registeredUsers, setRegisteredUsers] = useState([]);
@@ -60,6 +62,25 @@ const ReportAUser = () => {
 
   const handleReportProfile = async (selectedUser) => {
     try {
+      const currentUserId = auth.currentUser.uid;
+
+      // Check if a report already exists
+      const reportQuery = query(
+        collection(firestore, "profileReports"),
+        where("userId", "==", selectedUser.userId),
+        where("reporterId", "==", currentUserId)
+      );
+      const reportSnapshot = await getDocs(reportQuery);
+
+      if (!reportSnapshot.empty) {
+        Swal.fire({
+          title: "Already Reported",
+          text: "You have already reported this profile.",
+          icon: "info",
+        });
+        return;
+      }
+
       const { value: reason } = await Swal.fire({
         title: `Why do you want to report ${selectedUser.firstName}?`,
         input: "select",
@@ -87,10 +108,10 @@ const ReportAUser = () => {
         confirmButtonText: "Submit",
         showLoaderOnConfirm: true,
         html: `
-          <label for="file" class="text-sm">Upload a photo as proof (Required)</label>
-          <input type="file" id="file" accept="image/*" class="file-input file-input-bordered file-input-primary w-full max-w-xs my-2"/>
-          <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
-        `,
+        <label for="file" class="text-sm">Upload a photo as proof (Required)</label>
+        <input type="file" id="file" accept="image/*" class="file-input file-input-bordered file-input-primary w-full max-w-xs my-2"/>
+        <textarea id="swal-input2" class="p-3 input input-bordered w-full" placeholder="Explain why"></textarea>
+      `,
         preConfirm: async () => {
           const file = document.getElementById("file").files[0];
           const reason = Swal.getPopup().querySelector(".swal2-select").value;
@@ -111,28 +132,16 @@ const ReportAUser = () => {
             await uploadBytes(storageRef, file);
             const fileUrl = await getDownloadURL(storageRef);
 
-            if (selectedUser.isDeleted) {
-              const reportData = {
-                reason,
-                explanation,
-                userId: selectedUser.userId,
-                timestamp: serverTimestamp(),
-                photoUrl: fileUrl,
-                isDeleted: true,
-              };
+            const reportData = {
+              reason,
+              explanation,
+              userId: selectedUser.userId,
+              reporterId: currentUserId,
+              timestamp: serverTimestamp(),
+              photoUrl: fileUrl,
+            };
 
-              await addDoc(collection(firestore, "profileReports"), reportData);
-            } else {
-              const reportData = {
-                reason,
-                explanation,
-                userId: selectedUser.userId,
-                timestamp: serverTimestamp(),
-                photoUrl: fileUrl,
-              };
-
-              await addDoc(collection(firestore, "profileReports"), reportData);
-            }
+            await addDoc(collection(firestore, "profileReports"), reportData);
 
             Swal.fire({
               title: "Report Submitted!",

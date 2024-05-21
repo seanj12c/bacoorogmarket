@@ -11,6 +11,9 @@ import {
   addDoc,
   collection,
   getDoc,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { IoMdCloseCircle } from "react-icons/io";
@@ -155,6 +158,24 @@ const RecipeInfo = () => {
 
   const handleReportPost = async () => {
     try {
+      // Check if user has already reported this product
+      const reportsRef = collection(firestore, "recipeReports");
+      const q = query(
+        reportsRef,
+        where("recipeId", "==", recipeId),
+        where("reporterId", "==", auth.currentUser.uid)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        Swal.fire(
+          "Already Reported",
+          "You have already reported this recipe.",
+          "info"
+        );
+        return;
+      }
+
       const { value: reason, value: explanation } = await Swal.fire({
         title: `Why do you want to report ${recipe.firstName}'s post?`,
         input: "select",
@@ -198,6 +219,7 @@ const RecipeInfo = () => {
               explanation: explanationValue,
               recipeId: recipeId,
               userId: recipe.userUid,
+              reporterId: auth.currentUser.uid,
               timestamp: serverTimestamp(),
             };
             addDoc(collection(firestore, "recipeReports"), reportData);
@@ -211,6 +233,7 @@ const RecipeInfo = () => {
       });
 
       if (reason && explanation) {
+        // This block will never be executed because the preConfirm function handles the submission
       }
     } catch (error) {
       console.error("Error reporting post:", error);

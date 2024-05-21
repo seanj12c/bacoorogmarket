@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
 import markerIcon from "../../assets/marker.png";
@@ -13,10 +24,8 @@ import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
 import { IoMdCloseCircle } from "react-icons/io";
 import Swal from "sweetalert2";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const libraries = ["places"];
-
 const ProductInfo = () => {
   const { productId } = useParams();
   const [product, setProduct] = useState(null);
@@ -154,6 +163,23 @@ const ProductInfo = () => {
 
   const handleReportPost = async () => {
     try {
+      const reportsRef = collection(firestore, "productReports");
+      const q = query(
+        reportsRef,
+        where("productId", "==", productId),
+        where("reporterId", "==", auth.currentUser.uid)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        Swal.fire(
+          "Already Reported",
+          "You have already reported this product.",
+          "info"
+        );
+        return;
+      }
+
       const { value: reason, value: explanation } = await Swal.fire({
         title: `Why do you want to report ${product.firstName}'s post?`,
         input: "select",
@@ -196,6 +222,7 @@ const ProductInfo = () => {
               explanation: explanationValue,
               productId: productId,
               userId: product.userUid,
+              reporterId: auth.currentUser.uid,
               timestamp: serverTimestamp(),
             };
             addDoc(collection(firestore, "productReports"), reportData);
@@ -209,6 +236,7 @@ const ProductInfo = () => {
       });
 
       if (reason && explanation) {
+        // This block will never be executed because the preConfirm function handles the submission
       }
     } catch (error) {
       console.error("Error reporting post:", error);
