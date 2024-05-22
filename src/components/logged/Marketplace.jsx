@@ -55,6 +55,7 @@ const Marketplace = () => {
           if (
             !data.isDeleted &&
             !data.isHidden &&
+            !data.isSold &&
             !userData.isDeactivated &&
             (freshnessFilter === "None" ||
               typeOfProduct.freshness === freshnessFilter) &&
