@@ -51,6 +51,7 @@ const Profile = () => {
           address: data.address,
           userId: data.userId,
           role: data.role,
+          soldProduct: data.soldProduct,
         });
         setLoading(false);
       });
@@ -466,6 +467,9 @@ const Profile = () => {
                     <p className="text-center text-xs italic">
                       {totalReviews} reviews
                     </p>
+                    <div className="text-xs text-center">
+                      {user.soldProduct ? user.soldProduct : 0} item/s sold.
+                    </div>
                   </div>
                 )}
 
@@ -544,11 +548,17 @@ const Profile = () => {
                 {displayProducts ? (
                   <div className="">
                     {userPosts.filter(
-                      (post) => post.type === "product" && !post.isHidden
+                      (post) =>
+                        post.type === "product" &&
+                        !post.isHidden &&
+                        !post.isSold
                     ).length > 0 ? (
                       userPosts
                         .filter(
-                          (post) => post.type === "product" && !post.isHidden
+                          (post) =>
+                            post.type === "product" &&
+                            !post.isHidden &&
+                            !post.isSold
                         )
                         .sort((a, b) => b.productId - a.productId)
                         .map((product, index) => (
