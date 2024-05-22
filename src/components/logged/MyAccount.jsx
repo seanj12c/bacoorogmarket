@@ -24,6 +24,7 @@ import Swal from "sweetalert2";
 import { CiEdit, CiLocationArrow1, CiWarning } from "react-icons/ci";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
+import { FaClipboardCheck } from "react-icons/fa6";
 
 const MyAccount = () => {
   const auth = useAuth();
@@ -37,8 +38,8 @@ const MyAccount = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [displayProducts, setDisplayProducts] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [reviewCount] = useState(0);
-  const [totalReviews] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -742,6 +743,41 @@ const MyAccount = () => {
     });
   };
 
+  useEffect(() => {
+    const userId = auth.currentUser.uid;
+    const fetchReviewData = () => {
+      try {
+        const reviewQuery = query(
+          collection(firestore, "reviews"),
+          where("userId", "==", userId)
+        );
+
+        const unsubscribe = onSnapshot(reviewQuery, (reviewSnapshot) => {
+          let totalRating = 0;
+          let totalReviews = 0;
+
+          reviewSnapshot.forEach((doc) => {
+            const reviewData = doc.data();
+            totalRating += parseInt(reviewData.rating, 10);
+            totalReviews++;
+          });
+
+          const averageRating =
+            totalReviews > 0 ? totalRating / totalReviews : 0;
+          setReviewCount(averageRating);
+          setTotalReviews(totalReviews);
+        });
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.error("Error fetching review data:", error);
+      }
+    };
+
+    fetchReviewData();
+    // eslint-disable-next-line
+  }, []);
+
   return (
     <div className="md:max-w-full max-w-xl  mx-auto md:p-0 p-4">
       {loading ? (
@@ -934,17 +970,22 @@ const MyAccount = () => {
                   {userData.role}
                 </p>
                 {userData.role !== "Buyer" && (
-                  <div className="shadow bg-white rounded-md p-1">
-                    <p className="text-center font-bold flex justify-center gap-1 items-center text-sm lg:text-base">
-                      <span className="flex gap-1 items-center">
-                        <FaStar className="text-yellow-500" />
-                        {reviewCount.toFixed(1)}
-                      </span>
-                      ratings
-                    </p>
-                    <p className="text-center text-xs italic">
-                      {totalReviews} reviews
-                    </p>
+                  <div className="shadow cursor-pointer bg-white rounded-md p-1">
+                    <div>
+                      <p className="text-center font-bold flex justify-center gap-1 items-center text-sm lg:text-base">
+                        <span className="flex gap-1 items-center">
+                          <FaStar className="text-yellow-500" />
+                          {reviewCount.toFixed(1)}
+                        </span>
+                        ratings
+                      </p>
+                      <p className="text-center text-xs italic">
+                        {totalReviews} reviews
+                      </p>
+                    </div>
+                    <div className="text-xs text-center">
+                      {userData.soldProduct} item/s sold.
+                    </div>
                   </div>
                 )}
                 <a
@@ -1106,6 +1147,14 @@ const MyAccount = () => {
                                   <p className="text-gray-500 text-xs">
                                     {product.timestamp}
                                   </p>
+                                  {product.isSold ? (
+                                    <div>
+                                      <h1 className="flex items-center text-xs font-bold  gap-1  ">
+                                        <FaClipboardCheck className="text-primary" />
+                                        This product was Sold
+                                      </h1>
+                                    </div>
+                                  ) : null}
                                 </div>
                               </div>
                               <div
