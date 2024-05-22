@@ -11,6 +11,8 @@ import {
   query,
   where,
   getDocs,
+  updateDoc,
+  increment,
 } from "firebase/firestore";
 import { firestore } from "../../firebase";
 import { LoadScript, GoogleMap } from "@react-google-maps/api";
@@ -22,8 +24,9 @@ import {
 import { Link } from "react-router-dom";
 import { useAuth } from "../../authContext";
 import uploadload from "../../assets/loading.gif";
-import { IoMdCloseCircle } from "react-icons/io";
+import { IoIosWarning, IoMdCloseCircle } from "react-icons/io";
 import Swal from "sweetalert2";
+import { FaClipboardCheck } from "react-icons/fa6";
 
 const libraries = ["places"];
 const ProductInfo = () => {
@@ -137,8 +140,8 @@ const ProductInfo = () => {
         text: "You will not be able to recover this product!",
         icon: "warning",
         showCancelButton: true,
-        cancelButtonColor: "#3085d6",
-        confirmButtonColor: "#d33",
+
+        confirmButtonColor: "#008080",
         confirmButtonText: "Yes, delete it!",
       });
 
@@ -248,6 +251,45 @@ const ProductInfo = () => {
     }
   };
 
+  const handleMarkAsSold = async () => {
+    try {
+      const { isConfirmed } = await Swal.fire({
+        title: `Do you want ${product.caption} to be marked as sold?`,
+        text: "The product will no longer be available on the marketplace.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#008080",
+        confirmButtonText: "Yes, mark as sold!",
+      });
+
+      if (isConfirmed) {
+        const userRef = doc(firestore, "registered", auth.currentUser.uid);
+        const productRef = doc(firestore, "products", productId);
+
+        await updateDoc(userRef, {
+          soldProduct: increment(1),
+        });
+
+        await updateDoc(productRef, {
+          isSold: true,
+        });
+
+        Swal.fire(
+          "Marked as Sold!",
+          `${product.caption} has been marked as sold.`,
+          "success"
+        );
+        navigate("/marketplace");
+      }
+    } catch (error) {
+      console.error("Error marking product as sold:", error);
+      Swal.fire(
+        "Error!",
+        "An error occurred while marking the product as sold.",
+        "error"
+      );
+    }
+  };
   if (!product) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -280,15 +322,16 @@ const ProductInfo = () => {
             </p>
             {isSeller ? (
               <div className="flex items-center gap-2">
-                <div>
-                  <Link
-                    className="btn  btn-xs text-xs btn-primary"
-                    to={`/edit_product/${product.id}`}
-                  >
-                    Edit
-                  </Link>
-                </div>
-
+                {!product.isSold && (
+                  <div>
+                    <Link
+                      className="btn btn-xs text-xs btn-primary"
+                      to={`/edit_product/${product.id}`}
+                    >
+                      Edit
+                    </Link>
+                  </div>
+                )}
                 <div>
                   <button
                     onClick={handleDeleteProduct}
@@ -333,6 +376,14 @@ const ProductInfo = () => {
       </div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="w-full md:w-1/2">
+          {product.isSold ? (
+            <div>
+              <h1 className="flex items-center font-bold  gap-1 justify-center ">
+                <FaClipboardCheck className="text-primary" />
+                This product was Sold
+              </h1>
+            </div>
+          ) : null}
           <div className="mb-4">
             {product.photos && product.photos.length > 0 && (
               <div className="flex flex-col items-center justify-center">
@@ -382,6 +433,26 @@ const ProductInfo = () => {
               </div>
             )}
           </div>
+          {isSeller && !product.isSold ? (
+            <div className="flex justify-center items-center w-full">
+              <div>
+                <button
+                  onClick={handleMarkAsSold}
+                  className="btn btn-primary w-full text-white btn-xs"
+                >
+                  Mark as Sold
+                </button>
+              </div>
+            </div>
+          ) : null}
+          {product.isSold ? (
+            <div>
+              <h1 className="flex items-center italic text-error gap-1 justify-center ">
+                <IoIosWarning />
+                You can only see this post.
+              </h1>
+            </div>
+          ) : null}
           <div className="flex justify-between px-5 items-center">
             <div className="mt-2 w-[600px] ">
               <h1 className="font-bold text-lg sm:text-xl text-primary mb-1">
